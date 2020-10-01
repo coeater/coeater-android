@@ -611,7 +611,7 @@ public class PeerConnectionClient {
     }
 
     PeerConnection.RTCConfiguration rtcConfig =
-        new PeerConnection.RTCConfiguration(signalingParameters.iceServers);
+        new PeerConnection.RTCConfiguration(signalingParameters.getIceServers());
     // TCP candidates are only useful when connecting to a server that supports
     // ICE-TCP.
     rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.DISABLED;

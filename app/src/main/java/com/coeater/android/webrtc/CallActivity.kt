@@ -191,7 +191,10 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
 
         // Start room connection.
         logAndToast(getString(R.string.connecting_to, roomConnectionParameters?.roomUrl))
-        appRtcClient?.connectToRoom(roomConnectionParameters)
+        val parameters = roomConnectionParameters
+        if (parameters != null) {
+            appRtcClient?.connectToRoom(parameters)
+        }
     }
 
     @UiThread
@@ -335,14 +338,13 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     // All callbacks are invoked from websocket signaling looper thread and
     // are routed to UI thread.
     private fun onConnectedToRoomInternal(params: SignalingParameters) {
-        val delta = System.currentTimeMillis() - callStartedTimeMs
         signalingParameters = params
         var videoCapturer: VideoCapturer? = null
         if (peerConnectionParameters?.videoCallEnabled == true) {
             videoCapturer = createVideoCapturer()
         }
         peerConnectionClient?.createPeerConnection(
-            localProxyVideoSink, remoteRenderers, videoCapturer, signalingParameters
+            localProxyVideoSink!!, remoteRenderers!!, videoCapturer, signalingParameters!!
         )
         if (signalingParameters?.initiator == true) {
             logAndToast("Creating OFFER...")
@@ -391,7 +393,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         })
     }
 
-    override fun onRemoteIceCandidate(candidate: IceCandidate?) {
+    override fun onRemoteIceCandidate(candidate: IceCandidate) {
         runOnUiThread(Runnable {
             if (peerConnectionClient == null) {
                 Log.e(
@@ -404,7 +406,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         })
     }
 
-    override fun onRemoteIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
+    override fun onRemoteIceCandidatesRemoved(candidates: Array<IceCandidate>) {
         runOnUiThread(Runnable {
             if (peerConnectionClient == null) {
                 Log.e(
@@ -453,7 +455,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         }
     }
 
-   override fun onIceCandidate(candidate: IceCandidate?) {
+   override fun onIceCandidate(candidate: IceCandidate) {
         runOnUiThread {
             if (appRtcClient != null) {
                 appRtcClient?.sendLocalIceCandidate(candidate)
@@ -461,7 +463,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         }
     }
 
-   override fun onIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
+   override fun onIceCandidatesRemoved(candidates: Array<IceCandidate>) {
         runOnUiThread {
             if (appRtcClient != null) {
                 appRtcClient?.sendLocalIceCandidateRemovals(candidates)
