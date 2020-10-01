@@ -1,5 +1,5 @@
 package com.coeater.android.webrtc
-
+import com.coeater.android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -10,31 +10,39 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.UiThread
 import com.coeater.android.apprtc.AppRTCClient
+import com.coeater.android.apprtc.AppRTCClient.*
 import com.coeater.android.apprtc.PeerConnectionClient
-import java.security.SecureRandom
-import java.util.*
+import com.coeater.android.apprtc.PeerConnectionClient.*
+import com.coeater.android.apprtc.WebSocketRTCClient
+import com.coeater.android.apprtc.WebSocketRTCClient.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
+import org.webrtc.VideoRenderer.I420Frame
+import java.security.SecureRandom
+import java.util.*
 
-import com.coeater.android.R
-
-class CallActivity : Activity(), AppRTCClient.SignalingEvents,
-    PeerConnectionClient.PeerConnectionEvents {
-
-    private val remoteProxyRenderer: ProxyRenderer = ProxyRenderer()
-    private val localProxyVideoSink: ProxyVideoSink = ProxyVideoSink()
+/**
+ * Activity for peer connection call setup, call waiting
+ * and call view.
+ */
+class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
+    private val remoteProxyRenderer =
+        ProxyRenderer()
+    private val localProxyVideoSink =
+        ProxyVideoSink()
     private val remoteRenderers: MutableList<VideoRenderer.Callbacks> =
-        ArrayList<VideoRenderer.Callbacks>()
-    private var peerConnectionClient: PeerConnectionClient = PeerConnectionClient()
+        ArrayList()
+    private var peerConnectionClient: PeerConnectionClient? = null
     private var appRtcClient: AppRTCClient? = null
-    private var signalingParameters: AppRTCClient.SignalingParameters? = null
-    private var pipRenderer: SurfaceViewRenderer = findViewById(R.id.pip_video_view)
+    private var signalingParameters: SignalingParameters? = null
+    private var pipRenderer: SurfaceViewRenderer? = null
     private var fullscreenRenderer: SurfaceViewRenderer? = null
     private var logToast: Toast? = null
     private var activityRunning = false
-    private var roomConnectionParameters: AppRTCClient.RoomConnectionParameters? = null
-    private var peerConnectionParameters: PeerConnectionClient.PeerConnectionParameters? = null
+    private var roomConnectionParameters: RoomConnectionParameters? = null
+    private var peerConnectionParameters: PeerConnectionParameters? = null
     private var iceConnected = false
     private var isError = false
     private var callStartedTimeMs: Long = 0
@@ -42,34 +50,45 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
     private var isSwappedFeeds = false
 
     // Control buttons for limited UI
-    private var disconnectButton: ImageButton = findViewById(R.id.button_call_disconnect)
-    private var cameraSwitchButton: ImageButton = findViewById(R.id.button_call_switch_camera)
-    private var toggleMuteButton: ImageButton = findViewById(R.id.button_call_toggle_mic)
-    public override fun onCreate(savedInstanceState: Bundle) {
+    private var disconnectButton: ImageButton? = null
+    private var cameraSwitchButton: ImageButton? = null
+    private var toggleMuteButton: ImageButton? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
         iceConnected = false
         signalingParameters = null
 
+        // Create UI controls.
+        pipRenderer = findViewById(R.id.pip_video_view)
+        fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
+        disconnectButton = findViewById(R.id.button_call_disconnect)
+        cameraSwitchButton = findViewById(R.id.button_call_switch_camera)
+        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
+
         // Add buttons click events.
-        disconnectButton.setOnClickListener(View.OnClickListener { onCallHangUp() })
-        cameraSwitchButton.setOnClickListener(View.OnClickListener { onCameraSwitch() })
-        toggleMuteButton.setOnClickListener(View.OnClickListener {
+        disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
+        cameraSwitchButton?.setOnClickListener(View.OnClickListener { onCameraSwitch() })
+        toggleMuteButton?.setOnClickListener(View.OnClickListener {
             val enabled = onToggleMic()
-            toggleMuteButton.setAlpha(if (enabled) 1.0f else 0.3f)
+            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
         })
 
         // Swap feeds on pip view click.
-        pipRenderer.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
+        pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
         remoteRenderers.add(remoteProxyRenderer)
 
+        // Create peer connection client.
+        peerConnectionClient = PeerConnectionClient()
+
         // Create video renderers.
-        pipRenderer.init(peerConnectionClient.getRenderContext(), null)
-        pipRenderer.setScalingType(ScalingType.SCALE_ASPECT_FIT)
-        fullscreenRenderer?.init(peerConnectionClient.getRenderContext(), null)
+        pipRenderer?.init(peerConnectionClient?.getRenderContext(), null)
+        pipRenderer?.setScalingType(ScalingType.SCALE_ASPECT_FIT)
+        fullscreenRenderer?.init(peerConnectionClient?.getRenderContext(), null)
         fullscreenRenderer?.setScalingType(ScalingType.SCALE_ASPECT_FILL)
-        pipRenderer.setZOrderMediaOverlay(true)
-        pipRenderer.setEnableHardwareScaler(true /* enabled */)
+        pipRenderer?.setZOrderMediaOverlay(true)
+        pipRenderer?.setEnableHardwareScaler(true /* enabled */)
         fullscreenRenderer?.setEnableHardwareScaler(true /* enabled */)
         // Start with local feed in fullscreen and swap it to the pip when the call is connected.
         setSwappedFeeds(true /* isSwappedFeeds */)
@@ -78,10 +97,10 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         val randomRoomID = randomString(7, UPPER_ALPHA_DIGITS)
         // Show the random room ID so that another client can join from https://appr.tc
         val roomIdTextView = findViewById<TextView>(R.id.roomID)
-        roomIdTextView.text = randomRoomID + ""
+        roomIdTextView.text = getString(R.string.room_id_caption).toString() + randomRoomID
         Log.d(
             TAG,
-            randomRoomID + ""
+            getString(R.string.room_id_caption).toString() + randomRoomID
         )
 
         // Connect video call to the random room
@@ -91,7 +110,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
     // Create a random string
     private fun randomString(length: Int, characterSet: String): String {
         val sb =
-            StringBuilder() // consider using StringBuffer if needed
+            StringBuilder() //consider using StringBuffer if needed
         for (i in 0 until length) {
             val randomInt = SecureRandom().nextInt(characterSet.length)
             sb.append(characterSet.substring(randomInt, randomInt + 1))
@@ -104,14 +123,14 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         val roomUri = Uri.parse(APPRTC_URL)
         val videoWidth = 0
         val videoHeight = 0
-        peerConnectionParameters = PeerConnectionClient.PeerConnectionParameters(
+        peerConnectionParameters = PeerConnectionParameters(
             true,
             false,
             false,
             videoWidth,
             videoHeight,
-            0, 1700,
-            "VP8",
+            0, getString(R.string.pref_maxvideobitratevalue_default).toInt(),
+            getString(R.string.pref_videocodec_default),
             true,
             false, getString(R.string.pref_startaudiobitratevalue_default).toInt(),
             getString(R.string.pref_audiocodec_default),
@@ -130,13 +149,13 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         // DirectRTCClient could be used for point-to-point connection
         appRtcClient = WebSocketRTCClient(this)
         // Create connection parameters.
-        roomConnectionParameters = AppRTCClient.RoomConnectionParameters(
+        roomConnectionParameters = RoomConnectionParameters(
             roomUri.toString(),
             roomId,
             false,
             null
-        )
-        peerConnectionClient.createPeerConnectionFactory(
+        )!!
+        peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
         startCall()
@@ -148,14 +167,14 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
 
     fun onCameraSwitch() {
         if (peerConnectionClient != null) {
-            peerConnectionClient.switchCamera()
+            peerConnectionClient?.switchCamera()
         }
     }
 
     fun onToggleMic(): Boolean {
         if (peerConnectionClient != null) {
             micEnabled = !micEnabled
-            peerConnectionClient.setAudioEnabled(micEnabled)
+            peerConnectionClient?.setAudioEnabled(micEnabled)
         }
         return micEnabled
     }
@@ -171,8 +190,8 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         callStartedTimeMs = System.currentTimeMillis()
 
         // Start room connection.
-        logAndToast(getString(R.string.connecting_to, roomConnectionParameters.roomUrl))
-        appRtcClient.connectToRoom(roomConnectionParameters)
+        logAndToast(getString(R.string.connecting_to, roomConnectionParameters?.roomUrl))
+        appRtcClient?.connectToRoom(roomConnectionParameters)
     }
 
     @UiThread
@@ -187,7 +206,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
             return
         }
         // Enable statistics callback.
-        peerConnectionClient.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
+        peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
     }
 
@@ -197,7 +216,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         remoteProxyRenderer.setTarget(null)
         localProxyVideoSink.setTarget(null)
         if (appRtcClient != null) {
-            appRtcClient.disconnectFromRoom()
+            appRtcClient?.disconnectFromRoom()
             appRtcClient = null
         }
         if (pipRenderer != null) {
@@ -209,7 +228,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
             fullscreenRenderer = null
         }
         if (peerConnectionClient != null) {
-            peerConnectionClient.close()
+            peerConnectionClient?.close()
             peerConnectionClient = null
         }
         if (iceConnected && !isError) {
@@ -246,7 +265,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
             logToast!!.cancel()
         }
         logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT)
-        logToast.show()
+        logToast?.show()
     }
 
     private fun reportError(description: String) {
@@ -315,44 +334,43 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
     // -----Implementation of AppRTCClient.AppRTCSignalingEvents ---------------
     // All callbacks are invoked from websocket signaling looper thread and
     // are routed to UI thread.
-    private fun onConnectedToRoomInternal(params: AppRTCClient.SignalingParameters) {
+    private fun onConnectedToRoomInternal(params: SignalingParameters) {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         signalingParameters = params
-        logAndToast("Creating peer connection, delay=" + delta + "ms")
         var videoCapturer: VideoCapturer? = null
-        if (peerConnectionParameters.videoCallEnabled) {
+        if (peerConnectionParameters?.videoCallEnabled == true) {
             videoCapturer = createVideoCapturer()
         }
-        peerConnectionClient.createPeerConnection(
+        peerConnectionClient?.createPeerConnection(
             localProxyVideoSink, remoteRenderers, videoCapturer, signalingParameters
         )
-        if (signalingParameters.initiator) {
+        if (signalingParameters?.initiator == true) {
             logAndToast("Creating OFFER...")
             // Create offer. Offer SDP will be sent to answering client in
             // PeerConnectionEvents.onLocalDescription event.
-            peerConnectionClient.createOffer()
+            peerConnectionClient?.createOffer()
         } else {
             if (params.offerSdp != null) {
-                peerConnectionClient.setRemoteDescription(params.offerSdp)
+                peerConnectionClient?.setRemoteDescription(params.offerSdp)
                 logAndToast("Creating ANSWER...")
                 // Create answer. Answer SDP will be sent to offering client in
                 // PeerConnectionEvents.onLocalDescription event.
-                peerConnectionClient.createAnswer()
+                peerConnectionClient?.createAnswer()
             }
             if (params.iceCandidates != null) {
                 // Add remote ICE candidates from room.
                 for (iceCandidate in params.iceCandidates) {
-                    peerConnectionClient.addRemoteIceCandidate(iceCandidate)
+                    peerConnectionClient?.addRemoteIceCandidate(iceCandidate)
                 }
             }
         }
     }
 
-    fun onConnectedToRoom(params: AppRTCClient.SignalingParameters) {
+    override fun onConnectedToRoom(params: SignalingParameters) {
         runOnUiThread { onConnectedToRoomInternal(params) }
     }
 
-    fun onRemoteDescription(sdp: SessionDescription) {
+    override fun onRemoteDescription(sdp: SessionDescription) {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread(Runnable {
             if (peerConnectionClient == null) {
@@ -363,17 +381,17 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
                 return@Runnable
             }
             logAndToast("Received remote " + sdp.type + ", delay=" + delta + "ms")
-            peerConnectionClient.setRemoteDescription(sdp)
-            if (!signalingParameters.initiator) {
+            peerConnectionClient?.setRemoteDescription(sdp)
+            if (signalingParameters?.initiator == false) {
                 logAndToast("Creating ANSWER...")
                 // Create answer. Answer SDP will be sent to offering client in
                 // PeerConnectionEvents.onLocalDescription event.
-                peerConnectionClient.createAnswer()
+                peerConnectionClient?.createAnswer()
             }
         })
     }
 
-    fun onRemoteIceCandidate(candidate: IceCandidate?) {
+    override fun onRemoteIceCandidate(candidate: IceCandidate?) {
         runOnUiThread(Runnable {
             if (peerConnectionClient == null) {
                 Log.e(
@@ -382,11 +400,11 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
                 )
                 return@Runnable
             }
-            peerConnectionClient.addRemoteIceCandidate(candidate)
+            peerConnectionClient?.addRemoteIceCandidate(candidate)
         })
     }
 
-    fun onRemoteIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
+    override fun onRemoteIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
         runOnUiThread(Runnable {
             if (peerConnectionClient == null) {
                 Log.e(
@@ -395,18 +413,18 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
                 )
                 return@Runnable
             }
-            peerConnectionClient.removeRemoteIceCandidates(candidates)
+            peerConnectionClient?.removeRemoteIceCandidates(candidates)
         })
     }
 
-    fun onChannelClose() {
+    override fun onChannelClose() {
         runOnUiThread {
             logAndToast("Remote end hung up; dropping PeerConnection")
             disconnect()
         }
     }
 
-    fun onChannelError(description: String) {
+   override fun onChannelError(description: String) {
         reportError(description)
     }
 
@@ -414,44 +432,44 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
     // Send local peer connection SDP and ICE candidates to remote party.
     // All callbacks are invoked from peer connection client looper thread and
     // are routed to UI thread.
-    fun onLocalDescription(sdp: SessionDescription) {
+   override fun onLocalDescription(sdp: SessionDescription) {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread {
             if (appRtcClient != null) {
                 logAndToast("Sending " + sdp.type + ", delay=" + delta + "ms")
-                if (signalingParameters.initiator) {
-                    appRtcClient.sendOfferSdp(sdp)
+                if (signalingParameters?.initiator == true) {
+                    appRtcClient?.sendOfferSdp(sdp)
                 } else {
-                    appRtcClient.sendAnswerSdp(sdp)
+                    appRtcClient?.sendAnswerSdp(sdp)
                 }
             }
-            if (peerConnectionParameters.videoMaxBitrate > 0) {
+            if (peerConnectionParameters?.videoMaxBitrate ?: 0 > 0) {
                 Log.d(
                     TAG,
-                    "Set video maximum bitrate: " + peerConnectionParameters.videoMaxBitrate
+                    "Set video maximum bitrate: " + peerConnectionParameters?.videoMaxBitrate
                 )
-                peerConnectionClient.setVideoMaxBitrate(peerConnectionParameters.videoMaxBitrate)
+                peerConnectionClient?.setVideoMaxBitrate(peerConnectionParameters?.videoMaxBitrate)
             }
         }
     }
 
-    fun onIceCandidate(candidate: IceCandidate?) {
+   override fun onIceCandidate(candidate: IceCandidate?) {
         runOnUiThread {
             if (appRtcClient != null) {
-                appRtcClient.sendLocalIceCandidate(candidate)
+                appRtcClient?.sendLocalIceCandidate(candidate)
             }
         }
     }
 
-    fun onIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
+   override fun onIceCandidatesRemoved(candidates: Array<IceCandidate?>?) {
         runOnUiThread {
             if (appRtcClient != null) {
-                appRtcClient.sendLocalIceCandidateRemovals(candidates)
+                appRtcClient?.sendLocalIceCandidateRemovals(candidates)
             }
         }
     }
 
-    fun onIceConnected() {
+   override fun onIceConnected() {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread {
             logAndToast("ICE connected, delay=" + delta + "ms")
@@ -460,7 +478,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         }
     }
 
-    fun onIceDisconnected() {
+   override fun onIceDisconnected() {
         runOnUiThread {
             logAndToast("ICE disconnected")
             iceConnected = false
@@ -468,9 +486,9 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         }
     }
 
-    fun onPeerConnectionClosed() {}
-    fun onPeerConnectionStatsReady(reports: Array<StatsReport?>?) {}
-    fun onPeerConnectionError(description: String) {
+   override fun onPeerConnectionClosed() {}
+   override fun onPeerConnectionStatsReady(reports: Array<StatsReport?>?) {}
+   override fun onPeerConnectionError(description: String) {
         reportError(description)
     }
 
@@ -479,7 +497,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         super.onStop()
         activityRunning = false
         if (peerConnectionClient != null) {
-            peerConnectionClient.stopVideoSource()
+            peerConnectionClient?.stopVideoSource()
         }
     }
 
@@ -488,7 +506,7 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         activityRunning = true
         // Video is not paused for screencapture. See onPause.
         if (peerConnectionClient != null) {
-            peerConnectionClient.startVideoSource()
+            peerConnectionClient?.startVideoSource()
         }
     }
 
@@ -502,11 +520,11 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
         super.onDestroy()
     }
 
-    private class ProxyRenderer : Callbacks {
-        private var target: Callbacks? = null
+    private class ProxyRenderer : VideoRenderer.Callbacks {
+        private var target: VideoRenderer.Callbacks? = null
 
         @Synchronized
-        fun renderFrame(frame: VideoRenderer.I420Frame?) {
+        override fun renderFrame(frame: I420Frame) {
             if (target == null) {
                 Logging.d(
                     TAG,
@@ -515,11 +533,11 @@ class CallActivity : Activity(), AppRTCClient.SignalingEvents,
                 VideoRenderer.renderFrameDone(frame)
                 return
             }
-            target.renderFrame(frame)
+            target!!.renderFrame(frame)
         }
 
         @Synchronized
-        fun setTarget(target: Callbacks?) {
+        fun setTarget(target: VideoRenderer.Callbacks?) {
             this.target = target
         }
     }

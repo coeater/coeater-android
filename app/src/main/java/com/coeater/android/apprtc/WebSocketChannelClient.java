@@ -12,20 +12,17 @@ package com.coeater.android.apprtc;
 
 import android.os.Handler;
 import android.util.Log;
-
-import org.appspot.apprtc.util.AsyncHttpURLConnection;
-import org.appspot.apprtc.util.AsyncHttpURLConnection.AsyncHttpEvents;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver;
+import de.tavendo.autobahn.WebSocketConnection;
+import de.tavendo.autobahn.WebSocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver;
-import de.tavendo.autobahn.WebSocketConnection;
-import de.tavendo.autobahn.WebSocketException;
+import com.coeater.android.apprtc.util.AsyncHttpURLConnection;
+import com.coeater.android.apprtc.util.AsyncHttpURLConnection.AsyncHttpEvents;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * WebSocket client implementation.

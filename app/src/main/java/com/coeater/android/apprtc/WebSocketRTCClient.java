@@ -10,6 +10,12 @@
 
 package com.coeater.android.apprtc;
 
+import com.coeater.android.apprtc.RoomParametersFetcher.RoomParametersFetcherEvents;
+import com.coeater.android.apprtc.WebSocketChannelClient.WebSocketChannelEvents;
+import com.coeater.android.apprtc.WebSocketChannelClient.WebSocketConnectionState;
+import com.coeater.android.apprtc.util.AsyncHttpURLConnection;
+import com.coeater.android.apprtc.util.AsyncHttpURLConnection.AsyncHttpEvents;
+
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -22,7 +28,7 @@ import org.webrtc.SessionDescription;
 
 /**
  * Negotiates signaling for chatting with https://appr.tc "rooms".
- * Uses the client<->server specifics of the com.coeater.android.apprtc AppEngine webapp.
+ * Uses the client<->server specifics of the apprtc AppEngine webapp.
  *
  * <p>To use: create an instance of this object (registering a message handler) and
  * call connectToRoom().  Once room connection is established
@@ -374,7 +380,7 @@ public class WebSocketRTCClient implements AppRTCClient, WebSocketChannelEvents 
 
   // Send SDP or ICE candidate to a room server.
   private void sendPostMessage(
-          final MessageType messageType, final String url, final String message) {
+      final MessageType messageType, final String url, final String message) {
     String logInfo = url;
     if (message != null) {
       logInfo += ". Message: " + message;
