@@ -63,7 +63,7 @@ interface AppRTCClient {
      * Struct holding the signaling parameters of an AppRTC room.
      */
 
-   data class SignalingParameters(
+   class SignalingParameters(
         val iceServers: List<IceServer>,
         val initiator: Boolean,
         val clientId: String,

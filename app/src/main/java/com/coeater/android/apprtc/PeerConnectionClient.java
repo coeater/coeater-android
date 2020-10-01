@@ -336,12 +336,12 @@ public class PeerConnectionClient {
     });
   }
 
-  public void createPeerConnection(final VideoSink localRender,
-      final VideoRenderer.Callbacks remoteRender, final VideoCapturer videoCapturer,
-      final SignalingParameters signalingParameters) {
-    createPeerConnection(
-        localRender, Collections.singletonList(remoteRender), videoCapturer, signalingParameters);
-  }
+//  public void createPeerConnection(final VideoSink localRender,
+//      final VideoRenderer.Callbacks remoteRender, final VideoCapturer videoCapturer,
+//      final SignalingParameters signalingParameters) {
+//    createPeerConnection(
+//        localRender, Collections.singletonList(remoteRender), videoCapturer, signalingParameters);
+//  }
 
   public void createPeerConnection(final VideoSink localRender,
       final List<VideoRenderer.Callbacks> remoteRenders, final VideoCapturer videoCapturer,
