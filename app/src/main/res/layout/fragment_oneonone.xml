@@ -20,6 +20,7 @@
 
     <TextView
         android:id="@+id/tv_title"
+        android:text="One to One"
         android:layout_width="wrap_content"
         android:layout_height="68dp"
         android:layout_marginTop="15dp"
@@ -49,11 +50,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.coeater.android.main.view.MainButton
+            android:id="@+id/main_button_invite_friend"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="40dp" />
 
         <com.coeater.android.main.view.MainButton
+            android:id="@+id/main_button_search_friend"
             android:layout_width="match_parent"
             android:layout_height="60dp" />
 

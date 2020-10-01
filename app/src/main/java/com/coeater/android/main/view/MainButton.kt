@@ -5,23 +5,26 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.coeater.android.R
+import kotlinx.android.synthetic.main.view_main_button.view.*
 
 class MainButton : ConstraintLayout {
 
     constructor(context: Context?) : super(context) {
-        setup()
     }
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        setup()
     }
 
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) :
             super(context, attrs, defStyleAttr) {
-        setup()
     }
 
-    fun setup() {
+    init {
         LayoutInflater.from(context).inflate(R.layout.view_main_button, this, true)
+    }
+
+    fun configure(title: String, detail: String) {
+        tv_title.text = title
+        tv_description.text = detail
     }
 }
