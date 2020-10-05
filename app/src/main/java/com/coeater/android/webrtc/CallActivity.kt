@@ -1,5 +1,4 @@
 package com.coeater.android.webrtc
-import com.coeater.android.R
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -11,17 +10,19 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.UiThread
+import com.coeater.android.R
 import com.coeater.android.apprtc.AppRTCClient
 import com.coeater.android.apprtc.AppRTCClient.*
 import com.coeater.android.apprtc.PeerConnectionClient
-import com.coeater.android.apprtc.PeerConnectionClient.*
+import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
+import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
-import com.coeater.android.apprtc.WebSocketRTCClient.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
 import java.security.SecureRandom
 import java.util.*
+
 
 /**
  * Activity for peer connection call setup, call waiting
@@ -57,6 +58,12 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
+        val intent = intent
+
+        val url =
+            intent.extras.getString("url") //intent.getStringExtra("name") 라고해도됨
+
+
         iceConnected = false
         signalingParameters = null
 
@@ -94,7 +101,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         setSwappedFeeds(true /* isSwappedFeeds */)
 
         // Generate a random room ID with 7 uppercase letters and digits
-        val randomRoomID = randomString(7, UPPER_ALPHA_DIGITS)
+        val randomRoomID = url
         // Show the random room ID so that another client can join from https://appr.tc
         val roomIdTextView = findViewById<TextView>(R.id.roomID)
         roomIdTextView.text = getString(R.string.room_id_caption).toString() + randomRoomID

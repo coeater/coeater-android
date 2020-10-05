@@ -214,6 +214,7 @@ class RoomParametersFetcher(
         )
         val responseJSON = JSONObject(response)
         val iceServers = responseJSON.getJSONArray("iceServers")
+
         for (i in 0 until iceServers.length()) {
             val server = iceServers.getJSONObject(i)
             val turnUrls = server.getJSONArray("urls")
@@ -230,6 +231,13 @@ class RoomParametersFetcher(
                 turnServers.add(turnServer)
             }
         }
+        val turnUrl = "turn:3.35.168.135"
+        val turnServer = IceServer.builder(turnUrl)
+            .setUsername("test")
+            .setPassword("test")
+            .createIceServer()
+        turnServers.add(turnServer)
+
         return turnServers
     }
 
