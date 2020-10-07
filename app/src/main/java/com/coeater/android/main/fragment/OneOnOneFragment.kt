@@ -67,7 +67,11 @@ class OneOnOneFragment : Fragment() {
     private fun checkPermission() {
         val permissionListener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-                Toast.makeText(this@OneOnOneFragment.context, "Permission Granted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@OneOnOneFragment.context,
+                    "Permission Granted",
+                    Toast.LENGTH_SHORT
+                ).show()
                 openCallActivity()
             }
 
@@ -83,7 +87,11 @@ class OneOnOneFragment : Fragment() {
         TedPermission.with(this.context)
             .setPermissionListener(permissionListener)
             .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
-            .setPermissions(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .setPermissions(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
             .check()
     }
 }
