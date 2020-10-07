@@ -7,7 +7,7 @@
     android:background="@color/white"
     >
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/iv_profile"
         android:layout_width="150dp"
         android:layout_height="150dp"
@@ -27,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_profile"
         android:textSize="36dp"
-        android:fontFamily="@font/oswald_bold"
+        android:fontFamily="@font/regular"
         tools:text="Mr.Gourmet"
         android:textColor="@color/dusk"/>
 
@@ -65,15 +65,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
         <RelativeLayout
+            android:id="@+id/layout_accept"
             android:layout_width="60dp"
             android:layout_height="60dp">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/button_accept"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@color/salmon">
-            </de.hdodenhof.circleimageview.CircleImageView>
             <ImageView
+                android:id="@+id/bg_accept"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/circle_salmon">
+            </ImageView>
+            <ImageView
+                android:id="@+id/button_accept"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_centerHorizontal="true"
@@ -82,19 +84,22 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="40dp"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
 
         <RelativeLayout
             android:layout_width="60dp"
             android:layout_height="60dp">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/button_close"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@color/dusk">
-            </de.hdodenhof.circleimageview.CircleImageView>
             <ImageView
+                android:id="@+id/bg_close"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/circle_dusk">
+            </ImageView>
+            <ImageView
+                android:id="@+id/button_close"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_centerHorizontal="true"
