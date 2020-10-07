@@ -11,13 +11,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import kotlinx.android.synthetic.main.fragment_oneonone_matching.*
 
-class OneOnOneMatchingFragment(val case : Int) : Fragment() {
+class OneOnOneMatchingFragment(val state : State) : Fragment() {
 
-    companion object {
-        const val Inviting : Int = 0
-        const val Invited : Int = 1
-        const val InvitationAccepted : Int = 2
-    }
+    enum class State { INVITING, INVITED, ACCEPTED }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,25 +38,25 @@ class OneOnOneMatchingFragment(val case : Int) : Fragment() {
     }
 
     fun setText() {
-        if(case == Inviting) {
+        if(state == State.INVITING) {
             tv_text1.setText("waiting For")
             tv_text2.setText("Mr.Gourmet") //TODO change target's name
             tv_text2.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
             tv_text3.visibility = View.GONE
+            layout_accept.visibility = View.GONE
+            linearLayout.visibility = View.GONE
         }
-        else if(case == Invited) {
+        else if(state == State.INVITED) {
             tv_text1.setText("Mr.Groumet") //TODO change target's name
             tv_text2.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
             tv_text2.setText("invites you")
             tv_text3.visibility = View.GONE
         }
-        else if(case == InvitationAccepted) {
+        else if(state == State.ACCEPTED) {
             tv_text1.setText("Mr.Groumet") //TODO change target's name
             tv_text1.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
             tv_text2.setText("accepted")
             tv_text3.setText("your invitation")
-            layout_accept.visibility = View.GONE
-            linearLayout.visibility = View.GONE
         }
     }
 }
