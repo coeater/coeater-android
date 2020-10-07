@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/dusk">
+    android:background="@color/white">
 
     <View
         android:id="@+id/view"
@@ -31,7 +31,7 @@
         android:paddingTop="7dp"
         android:paddingEnd="9dp"
         android:paddingBottom="14dp"
-        android:textColor="@color/dusk"
+        android:textColor="@color/white"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
