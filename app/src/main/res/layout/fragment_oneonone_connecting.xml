@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/light_salmon">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_connect_triangle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connecting"
+        android:fontFamily="@font/regular"
+        android:textSize="48sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- TODO 상대방 카메라 뷰 추가 -->
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="80dp"
+        android:text="Mr.Gourmet"
+        android:fontFamily="@font/regular"
+        android:textSize="24sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/iv_profile"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/unnamed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/iv_my_camera"
+        android:layout_width="72dp"
+        android:layout_height="128dp"
+        android:src="@drawable/unnamed2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <RelativeLayout
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="85dp"
+        android:layout_marginStart="80dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <ImageView
+            android:id="@+id/button_change"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white"/>
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_flip_camera_android_24px"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="19dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/button_exit"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white"/>
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_exit_to_app_24px"/>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,8 @@ class MainButton : ConstraintLayout {
         LayoutInflater.from(context).inflate(R.layout.view_main_button, this, true)
     }
 
-    fun configure(title: String, detail: String) {
+    fun configure(icon: Int?, title: String, detail: String) {
+        if(icon != null) iv_icon.setImageResource(icon);
         tv_title.text = title
         tv_description.text = detail
     }
