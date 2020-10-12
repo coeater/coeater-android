@@ -68,6 +68,11 @@ interface AppRTCClient {
      * Methods are guaranteed to be invoked on the UI thread of |activity|.
      */
     interface SignalingEvents {
+        /**
+         * Callback fired once the room's signaling parameters
+         * SignalingParameters are extracted.
+         */
+        fun onConnectedToRoom(params: SignalingParameters)
 
         /**
          * Callback fired once remote SDP is received.
