@@ -17,22 +17,13 @@ import org.webrtc.SessionDescription
  * AppRTCClient is the interface representing an AppRTC client.
  */
 interface AppRTCClient {
-    /**
-     * Struct holding the connection parameters of an AppRTC room.
-     */
-    class RoomConnectionParameters @JvmOverloads constructor(
-        val roomUrl: String,
-        val roomId: String,
-        val loopback: Boolean,
-        val urlParameters: String? = null /* urlParameters */
-    )
 
     /**
      * Asynchronously connect to an AppRTC room URL using supplied connection
      * parameters. Once connection is established onConnectedToRoom()
      * callback with room parameters is invoked.
      */
-    fun connectToRoom(connectionParameters: RoomConnectionParameters)
+    fun connectToRoom()
 
     /**
      * Send offer SDP to the other participant.
@@ -66,9 +57,6 @@ interface AppRTCClient {
    class SignalingParameters(
         val iceServers: List<IceServer>,
         val initiator: Boolean,
-        val clientId: String,
-        val wssUrl: String,
-        val wssPostUrl: String,
         val offerSdp: SessionDescription?,
         val iceCandidates: List<IceCandidate>
     )
@@ -80,11 +68,6 @@ interface AppRTCClient {
      * Methods are guaranteed to be invoked on the UI thread of |activity|.
      */
     interface SignalingEvents {
-        /**
-         * Callback fired once the room's signaling parameters
-         * SignalingParameters are extracted.
-         */
-        fun onConnectedToRoom(params: SignalingParameters)
 
         /**
          * Callback fired once remote SDP is received.
@@ -106,9 +89,5 @@ interface AppRTCClient {
          */
         fun onChannelClose()
 
-        /**
-         * Callback fired once channel error happened.
-         */
-        fun onChannelError(description: String)
     }
 }

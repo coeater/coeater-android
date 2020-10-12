@@ -171,7 +171,7 @@ class RoomParametersFetcher(
                 }
             }
             val params = SignalingParameters(
-                iceServers, initiator, clientId, wssUrl, wssPostUrl, offerSdp, iceCandidates.toList()
+                iceServers, initiator, offerSdp, iceCandidates.toList()
             )
             events.onSignalingParametersReady(params)
         } catch (e: JSONException) {

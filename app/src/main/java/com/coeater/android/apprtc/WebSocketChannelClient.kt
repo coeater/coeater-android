@@ -43,7 +43,6 @@ class WebSocketChannelClient(
     interface WebSocketChannelEvents {
         fun onWebSocketMessage(message: String?)
         fun onWebSocketClose()
-        fun onWebSocketError(description: String?)
     }
 
     fun connect() {

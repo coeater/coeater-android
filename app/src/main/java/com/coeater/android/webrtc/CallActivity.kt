@@ -42,7 +42,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     private var fullscreenRenderer: SurfaceViewRenderer? = null
     private var logToast: Toast? = null
     private var activityRunning = false
-    private var roomConnectionParameters: RoomConnectionParameters? = null
     private var peerConnectionParameters: PeerConnectionParameters? = null
     private var iceConnected = false
     private var isError = false
@@ -156,12 +155,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // DirectRTCClient could be used for point-to-point connection
         appRtcClient = WebSocketRTCClient(this)
         // Create connection parameters.
-        roomConnectionParameters = RoomConnectionParameters(
-            roomUri.toString(),
-            roomId,
-            false,
-            null
-        )!!
         peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
@@ -197,11 +190,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         callStartedTimeMs = System.currentTimeMillis()
 
         // Start room connection.
-        logAndToast(getString(R.string.connecting_to, roomConnectionParameters?.roomUrl))
-        val parameters = roomConnectionParameters
-        if (parameters != null) {
-            appRtcClient?.connectToRoom(parameters)
-        }
+        appRtcClient?.connectToRoom()
     }
 
     @UiThread
@@ -433,9 +422,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         }
     }
 
-   override fun onChannelError(description: String) {
-        reportError(description)
-    }
+
 
     // -----Implementation of PeerConnectionClient.PeerConnectionEvents.---------
     // Send local peer connection SDP and ICE candidates to remote party.
