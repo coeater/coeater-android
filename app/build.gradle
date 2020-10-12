@@ -41,6 +41,12 @@ dependencies {
     // WEBRTC
     implementation 'org.webrtc:google-webrtc:1.0.22672'
 
+    // Socket
+    compile ('io.socket:socket.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
+
     // JSON Serialize
     implementation 'com.google.code.gson:gson:2.8.6'
 
