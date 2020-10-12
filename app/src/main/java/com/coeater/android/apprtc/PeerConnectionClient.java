@@ -206,17 +206,6 @@ public class PeerConnectionClient {
     public final boolean disableWebRtcAGCAndHPF;
     private final DataChannelParameters dataChannelParameters;
 
-    public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
-        int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
-        boolean videoCodecHwAcceleration, boolean videoFlexfecEnabled, int audioStartBitrate,
-        String audioCodec, boolean noAudioProcessing, boolean aecDump, boolean useOpenSLES,
-        boolean disableBuiltInAEC, boolean disableBuiltInAGC, boolean disableBuiltInNS,
-        boolean enableLevelControl, boolean disableWebRtcAGCAndHPF) {
-      this(videoCallEnabled, loopback, tracing, videoWidth, videoHeight, videoFps, videoMaxBitrate,
-          videoCodec, videoCodecHwAcceleration, videoFlexfecEnabled, audioStartBitrate, audioCodec,
-          noAudioProcessing, aecDump, useOpenSLES, disableBuiltInAEC, disableBuiltInAGC,
-          disableBuiltInNS, enableLevelControl, disableWebRtcAGCAndHPF, null);
-    }
 
     public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
         int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
@@ -300,9 +289,6 @@ public class PeerConnectionClient {
     rootEglBase = EglBase.create();
   }
 
-  public void setPeerConnectionFactoryOptions(PeerConnectionFactory.Options options) {
-    this.options = options;
-  }
 
   public void createPeerConnectionFactory(final Context context,
       final PeerConnectionParameters peerConnectionParameters, final PeerConnectionEvents events) {
@@ -336,12 +322,6 @@ public class PeerConnectionClient {
     });
   }
 
-//  public void createPeerConnection(final VideoSink localRender,
-//      final VideoRenderer.Callbacks remoteRender, final VideoCapturer videoCapturer,
-//      final SignalingParameters signalingParameters) {
-//    createPeerConnection(
-//        localRender, Collections.singletonList(remoteRender), videoCapturer, signalingParameters);
-//  }
 
   public void createPeerConnection(final VideoSink localRender,
       final List<VideoRenderer.Callbacks> remoteRenders, final VideoCapturer videoCapturer,

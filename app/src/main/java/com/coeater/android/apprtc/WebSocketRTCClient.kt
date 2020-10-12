@@ -183,6 +183,13 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
 
     companion object {
         private const val TAG = "WSRTCClient"
+        val turnUrl = "turn:3.35.168.135"
+        val turnServer = IceServer.builder(turnUrl)
+            .setUsername("test")
+            .setPassword("test")
+            .createIceServer()
+        turnServers.add(turnServer)
+
     }
 
     init {
