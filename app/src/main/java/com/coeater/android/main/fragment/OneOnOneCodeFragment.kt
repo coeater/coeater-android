@@ -28,14 +28,16 @@ class OneOnOneCodeFragment(val state : State) : Fragment() {
     fun setup() {
         if(state == State.SHARE) {
             tv_code_title.text = "Your Code"
-            tv_code_number.text = "00000" //TODO give code
+            tv_code_number.text = "00000"
+            tv_code_number.letterSpacing = 0F;
             iv_state.setImageResource(R.drawable.share_24_px)
             tv_state.text = "Share"
             et_code_number.visibility = View.GONE
         }
         else {
             tv_code_title.text = "Enter Code"
-            tv_code_number.text = "_______" //TODO give code
+            tv_code_number.text = "_______"
+            tv_code_number.letterSpacing = 0.15F
             iv_state.setImageResource(R.drawable.login_24_px)
             tv_state.text = "Join"
             et_code_number.visibility = View.VISIBLE
