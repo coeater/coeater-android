@@ -70,23 +70,9 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
 
     // Connects to room - function runs on a local looper thread.
     private fun connectToRoomInternal() {
-        val connectionUrl = getConnectionUrl(connectionParameters)
-        Log.d(
-            TAG,
-            "Connect to room: $connectionUrl"
-        )
         roomState = ConnectionState.NEW
         wsClient = WebSocketChannelClient(handler, this)
-        val callbacks: RoomParametersFetcherEvents = object : RoomParametersFetcherEvents {
-            override fun onSignalingParametersReady(params: SignalingParameters?) {
-                handler.post { signalingParametersReady(params) }
-            }
-
-            override fun onSignalingParametersError(description: String?) {
-                reportError(description)
-            }
-        }
-        RoomParametersFetcher(connectionUrl, "", callbacks).makeRequest()
+        wsClient?.connect()
     }
 
     // Disconnect from room and send bye messages - runs on a local looper thread.
@@ -95,92 +81,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
             TAG,
             "Disconnect. Room state: $roomState"
         )
-        if (roomState == ConnectionState.CONNECTED) {
-            Log.d(
-                TAG,
-                "Closing room."
-            )
-            sendPostMessage(
-                MessageType.LEAVE,
-                leaveUrl!!,
-                ""
-            )
-        }
         roomState = ConnectionState.CLOSED
-        if (wsClient != null) {
-            wsClient!!.disconnect(true)
-        }
+        wsClient?.disconnect()
     }
 
-    // Helper functions to get connection, post message and leave message URLs
-    private fun getConnectionUrl(connectionParameters: RoomConnectionParameters?): String {
-        return (connectionParameters!!.roomUrl + "/" + ROOM_JOIN + "/" + connectionParameters.roomId
-                + getQueryString(connectionParameters))
-    }
 
-    private fun getMessageUrl(
-        connectionParameters: RoomConnectionParameters?, signalingParameters: SignalingParameters?
-    ): String {
-        return (connectionParameters!!.roomUrl + "/" + ROOM_MESSAGE + "/" + connectionParameters.roomId
-                + "/" + signalingParameters!!.clientId + getQueryString(connectionParameters))
-    }
-
-    private fun getLeaveUrl(
-        connectionParameters: RoomConnectionParameters?, signalingParameters: SignalingParameters?
-    ): String {
-        return (connectionParameters!!.roomUrl + "/" + ROOM_LEAVE + "/" + connectionParameters.roomId + "/"
-                + signalingParameters!!.clientId + getQueryString(connectionParameters))
-    }
-
-    private fun getQueryString(connectionParameters: RoomConnectionParameters?): String {
-        return if (connectionParameters!!.urlParameters != null) {
-            "?" + connectionParameters.urlParameters
-        } else {
-            ""
-        }
-    }
-
-    // Callback issued when room parameters are extracted. Runs on local
-    // looper thread.
-    private fun signalingParametersReady(signalingParameters: SignalingParameters?) {
-        Log.d(
-            TAG,
-            "Room connection completed."
-        )
-        if (connectionParameters!!.loopback
-            && (!signalingParameters!!.initiator || signalingParameters.offerSdp != null)
-        ) {
-            reportError("Loopback room is busy.")
-            return
-        }
-        if (!connectionParameters!!.loopback && !signalingParameters!!.initiator
-            && signalingParameters.offerSdp == null
-        ) {
-            Log.w(
-                TAG,
-                "No offer SDP in room response."
-            )
-        }
-        initiator = signalingParameters!!.initiator
-        messageUrl = getMessageUrl(connectionParameters, signalingParameters)
-        leaveUrl = getLeaveUrl(connectionParameters, signalingParameters)
-        Log.d(
-            TAG,
-            "Message URL: $messageUrl"
-        )
-        Log.d(
-            TAG,
-            "Leave URL: $leaveUrl"
-        )
-        roomState = ConnectionState.CONNECTED
-
-        // Fire connection and signaling parameters events.
-        events.onConnectedToRoom(signalingParameters)
-
-        // Connect and register WebSocket client.
-        wsClient!!.connect(signalingParameters.wssUrl, signalingParameters.wssPostUrl)
-        wsClient!!.register(connectionParameters!!.roomId, signalingParameters.clientId)
-    }
 
     // Send local offer SDP to the other participant.
     override fun sendOfferSdp(sdp: SessionDescription) {
@@ -411,42 +316,6 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
         }
     }
 
-    // Send SDP or ICE candidate to a room server.
-    private fun sendPostMessage(
-        messageType: MessageType,
-        url: String,
-        message: String
-    ) {
-        var logInfo = url
-        if (message != null) {
-            logInfo += ". Message: $message"
-        }
-        Log.d(
-            TAG,
-            "C->GAE: $logInfo"
-        )
-        val httpConnection =
-            AsyncHttpURLConnection("POST", url, message, object : AsyncHttpEvents {
-                override fun onHttpError(errorMessage: String) {
-                    reportError("GAE POST error: $errorMessage")
-                }
-
-                override fun onHttpComplete(response: String) {
-                    if (messageType == MessageType.MESSAGE) {
-                        try {
-                            val roomJson = JSONObject(response)
-                            val result = roomJson.getString("result")
-                            if (result != "SUCCESS") {
-                                reportError("GAE POST error: $result")
-                            }
-                        } catch (e: JSONException) {
-                            reportError("GAE POST JSON error: $e")
-                        }
-                    }
-                }
-            })
-        httpConnection.send()
-    }
 
     // Converts a Java candidate to a JSONObject.
     private fun toJsonCandidate(candidate: IceCandidate): JSONObject {

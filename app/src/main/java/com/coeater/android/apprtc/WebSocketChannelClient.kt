@@ -46,14 +46,8 @@ class WebSocketChannelClient(
         fun onWebSocketError(description: String?)
     }
 
-    fun connect(wsUrl: String, postUrl: String) {
+    fun connect() {
         checkIfCalledOnValidThread()
-        Log.d(
-            TAG,
-            "Connecting WebSocket to: $wsUrl. Post URL: $postUrl"
-        )
-
-
         socket = IO.socket("http://mocking")
 
 
@@ -76,7 +70,7 @@ class WebSocketChannelClient(
 
         socket?.emit("message", message.toString())
     }
-    fun disconnect(waitForComplete: Boolean) {
+    fun disconnect() {
         checkIfCalledOnValidThread()
 
 
