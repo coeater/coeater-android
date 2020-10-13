@@ -14,6 +14,8 @@ import android.util.Log
 import com.coeater.android.apprtc.model.SignalServerMessage
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+
 
 /**
  * WebSocket client implementation.
@@ -47,10 +49,17 @@ class WebSocketChannelClient(
 
     fun connect() {
         checkIfCalledOnValidThread()
-        socket = IO.socket("http://mocking")
-
-
-        socket?.connect()
+        socket = IO.socket("http://0d06eb411056.ngrok.io").apply {
+            this.on(Socket.EVENT_CONNECT, Emitter.Listener {
+                Log.d(TAG, "HELLO")
+//            socket?.emit("foo", "hi")
+//            socket?.disconnect()
+            })?.on(Socket.EVENT_DISCONNECT, Emitter.Listener {
+//            socket?.emit("foo", "hi")
+//            socket?.disconnect()
+            })
+            this.connect()
+        }
 
 
     }

@@ -70,7 +70,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
             .createIceServer()
 
         val parameter = AppRTCClient.SignalingParameters(listOf(stunServer, turnServer), false)
-        events.onConnectedToRoom(parameter)
+//        events.onConnectedToRoom(parameter)
 
     }
 
