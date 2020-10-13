@@ -9,10 +9,8 @@
  */
 package com.coeater.android.apprtc
 
-import android.nfc.Tag
 import android.os.Handler
 import android.util.Log
-import com.coeater.android.apprtc.model.SignalServerMessage
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -32,19 +30,12 @@ class WebSocketChannelClient(
 ) {
     private var socket: Socket? = null
 
-    private var roomID: String? = null
-    private var clientID: String? = null
-
-    // Do not remove this member variable. If this is removed, the observer gets garbage collected and
-    // this causes test breakages.
-
 
     /**
      * Callback interface for messages delivered on WebSocket.
      * All events are dispatched from a looper executor thread.
      */
     interface WebSocketChannelEvents {
-        fun onWebSocketMessage(message: String?)
         fun onWebSocketClose()
         fun onWebSocketReady(initiator: Boolean)
         fun onWebSocketGetOffer(message: String)
@@ -55,35 +46,30 @@ class WebSocketChannelClient(
     fun connect(roomID: String) {
         checkIfCalledOnValidThread()
         socket = IO.socket("http://0d06eb411056.ngrok.io").apply {
-            this.on(Socket.EVENT_CONNECT, Emitter.Listener {
-                Log.d(TAG, "HELLO")
-                this.emit("create or join", roomID)
-//            socket?.emit("foo", "hi")
-//            socket?.disconnect()
-            })
-                .on(Socket.EVENT_DISCONNECT, Emitter.Listener {
-//            socket?.emit("foo", "hi")
-//            socket?.disconnect()
-            })
-                .on("log", Emitter.Listener {
-                    Log.d(TAG, it.toString())
+            this
+                .on(Socket.EVENT_CONNECT, Emitter.Listener {
+                    Log.d(TAG, "HELLO")
+                    this.emit("create or join", roomID)
                 })
-                .on("ready", Emitter.Listener{
+                .on(Socket.EVENT_DISCONNECT, Emitter.Listener {
 
+                })
+                .on("log", Emitter.Listener {
+                    Log.d(TAG, it[0].toString())
+                })
+                .on("ready", Emitter.Listener {
                     val initiator = it[0].toString().toBoolean()
                     events.onWebSocketReady(initiator)
                 })
-
-                .on("offer", Emitter.Listener{
+                .on("offer", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetOffer(it[0].toString())
                 })
-                .on("answer", Emitter.Listener{
+                .on("answer", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetAnswer(it[0].toString())
                 })
-
-                .on("candidate", Emitter.Listener{
+                .on("candidate", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetIceCandidate(it[0].toString())
                 })
@@ -93,29 +79,18 @@ class WebSocketChannelClient(
 
     }
 
-    fun register(roomID: String, clientID: String) {
-        checkIfCalledOnValidThread()
-        this.roomID = roomID
-        this.clientID = clientID
-
-        // TODO : implement register code!
-    }
-
     fun send(event: String, message: String) {
-//        var message = message
         checkIfCalledOnValidThread()
 
         socket?.emit(event, message)
     }
+
+
     fun disconnect() {
         checkIfCalledOnValidThread()
-
-
         // TODO: send signal to Bye to websocket!
-
         socket?.disconnect()
         socket = null
-
     }
 
 

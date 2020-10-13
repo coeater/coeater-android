@@ -16,7 +16,7 @@ import org.webrtc.SessionDescription
 /**
  * AppRTCClient is the interface representing an AppRTC client.
  */
-interface AppRTCClient {
+interface SignalServerRTCClient {
 
     /**
      * Asynchronously connect to an AppRTC room URL using supplied connection
@@ -41,11 +41,6 @@ interface AppRTCClient {
     fun sendLocalIceCandidate(candidate: IceCandidate)
 
     /**
-     * Send removed ICE candidates to the other participant.
-     */
-    fun sendLocalIceCandidateRemovals(candidates: Array<IceCandidate>)
-
-    /**
      * Disconnect from room.
      */
     fun disconnectFromRoom()
@@ -54,7 +49,7 @@ interface AppRTCClient {
      * Struct holding the signaling parameters of an AppRTC room.
      */
 
-   class SignalingParameters(
+    class SignalingParameters(
         val iceServers: List<IceServer>,
         val initiator: Boolean
     )

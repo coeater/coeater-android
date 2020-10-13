@@ -14,22 +14,9 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import com.coeater.android.apprtc.AppRTCClient.SignalingParameters;
+
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters;
+
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.CameraVideoCapturer;
@@ -67,6 +54,21 @@ import org.webrtc.voiceengine.WebRtcAudioRecord.WebRtcAudioRecordErrorCallback;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
 import org.webrtc.voiceengine.WebRtcAudioTrack.AudioTrackStartErrorCode;
 import org.webrtc.voiceengine.WebRtcAudioUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Peer connection client implementation.
@@ -251,11 +253,6 @@ public class PeerConnectionClient {
      * Callback fired once local Ice candidate is generated.
      */
     void onIceCandidate(final IceCandidate candidate);
-
-    /**
-     * Callback fired once local ICE candidates are removed.
-     */
-    void onIceCandidatesRemoved(final IceCandidate[] candidates);
 
     /**
      * Callback fired once connection is established (IceConnectionState is
@@ -1161,15 +1158,6 @@ public class PeerConnectionClient {
       });
     }
 
-    @Override
-    public void onIceCandidatesRemoved(final IceCandidate[] candidates) {
-      executor.execute(new Runnable() {
-        @Override
-        public void run() {
-          events.onIceCandidatesRemoved(candidates);
-        }
-      });
-    }
 
     @Override
     public void onSignalingChange(PeerConnection.SignalingState newState) {
@@ -1274,6 +1262,10 @@ public class PeerConnectionClient {
       // No need to do anything; AppRTC follows a pre-agreed-upon
       // signaling/negotiation protocol.
     }
+
+
+    @Override
+    public void onIceCandidatesRemoved(IceCandidate[] iceCandidates) { }
 
     @Override
     public void onAddTrack(final RtpReceiver receiver, final MediaStream[] mediaStreams) {}
