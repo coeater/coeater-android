@@ -49,6 +49,7 @@ class WebSocketChannelClient(
         fun onWebSocketReady(initiator: Boolean)
         fun onWebSocketGetOffer(message: String)
         fun onWebSocketGetAnswer(message: String)
+        fun onWebSocketGetIceCandidate(message: String)
     }
 
     fun connect(roomID: String) {
@@ -80,6 +81,11 @@ class WebSocketChannelClient(
                 .on("answer", Emitter.Listener{
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetAnswer(it[0].toString())
+                })
+
+                .on("candidate", Emitter.Listener{
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketGetIceCandidate(it[0].toString())
                 })
             this.connect()
         }

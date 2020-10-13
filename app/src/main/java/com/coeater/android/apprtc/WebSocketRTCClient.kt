@@ -98,7 +98,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     // Send Ice candidate to the other participant.
     override fun sendLocalIceCandidate(candidate: IceCandidate) {
         handler.post(Runnable {
-            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp)
+            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp, roomId)
+            val gson = Gson()
+            val json = gson.toJson(signal)
+
+            wsClient?.send("send iceCandidate", json)
 
         })
     }
@@ -173,6 +177,15 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
             SessionDescription.Type.ANSWER, message
         )
         events.onRemoteDescription(sdp)
+    }
+
+    override fun onWebSocketGetIceCandidate(message: String) {
+        Log.d(TAG, message)
+
+        val gson = Gson()
+        val signalIceCandidate = gson.fromJson(message, SignalIceCandidate::class.java)
+        Log.d(TAG, signalIceCandidate.id)
+        events.onRemoteIceCandidate(IceCandidate(signalIceCandidate.id, signalIceCandidate.label, signalIceCandidate.sdp))
     }
     override fun onWebSocketMessage(msg: String?) {
         try {
