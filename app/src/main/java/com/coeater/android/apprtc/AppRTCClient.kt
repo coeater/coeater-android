@@ -56,9 +56,7 @@ interface AppRTCClient {
 
    class SignalingParameters(
         val iceServers: List<IceServer>,
-        val initiator: Boolean,
-        val offerSdp: SessionDescription?,
-        val iceCandidates: List<IceCandidate>
+        val initiator: Boolean
     )
 
     /**

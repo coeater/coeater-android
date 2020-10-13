@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.IceCandidate
+import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 
 
@@ -57,6 +58,20 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     private fun connectToRoomInternal() {
         wsClient = WebSocketChannelClient(handler, this)
         wsClient?.connect()
+        // Fire connection and signaling parameters events.
+
+        val stunServer = PeerConnection.IceServer
+            .builder("stun.l.google.com:19302")
+            .createIceServer()
+
+        val turnServer = PeerConnection.IceServer.builder("turn:3.35.168.135")
+            .setUsername("test")
+            .setPassword("test")
+            .createIceServer()
+
+        val parameter = AppRTCClient.SignalingParameters(listOf(stunServer, turnServer), false)
+        events.onConnectedToRoom(parameter)
+
     }
 
     // Disconnect from room and send bye messages - runs on a local looper thread.
@@ -71,7 +86,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
         handler.post(Runnable {
 
             val offerSdp = OfferSdp(sdp)
-            wsClient?.send(offerSdp)
+//            wsClient?.send(offerSdp)
             // TODO: Send Signal
         })
     }
@@ -80,7 +95,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     override fun sendAnswerSdp(sdp: SessionDescription) {
         handler.post(Runnable {
             val answerSdp = AnswerSdp(sdp)
-            wsClient?.send(answerSdp)
+//            wsClient?.send(answerSdp)
         })
     }
 
@@ -138,7 +153,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
                 if (type == "candidate") {
                     val gson = Gson()
                     val signalIceCandidate = gson.fromJson("value", SignalIceCandidate::class.java)
-                    events.onRemoteIceCandidate(signalIceCandidate)
+//                    events.onRemoteIceCandidate(signalIceCandidate)
 
 
                 } else if (type == "remove-candidates") {
@@ -152,11 +167,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
                 } else if (type == "answer") {
                     val gson = Gson()
                     val answerSdp = gson.fromJson("value", AnswerSdp::class.java)
-                    events.onRemoteDescription(answerSdp.sdp)
+//                    events.onRemoteDescription(answerSdp.sdp)
                 } else if (type == "offer") {
                     val gson = Gson()
                     val offerSdp = gson.fromJson("value", OfferSdp::class.java)
-                    events.onRemoteDescription(offerSdp)
+//                    events.onRemoteDescription(offerSdp)
 
 //                    events.onRemoteDescription(sdp)
 //                    if (!initiator) {
@@ -183,12 +198,8 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
 
     companion object {
         private const val TAG = "WSRTCClient"
-        val turnUrl = "turn:3.35.168.135"
-        val turnServer = IceServer.builder(turnUrl)
-            .setUsername("test")
-            .setPassword("test")
-            .createIceServer()
-        turnServers.add(turnServer)
+
+//        turnServers.add(turnServer)
 
     }
 

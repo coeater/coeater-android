@@ -1,9 +1,9 @@
 package com.coeater.android.apprtc.model
 
-data class SignalServerMessage {
+data class SignalServerMessage(val message: String) {
 
 }
 
-data class Hangup {
+data class Hangup(val message: String) {
 
 }
