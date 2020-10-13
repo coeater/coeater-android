@@ -158,7 +158,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
-        startCall()
+        startCall(roomId)
     }
 
     fun onCallHangUp() {
@@ -179,7 +179,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         return micEnabled
     }
 
-    private fun startCall() {
+    private fun startCall(roomId: String) {
         if (appRtcClient == null) {
             Log.e(
                 TAG,
@@ -190,7 +190,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         callStartedTimeMs = System.currentTimeMillis()
 
         // Start room connection.
-        appRtcClient?.connectToRoom()
+        appRtcClient?.connectToRoom(roomId)
     }
 
     @UiThread
@@ -348,6 +348,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
             // PeerConnectionEvents.onLocalDescription event.
             peerConnectionClient?.createOffer()
         } else {
+            logAndToast("Creating ANSWER...")
 //            if (params.offerSdp != null) {
 //                peerConnectionClient?.setRemoteDescription(params.offerSdp)
 //                logAndToast("Creating ANSWER...")

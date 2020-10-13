@@ -9,6 +9,7 @@
  */
 package com.coeater.android.apprtc
 
+import android.os.Debug
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -43,8 +44,10 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     private val handler: Handler
     private var wsClient: WebSocketChannelClient? = null
 
-    override fun connectToRoom() {
-        handler.post { connectToRoomInternal() }
+    private var roomId: String = ""
+
+    override fun connectToRoom(roomId: String) {
+        handler.post { connectToRoomInternal(roomId) }
     }
 
     override fun disconnectFromRoom() {
@@ -55,23 +58,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     }
 
     // Connects to room - function runs on a local looper thread.
-    private fun connectToRoomInternal() {
+    private fun connectToRoomInternal(roomId: String) {
         wsClient = WebSocketChannelClient(handler, this)
-        wsClient?.connect()
+        wsClient?.connect(roomId)
+        this.roomId = roomId
         // Fire connection and signaling parameters events.
-
-        val stunServer = PeerConnection.IceServer
-            .builder("stun.l.google.com:19302")
-            .createIceServer()
-
-        val turnServer = PeerConnection.IceServer.builder("turn:3.35.168.135")
-            .setUsername("test")
-            .setPassword("test")
-            .createIceServer()
-
-        val parameter = AppRTCClient.SignalingParameters(listOf(stunServer, turnServer), false)
-//        events.onConnectedToRoom(parameter)
-
     }
 
     // Disconnect from room and send bye messages - runs on a local looper thread.
@@ -85,8 +76,10 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     override fun sendOfferSdp(sdp: SessionDescription) {
         handler.post(Runnable {
 
-            val offerSdp = OfferSdp(sdp)
-//            wsClient?.send(offerSdp)
+            val offerSdp = OfferSdp(sdp.description, roomId)
+            val gson = Gson()
+            val json = gson.toJson(offerSdp)
+            wsClient?.send("offer", json)
             // TODO: Send Signal
         })
     }
@@ -94,8 +87,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     // Send local answer SDP to the other participant.
     override fun sendAnswerSdp(sdp: SessionDescription) {
         handler.post(Runnable {
-            val answerSdp = AnswerSdp(sdp)
-//            wsClient?.send(answerSdp)
+            val answerSdp = AnswerSdp(sdp.description, roomId)
+            val gson = Gson()
+            val json = gson.toJson(answerSdp)
+
+            wsClient?.send("answer", json)
         })
     }
 
@@ -143,6 +139,41 @@ class WebSocketRTCClient(private val events: SignalingEvents) : AppRTCClient,
     // WebSocketChannelEvents interface implementation.
     // All events are called by WebSocketChannelClient on a local looper thread
     // (passed to WebSocket client constructor).
+
+    override fun onWebSocketReady(initiator: Boolean) {
+        val stunServer = PeerConnection.IceServer
+            .builder("stun:stun.l.google.com:19302")
+            .createIceServer()
+
+        val turnServer = PeerConnection.IceServer.builder("turn:3.35.168.135")
+            .setUsername("test")
+            .setPassword("test")
+            .createIceServer()
+
+        Log.d(TAG, initiator.toString() + "on WebSocket Ready!")
+        val parameter = AppRTCClient.SignalingParameters(listOf(stunServer, turnServer), initiator)
+        events.onConnectedToRoom(parameter)
+
+    }
+
+    override fun onWebSocketGetOffer(message: String) {
+        Log.d(TAG, message)
+
+//        val gson = Gson()
+//        val offerSdp = gson.fromJson(message, OfferSdp::class.java)
+        val sdp = SessionDescription(
+            SessionDescription.Type.OFFER, message
+        )
+        events.onRemoteDescription(sdp)
+    }
+
+    override fun onWebSocketGetAnswer(message: String) {
+        Log.d(TAG, message)
+        val sdp = SessionDescription(
+            SessionDescription.Type.ANSWER, message
+        )
+        events.onRemoteDescription(sdp)
+    }
     override fun onWebSocketMessage(msg: String?) {
         try {
             var json = JSONObject(msg)

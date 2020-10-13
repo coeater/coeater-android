@@ -9,6 +9,7 @@
  */
 package com.coeater.android.apprtc
 
+import android.nfc.Tag
 import android.os.Handler
 import android.util.Log
 import com.coeater.android.apprtc.model.SignalServerMessage
@@ -45,19 +46,41 @@ class WebSocketChannelClient(
     interface WebSocketChannelEvents {
         fun onWebSocketMessage(message: String?)
         fun onWebSocketClose()
+        fun onWebSocketReady(initiator: Boolean)
+        fun onWebSocketGetOffer(message: String)
+        fun onWebSocketGetAnswer(message: String)
     }
 
-    fun connect() {
+    fun connect(roomID: String) {
         checkIfCalledOnValidThread()
         socket = IO.socket("http://0d06eb411056.ngrok.io").apply {
             this.on(Socket.EVENT_CONNECT, Emitter.Listener {
                 Log.d(TAG, "HELLO")
-//            socket?.emit("foo", "hi")
-//            socket?.disconnect()
-            })?.on(Socket.EVENT_DISCONNECT, Emitter.Listener {
+                this.emit("create or join", roomID)
 //            socket?.emit("foo", "hi")
 //            socket?.disconnect()
             })
+                .on(Socket.EVENT_DISCONNECT, Emitter.Listener {
+//            socket?.emit("foo", "hi")
+//            socket?.disconnect()
+            })
+                .on("log", Emitter.Listener {
+                    Log.d(TAG, it.toString())
+                })
+                .on("ready", Emitter.Listener{
+
+                    val initiator = it[0].toString().toBoolean()
+                    events.onWebSocketReady(initiator)
+                })
+
+                .on("offer", Emitter.Listener{
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketGetOffer(it[0].toString())
+                })
+                .on("answer", Emitter.Listener{
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketGetAnswer(it[0].toString())
+                })
             this.connect()
         }
 
@@ -72,11 +95,11 @@ class WebSocketChannelClient(
         // TODO : implement register code!
     }
 
-    fun send(message: SignalServerMessage) {
+    fun send(event: String, message: String) {
 //        var message = message
         checkIfCalledOnValidThread()
 
-        socket?.emit("message", message.toString())
+        socket?.emit(event, message)
     }
     fun disconnect() {
         checkIfCalledOnValidThread()

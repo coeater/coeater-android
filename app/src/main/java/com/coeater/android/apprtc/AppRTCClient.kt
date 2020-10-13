@@ -23,7 +23,7 @@ interface AppRTCClient {
      * parameters. Once connection is established onConnectedToRoom()
      * callback with room parameters is invoked.
      */
-    fun connectToRoom()
+    fun connectToRoom(roomId: String)
 
     /**
      * Send offer SDP to the other participant.
