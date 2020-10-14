@@ -16,23 +16,14 @@ import org.webrtc.SessionDescription
 /**
  * AppRTCClient is the interface representing an AppRTC client.
  */
-interface AppRTCClient {
-    /**
-     * Struct holding the connection parameters of an AppRTC room.
-     */
-    class RoomConnectionParameters @JvmOverloads constructor(
-        val roomUrl: String,
-        val roomId: String,
-        val loopback: Boolean,
-        val urlParameters: String? = null /* urlParameters */
-    )
+interface SignalServerRTCClient {
 
     /**
      * Asynchronously connect to an AppRTC room URL using supplied connection
      * parameters. Once connection is established onConnectedToRoom()
      * callback with room parameters is invoked.
      */
-    fun connectToRoom(connectionParameters: RoomConnectionParameters)
+    fun connectToRoom(roomId: String)
 
     /**
      * Send offer SDP to the other participant.
@@ -50,11 +41,6 @@ interface AppRTCClient {
     fun sendLocalIceCandidate(candidate: IceCandidate)
 
     /**
-     * Send removed ICE candidates to the other participant.
-     */
-    fun sendLocalIceCandidateRemovals(candidates: Array<IceCandidate>)
-
-    /**
      * Disconnect from room.
      */
     fun disconnectFromRoom()
@@ -63,14 +49,9 @@ interface AppRTCClient {
      * Struct holding the signaling parameters of an AppRTC room.
      */
 
-   class SignalingParameters(
+    class SignalingParameters(
         val iceServers: List<IceServer>,
-        val initiator: Boolean,
-        val clientId: String,
-        val wssUrl: String,
-        val wssPostUrl: String,
-        val offerSdp: SessionDescription?,
-        val iceCandidates: List<IceCandidate>
+        val initiator: Boolean
     )
 
     /**
@@ -106,9 +87,5 @@ interface AppRTCClient {
          */
         fun onChannelClose()
 
-        /**
-         * Callback fired once channel error happened.
-         */
-        fun onChannelError(description: String)
     }
 }

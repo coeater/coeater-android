@@ -14,22 +14,9 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import com.coeater.android.apprtc.AppRTCClient.SignalingParameters;
+
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters;
+
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.CameraVideoCapturer;
@@ -67,6 +54,21 @@ import org.webrtc.voiceengine.WebRtcAudioRecord.WebRtcAudioRecordErrorCallback;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
 import org.webrtc.voiceengine.WebRtcAudioTrack.AudioTrackStartErrorCode;
 import org.webrtc.voiceengine.WebRtcAudioUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Peer connection client implementation.
@@ -206,17 +208,6 @@ public class PeerConnectionClient {
     public final boolean disableWebRtcAGCAndHPF;
     private final DataChannelParameters dataChannelParameters;
 
-    public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
-        int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
-        boolean videoCodecHwAcceleration, boolean videoFlexfecEnabled, int audioStartBitrate,
-        String audioCodec, boolean noAudioProcessing, boolean aecDump, boolean useOpenSLES,
-        boolean disableBuiltInAEC, boolean disableBuiltInAGC, boolean disableBuiltInNS,
-        boolean enableLevelControl, boolean disableWebRtcAGCAndHPF) {
-      this(videoCallEnabled, loopback, tracing, videoWidth, videoHeight, videoFps, videoMaxBitrate,
-          videoCodec, videoCodecHwAcceleration, videoFlexfecEnabled, audioStartBitrate, audioCodec,
-          noAudioProcessing, aecDump, useOpenSLES, disableBuiltInAEC, disableBuiltInAGC,
-          disableBuiltInNS, enableLevelControl, disableWebRtcAGCAndHPF, null);
-    }
 
     public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
         int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
@@ -264,11 +255,6 @@ public class PeerConnectionClient {
     void onIceCandidate(final IceCandidate candidate);
 
     /**
-     * Callback fired once local ICE candidates are removed.
-     */
-    void onIceCandidatesRemoved(final IceCandidate[] candidates);
-
-    /**
      * Callback fired once connection is established (IceConnectionState is
      * CONNECTED).
      */
@@ -300,9 +286,6 @@ public class PeerConnectionClient {
     rootEglBase = EglBase.create();
   }
 
-  public void setPeerConnectionFactoryOptions(PeerConnectionFactory.Options options) {
-    this.options = options;
-  }
 
   public void createPeerConnectionFactory(final Context context,
       final PeerConnectionParameters peerConnectionParameters, final PeerConnectionEvents events) {
@@ -336,12 +319,6 @@ public class PeerConnectionClient {
     });
   }
 
-//  public void createPeerConnection(final VideoSink localRender,
-//      final VideoRenderer.Callbacks remoteRender, final VideoCapturer videoCapturer,
-//      final SignalingParameters signalingParameters) {
-//    createPeerConnection(
-//        localRender, Collections.singletonList(remoteRender), videoCapturer, signalingParameters);
-//  }
 
   public void createPeerConnection(final VideoSink localRender,
       final List<VideoRenderer.Callbacks> remoteRenders, final VideoCapturer videoCapturer,
@@ -1181,15 +1158,6 @@ public class PeerConnectionClient {
       });
     }
 
-    @Override
-    public void onIceCandidatesRemoved(final IceCandidate[] candidates) {
-      executor.execute(new Runnable() {
-        @Override
-        public void run() {
-          events.onIceCandidatesRemoved(candidates);
-        }
-      });
-    }
 
     @Override
     public void onSignalingChange(PeerConnection.SignalingState newState) {
@@ -1294,6 +1262,10 @@ public class PeerConnectionClient {
       // No need to do anything; AppRTC follows a pre-agreed-upon
       // signaling/negotiation protocol.
     }
+
+
+    @Override
+    public void onIceCandidatesRemoved(IceCandidate[] iceCandidates) { }
 
     @Override
     public void onAddTrack(final RtpReceiver receiver, final MediaStream[] mediaStreams) {}

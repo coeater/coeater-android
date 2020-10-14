@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.UiThread
 import com.coeater.android.R
-import com.coeater.android.apprtc.AppRTCClient
-import com.coeater.android.apprtc.AppRTCClient.*
+import com.coeater.android.apprtc.SignalServerRTCClient
+import com.coeater.android.apprtc.SignalServerRTCClient.*
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
@@ -20,7 +20,6 @@ import com.coeater.android.apprtc.WebSocketRTCClient
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
-import java.security.SecureRandom
 import java.util.*
 
 
@@ -36,13 +35,12 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     private val remoteRenderers: MutableList<VideoRenderer.Callbacks> =
         ArrayList()
     private var peerConnectionClient: PeerConnectionClient? = null
-    private var appRtcClient: AppRTCClient? = null
+    private var signalServerRtcClient: SignalServerRTCClient? = null
     private var signalingParameters: SignalingParameters? = null
     private var pipRenderer: SurfaceViewRenderer? = null
     private var fullscreenRenderer: SurfaceViewRenderer? = null
     private var logToast: Toast? = null
     private var activityRunning = false
-    private var roomConnectionParameters: RoomConnectionParameters? = null
     private var peerConnectionParameters: PeerConnectionParameters? = null
     private var iceConnected = false
     private var isError = false
@@ -114,16 +112,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         connectVideoCall(randomRoomID)
     }
 
-    // Create a random string
-    private fun randomString(length: Int, characterSet: String): String {
-        val sb =
-            StringBuilder() //consider using StringBuffer if needed
-        for (i in 0 until length) {
-            val randomInt = SecureRandom().nextInt(characterSet.length)
-            sb.append(characterSet.substring(randomInt, randomInt + 1))
-        }
-        return sb.toString()
-    }
 
     // Join video call with randomly generated roomId
     private fun connectVideoCall(roomId: String) {
@@ -154,18 +142,12 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
 
         // Create connection client. Use the standard WebSocketRTCClient.
         // DirectRTCClient could be used for point-to-point connection
-        appRtcClient = WebSocketRTCClient(this)
+        signalServerRtcClient = WebSocketRTCClient(this)
         // Create connection parameters.
-        roomConnectionParameters = RoomConnectionParameters(
-            roomUri.toString(),
-            roomId,
-            false,
-            null
-        )!!
         peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
-        startCall()
+        startCall(roomId)
     }
 
     fun onCallHangUp() {
@@ -186,8 +168,8 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         return micEnabled
     }
 
-    private fun startCall() {
-        if (appRtcClient == null) {
+    private fun startCall(roomId: String) {
+        if (signalServerRtcClient == null) {
             Log.e(
                 TAG,
                 "AppRTC client is not allocated for a call."
@@ -197,11 +179,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         callStartedTimeMs = System.currentTimeMillis()
 
         // Start room connection.
-        logAndToast(getString(R.string.connecting_to, roomConnectionParameters?.roomUrl))
-        val parameters = roomConnectionParameters
-        if (parameters != null) {
-            appRtcClient?.connectToRoom(parameters)
-        }
+        signalServerRtcClient?.connectToRoom(roomId)
     }
 
     @UiThread
@@ -225,9 +203,9 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         activityRunning = false
         remoteProxyRenderer.setTarget(null)
         localProxyVideoSink.setTarget(null)
-        if (appRtcClient != null) {
-            appRtcClient?.disconnectFromRoom()
-            appRtcClient = null
+        if (signalServerRtcClient != null) {
+            signalServerRtcClient?.disconnectFromRoom()
+            signalServerRtcClient = null
         }
         if (pipRenderer != null) {
             pipRenderer!!.release()
@@ -359,19 +337,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
             // PeerConnectionEvents.onLocalDescription event.
             peerConnectionClient?.createOffer()
         } else {
-            if (params.offerSdp != null) {
-                peerConnectionClient?.setRemoteDescription(params.offerSdp)
-                logAndToast("Creating ANSWER...")
-                // Create answer. Answer SDP will be sent to offering client in
-                // PeerConnectionEvents.onLocalDescription event.
-                peerConnectionClient?.createAnswer()
-            }
-            if (params.iceCandidates != null) {
-                // Add remote ICE candidates from room.
-                for (iceCandidate in params.iceCandidates) {
-                    peerConnectionClient?.addRemoteIceCandidate(iceCandidate)
-                }
-            }
+            logAndToast("Creating ANSWER...")
         }
     }
 
@@ -433,9 +399,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         }
     }
 
-   override fun onChannelError(description: String) {
-        reportError(description)
-    }
+
 
     // -----Implementation of PeerConnectionClient.PeerConnectionEvents.---------
     // Send local peer connection SDP and ICE candidates to remote party.
@@ -444,12 +408,12 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
    override fun onLocalDescription(sdp: SessionDescription) {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread {
-            if (appRtcClient != null) {
+            if (signalServerRtcClient != null) {
                 logAndToast("Sending " + sdp.type + ", delay=" + delta + "ms")
                 if (signalingParameters?.initiator == true) {
-                    appRtcClient?.sendOfferSdp(sdp)
+                    signalServerRtcClient?.sendOfferSdp(sdp)
                 } else {
-                    appRtcClient?.sendAnswerSdp(sdp)
+                    signalServerRtcClient?.sendAnswerSdp(sdp)
                 }
             }
             if (peerConnectionParameters?.videoMaxBitrate ?: 0 > 0) {
@@ -464,16 +428,8 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
 
    override fun onIceCandidate(candidate: IceCandidate) {
         runOnUiThread {
-            if (appRtcClient != null) {
-                appRtcClient?.sendLocalIceCandidate(candidate)
-            }
-        }
-    }
-
-   override fun onIceCandidatesRemoved(candidates: Array<IceCandidate>) {
-        runOnUiThread {
-            if (appRtcClient != null) {
-                appRtcClient?.sendLocalIceCandidateRemovals(candidates)
+            if (signalServerRtcClient != null) {
+                signalServerRtcClient?.sendLocalIceCandidate(candidate)
             }
         }
     }
