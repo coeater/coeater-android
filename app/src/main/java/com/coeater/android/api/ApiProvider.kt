@@ -1,13 +1,13 @@
 package com.coeater.android.api
 
 import android.content.Context
-import java.io.IOException
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 
 const val baseUrl = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:8000/api/"
 

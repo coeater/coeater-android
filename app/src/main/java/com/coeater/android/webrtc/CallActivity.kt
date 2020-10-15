@@ -15,12 +15,13 @@ import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
 import com.coeater.android.apprtc.SignalServerRTCClient
-import com.coeater.android.apprtc.SignalServerRTCClient.*
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
-import java.util.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
+import java.util.*
 
 /**
  * Activity for peer connection call setup, call waiting

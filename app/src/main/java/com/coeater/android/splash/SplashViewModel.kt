@@ -7,10 +7,7 @@ import com.coeater.android.api.AuthApi
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.model.Result
 import com.coeater.android.model.UserManage
-import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.iid.FirebaseInstanceId
-import java.lang.Error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException

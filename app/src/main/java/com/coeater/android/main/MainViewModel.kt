@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.UserApi
 import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.Result
-import java.lang.Error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
