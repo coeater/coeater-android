@@ -12,45 +12,48 @@ import retrofit2.converter.gson.GsonConverterFactory
 const val baseUrl = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:8000/api/"
 
 fun provideAuthApi(): AuthApi =
-        Retrofit.Builder()
+    Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(provideOkHttpClient(provideLoggingInterceptor(), null))
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(AuthApi::class.java)
+
+fun provideUserApi(context: Context): UserApi = Retrofit.Builder()
     .baseUrl(baseUrl)
-    .client(provideOkHttpClient(provideLoggingInterceptor(), null))
+    .client(
+        provideOkHttpClient(
+            provideLoggingInterceptor(),
+            provideAuthInterceptor(provideAuthTokenProvider(context))
+        )
+    )
     .addConverterFactory(GsonConverterFactory.create())
     .build()
-    .create(AuthApi::class.java)
-//
-// fun provideApi(context: Context): GithubApi
-//        = Retrofit.Builder()
-//    .baseUrl(baseUrl)
-//    .client(provideOkHttpClient(provideLoggingInterceptor(),
-//        provideAuthInterceptor(provideAuthTokenProvider(context))))
-//    .addConverterFactory(GsonConverterFactory.create())
-//    .build()
-//    .create(GithubApi::class.java)
+    .create(UserApi::class.java)
 
 private fun provideOkHttpClient(
     interceptor: HttpLoggingInterceptor,
     authInterceptor: AuthInterceptor?
 ): OkHttpClient =
-        OkHttpClient.Builder()
-    .run {
-        if (null != authInterceptor) {
-            addInterceptor(authInterceptor)
+    OkHttpClient.Builder()
+        .run {
+            if (null != authInterceptor) {
+                addInterceptor(authInterceptor)
+            }
+            addInterceptor(interceptor)
+            build()
         }
-        addInterceptor(interceptor)
-        build()
-    }
 
 private fun provideLoggingInterceptor(): HttpLoggingInterceptor =
-        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+    HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
-private fun provideAuthInterceptor(provider: AuthTokenProvider): AuthInterceptor {
+private fun provideAuthInterceptor(provider: UserManageProvider): AuthInterceptor {
     val token = provider.token ?: throw IllegalStateException("authToken cannot be null.")
     return AuthInterceptor(token)
 }
 
-private fun provideAuthTokenProvider(context: Context): AuthTokenProvider =
-        AuthTokenProvider(context.applicationContext)
+private fun provideAuthTokenProvider(context: Context): UserManageProvider =
+    UserManageProvider(context.applicationContext)
 
 internal class AuthInterceptor(private val token: String) : Interceptor {
 

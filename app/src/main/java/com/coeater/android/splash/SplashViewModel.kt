@@ -4,34 +4,28 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.AuthApi
+import com.coeater.android.api.UserManageProvider
+import com.coeater.android.model.Result
 import com.coeater.android.model.UserManage
 import java.lang.Error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-sealed class Result<out R> {
-    data class Success<out T>(val data: T) : Result<T>()
-    data class Error(val exception: Exception) : Result<Nothing>()
-}
+class SplashViewModel(
+    private val api: AuthApi,
+    private val userManageProvider: UserManageProvider
+) : ViewModel() {
 
-class SplashViewModel(private val api: AuthApi) : ViewModel() {
-
-    // Create a LiveData with a String
     val isLoginSuccess: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
 
-    // ViewModel의 생성과 함께 API 호출
-    init {
-    }
-
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
-           val myInfo = getMyInfo()
-            when (myInfo) {
+            when (val myInfo = getMyInfo()) {
                 is Result.Success<UserManage> -> {
-                    myInfo.data
+                    userManageProvider.updateUserManage(myInfo.data)
                     isLoginSuccess.postValue(true)
                 }
                 is Error -> {

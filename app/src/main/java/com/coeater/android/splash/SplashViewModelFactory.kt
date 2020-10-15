@@ -3,14 +3,16 @@ package com.coeater.android.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.coeater.android.api.AuthApi
+import com.coeater.android.api.UserManageProvider
 
 class SplashViewModelFactory(
-    val api: AuthApi
+    val api: AuthApi,
+    val userManageProvider: UserManageProvider
 ) :
     ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return SplashViewModel(api) as T
+        return SplashViewModel(api, userManageProvider) as T
     }
 }
