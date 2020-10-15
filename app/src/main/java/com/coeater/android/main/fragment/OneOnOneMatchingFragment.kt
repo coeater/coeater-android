@@ -11,7 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import kotlinx.android.synthetic.main.fragment_oneonone_matching.*
 
-class OneOnOneMatchingFragment(val state : State) : Fragment() {
+class OneOnOneMatchingFragment(val state: State) : Fragment() {
 
     enum class State { INVITING, INVITED, ACCEPTED }
 
@@ -38,23 +38,23 @@ class OneOnOneMatchingFragment(val state : State) : Fragment() {
     }
 
     fun setText() {
-        when(state) {
+        when (state) {
             State.INVITING -> {
                 tv_text1.setText("waiting For")
-                tv_text2.setText("Mr.Gourmet") //TODO change target's name
+                tv_text2.setText("Mr.Gourmet") // TODO change target's name
                 tv_text2.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
                 tv_text3.visibility = View.GONE
                 layout_accept.visibility = View.GONE
                 linearLayout.visibility = View.GONE
             }
             State.INVITED -> {
-                tv_text1.setText("Mr.Groumet") //TODO change target's name
+                tv_text1.setText("Mr.Groumet") // TODO change target's name
                 tv_text2.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
                 tv_text2.setText("invites you")
                 tv_text3.visibility = View.GONE
             }
             State.ACCEPTED -> {
-                tv_text1.setText("Mr.Groumet") //TODO change target's name
+                tv_text1.setText("Mr.Groumet") // TODO change target's name
                 tv_text1.setTypeface(Typeface.create(tv_text2.typeface, Typeface.BOLD))
                 tv_text2.setText("accepted")
                 tv_text3.setText("your invitation")

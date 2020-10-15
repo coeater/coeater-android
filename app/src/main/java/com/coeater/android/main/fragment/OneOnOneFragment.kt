@@ -17,7 +17,6 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.fragment_oneonone.*
 
-
 class OneOnOneFragment : Fragment() {
 
     override fun onCreateView(
@@ -53,15 +52,13 @@ class OneOnOneFragment : Fragment() {
             .setPositiveButton("확인",
                 DialogInterface.OnClickListener { dialog, whichButton ->
                     val url = txtUrl.text.toString()
-                    val intent = Intent(getActivity(), CallActivity::class.java);
-                    intent.putExtra("url", url);
+                    val intent = Intent(getActivity(), CallActivity::class.java)
+                    intent.putExtra("url", url)
                     startActivity(intent)
                 })
             .setNegativeButton("Cancel",
                 DialogInterface.OnClickListener { dialog, whichButton -> })
             .show()
-
-
     }
 
     private fun checkPermission() {

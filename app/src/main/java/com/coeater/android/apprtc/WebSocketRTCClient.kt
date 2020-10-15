@@ -22,7 +22,6 @@ import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 
-
 /**
  * Negotiates signaling for chatting with https://appr.tc "rooms".
  * Uses the client<->server specifics of the apprtc AppEngine webapp.
@@ -36,7 +35,6 @@ import org.webrtc.SessionDescription
  */
 class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCClient,
     WebSocketChannelEvents {
-
 
     private val handler: Handler
     private var wsClient: WebSocketChannelClient? = null
@@ -64,8 +62,6 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     private fun disconnectFromRoomInternal() {
         wsClient?.disconnect()
     }
-
-
 
     // Send local offer SDP to the other participant.
     override fun sendOfferSdp(sdp: SessionDescription) {
@@ -118,7 +114,6 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         Log.d(TAG, initiator.toString() + "on WebSocket Ready!")
         val parameter = SignalServerRTCClient.SignalingParameters(listOf(stunServer, turnServer), initiator)
         events.onConnectedToRoom(parameter)
-
     }
 
     override fun onWebSocketGetOffer(message: String) {
@@ -147,8 +142,6 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     override fun onWebSocketClose() {
         events.onChannelClose()
     }
-
-
 
     companion object {
         private const val TAG = "WSRTCClient"

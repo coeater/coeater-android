@@ -24,7 +24,7 @@ class SearchButton : ConstraintLayout {
     }
 
     fun configure(icon: Int?, title: String, detail: String) {
-        if(icon != null) iv_icon.setImageResource(icon);
+        if (icon != null) iv_icon.setImageResource(icon)
         tv_title.text = title
         tv_description.text = detail
     }

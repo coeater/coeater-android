@@ -15,7 +15,6 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 
-
 /**
  * WebSocket client implementation.
  *
@@ -29,7 +28,6 @@ class WebSocketChannelClient(
     private val events: WebSocketChannelEvents
 ) {
     private var socket: Socket? = null
-
 
     /**
      * Callback interface for messages delivered on WebSocket.
@@ -52,7 +50,6 @@ class WebSocketChannelClient(
                     this.emit("create or join", roomID)
                 })
                 .on(Socket.EVENT_DISCONNECT, Emitter.Listener {
-
                 })
                 .on("log", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
@@ -75,8 +72,6 @@ class WebSocketChannelClient(
                 })
             this.connect()
         }
-
-
     }
 
     fun send(event: String, message: String) {
@@ -85,7 +80,6 @@ class WebSocketChannelClient(
         socket?.emit(event, message)
     }
 
-
     fun disconnect() {
         checkIfCalledOnValidThread()
         // TODO: send signal to Bye to websocket!
@@ -93,17 +87,14 @@ class WebSocketChannelClient(
         socket = null
     }
 
-
     // Helper method for debugging purposes. Ensures that WebSocket method is
     // called on a looper thread.
     private fun checkIfCalledOnValidThread() {
         check(!(Thread.currentThread() !== handler.looper.thread)) { "WebSocket method is not called on valid thread" }
     }
 
-
     companion object {
         private const val TAG = "WSChannelRTCClient"
         private const val CLOSE_TIMEOUT = 1000
     }
-
 }

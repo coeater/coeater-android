@@ -1,7 +1,6 @@
 package com.coeater.android.main.fragment
 
 import android.os.Bundle
-import android.os.SharedMemory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,7 @@ import androidx.fragment.app.Fragment
 import com.coeater.android.R
 import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 
-class OneOnOneCodeFragment(val state : State) : Fragment() {
+class OneOnOneCodeFragment(val state: State) : Fragment() {
 
     enum class State { SHARE, JOIN }
 
@@ -42,7 +41,7 @@ class OneOnOneCodeFragment(val state : State) : Fragment() {
                 iv_state.setImageResource(R.drawable.login_24_px)
                 tv_state.text = "Join"
                 et_code_number.visibility = View.VISIBLE
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
             }
         }
     }
