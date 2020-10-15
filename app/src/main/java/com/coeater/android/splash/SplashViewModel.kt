@@ -7,6 +7,9 @@ import com.coeater.android.api.AuthApi
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.model.Result
 import com.coeater.android.model.UserManage
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.iid.FirebaseInstanceId
 import java.lang.Error
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +26,8 @@ class SplashViewModel(
 
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val myInfo = getMyInfo()) {
+            val instanceId = getInstanceId()
+            when (val myInfo = getMyInfo(instanceId)) {
                 is Result.Success<UserManage> -> {
                     userManageProvider.updateUserManage(myInfo.data)
                     isLoginSuccess.postValue(true)
@@ -35,20 +39,24 @@ class SplashViewModel(
         }
     }
 
-    private suspend fun getMyInfo(): Result<UserManage> {
+    private fun getInstanceId(): String {
+        return FirebaseInstanceId.getInstance().id
+    }
+
+    private suspend fun getMyInfo(uid: String): Result<UserManage> {
         return try {
-            val response = api.register("12345666", "testNickname")
+            val response = api.register(uid, uid)
             Result.Success(response)
         } catch (e: HttpException) {
-            login()
+            login(uid)
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
-    private suspend fun login(): Result<UserManage> {
+    private suspend fun login(uid: String): Result<UserManage> {
         return try {
-            val response = api.login("12345666")
+            val response = api.login(uid)
             Result.Success(response)
         } catch (e: HttpException) {
             Result.Error(e)

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.coeater.android.api.UserApi
 
 class MainViewModelFactory(
-    val api: UserApi
+    private val api: UserApi
 ) :
     ViewModelProvider.Factory {
 

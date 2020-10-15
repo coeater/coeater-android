@@ -6,8 +6,8 @@ import com.coeater.android.api.AuthApi
 import com.coeater.android.api.UserManageProvider
 
 class SplashViewModelFactory(
-    val api: AuthApi,
-    val userManageProvider: UserManageProvider
+    private val api: AuthApi,
+    private val userManageProvider: UserManageProvider
 ) :
     ViewModelProvider.Factory {
 
