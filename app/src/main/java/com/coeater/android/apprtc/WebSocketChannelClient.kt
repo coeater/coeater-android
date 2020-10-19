@@ -15,7 +15,6 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 
-
 /**
  * WebSocket client implementation.
  *
@@ -30,7 +29,10 @@ class WebSocketChannelClient(
 ) {
     private var socket: Socket? = null
 
-
+    companion object {
+        private const val baseURL = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:4000/"
+        private const val TAG = "WSChannelRTCClient"
+    }
     /**
      * Callback interface for messages delivered on WebSocket.
      * All events are dispatched from a looper executor thread.
@@ -45,14 +47,12 @@ class WebSocketChannelClient(
 
     fun connect(roomID: String) {
         checkIfCalledOnValidThread()
-        socket = IO.socket("http://0d06eb411056.ngrok.io").apply {
+        socket = IO.socket(baseURL).apply {
             this
                 .on(Socket.EVENT_CONNECT, Emitter.Listener {
-                    Log.d(TAG, "HELLO")
                     this.emit("create or join", roomID)
                 })
                 .on(Socket.EVENT_DISCONNECT, Emitter.Listener {
-
                 })
                 .on("log", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
@@ -75,8 +75,6 @@ class WebSocketChannelClient(
                 })
             this.connect()
         }
-
-
     }
 
     fun send(event: String, message: String) {
@@ -85,7 +83,6 @@ class WebSocketChannelClient(
         socket?.emit(event, message)
     }
 
-
     fun disconnect() {
         checkIfCalledOnValidThread()
         // TODO: send signal to Bye to websocket!
@@ -93,17 +90,10 @@ class WebSocketChannelClient(
         socket = null
     }
 
-
     // Helper method for debugging purposes. Ensures that WebSocket method is
     // called on a looper thread.
     private fun checkIfCalledOnValidThread() {
         check(!(Thread.currentThread() !== handler.looper.thread)) { "WebSocket method is not called on valid thread" }
-    }
-
-
-    companion object {
-        private const val TAG = "WSChannelRTCClient"
-        private const val CLOSE_TIMEOUT = 1000
     }
 
 }

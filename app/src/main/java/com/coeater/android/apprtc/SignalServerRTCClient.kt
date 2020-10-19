@@ -86,6 +86,5 @@ interface SignalServerRTCClient {
          * Callback fired once channel is closed.
          */
         fun onChannelClose()
-
     }
 }

@@ -22,7 +22,6 @@ import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 
-
 /**
  * Negotiates signaling for chatting with https://appr.tc "rooms".
  * Uses the client<->server specifics of the apprtc AppEngine webapp.
@@ -36,7 +35,6 @@ import org.webrtc.SessionDescription
  */
 class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCClient,
     WebSocketChannelEvents {
-
 
     private val handler: Handler
     private var wsClient: WebSocketChannelClient? = null
@@ -65,13 +63,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         wsClient?.disconnect()
     }
 
-
-
     // Send local offer SDP to the other participant.
     override fun sendOfferSdp(sdp: SessionDescription) {
         handler.post(Runnable {
 
-            val offerSdp = OfferSdp(sdp.description, roomId)
+            val offerSdp = OfferSdp(sdp.description)
             val gson = Gson()
             val json = gson.toJson(offerSdp)
             wsClient?.send("offer", json)
@@ -82,7 +78,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     // Send local answer SDP to the other participant.
     override fun sendAnswerSdp(sdp: SessionDescription) {
         handler.post(Runnable {
-            val answerSdp = AnswerSdp(sdp.description, roomId)
+            val answerSdp = AnswerSdp(sdp.description)
             val gson = Gson()
             val json = gson.toJson(answerSdp)
 
@@ -93,7 +89,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     // Send Ice candidate to the other participant.
     override fun sendLocalIceCandidate(candidate: IceCandidate) {
         handler.post(Runnable {
-            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp, roomId)
+            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp)
             val gson = Gson()
             val json = gson.toJson(signal)
             wsClient?.send("send iceCandidate", json)
@@ -118,21 +114,24 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         Log.d(TAG, initiator.toString() + "on WebSocket Ready!")
         val parameter = SignalServerRTCClient.SignalingParameters(listOf(stunServer, turnServer), initiator)
         events.onConnectedToRoom(parameter)
-
     }
 
     override fun onWebSocketGetOffer(message: String) {
         Log.d(TAG, message)
+        val gson = Gson()
+        val offer = gson.fromJson(message, OfferSdp::class.java)
         val sdp = SessionDescription(
-            SessionDescription.Type.OFFER, message
+            SessionDescription.Type.OFFER, offer.sessionDescription
         )
         events.onRemoteDescription(sdp)
     }
 
     override fun onWebSocketGetAnswer(message: String) {
         Log.d(TAG, message)
+        val gson = Gson()
+        val answer = gson.fromJson(message, AnswerSdp::class.java)
         val sdp = SessionDescription(
-            SessionDescription.Type.ANSWER, message
+            SessionDescription.Type.ANSWER, answer.sessionDescription
         )
         events.onRemoteDescription(sdp)
     }
@@ -147,8 +146,6 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     override fun onWebSocketClose() {
         events.onChannelClose()
     }
-
-
 
     companion object {
         private const val TAG = "WSRTCClient"

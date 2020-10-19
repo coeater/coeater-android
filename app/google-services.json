@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "341653979109",
+    "firebase_url": "https://coeater-android.firebaseio.com",
+    "project_id": "coeater-android",
+    "storage_bucket": "coeater-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341653979109:android:c1c791a8144023d34bb90c",
+        "android_client_info": {
+          "package_name": "com.coeater.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "341653979109-smipk8osokpvvqi4prl4au134gu7s8g8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coeater.android",
+            "certificate_hash": "1b0f8344860d0578f36e3b75214d538245e382f0"
+          }
+        },
+        {
+          "client_id": "341653979109-k93i81bgtrvago1fgt234g9fjqocesdl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXlCXzlPsfTjQQWbJEdF0uasetu4gDD7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "341653979109-k93i81bgtrvago1fgt234g9fjqocesdl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

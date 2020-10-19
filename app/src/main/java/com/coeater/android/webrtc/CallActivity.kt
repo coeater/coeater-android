@@ -11,17 +11,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.UiThread
 import com.coeater.android.R
-import com.coeater.android.apprtc.SignalServerRTCClient
-import com.coeater.android.apprtc.SignalServerRTCClient.*
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
+import com.coeater.android.apprtc.SignalServerRTCClient
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
+import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
 import java.util.*
-
 
 /**
  * Activity for peer connection call setup, call waiting
@@ -59,8 +59,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         val intent = intent
 
         val url =
-            intent.extras.getString("url") //intent.getStringExtra("name") 라고해도됨
-
+            intent.extras.getString("url") // intent.getStringExtra("name") 라고해도됨
 
         iceConnected = false
         signalingParameters = null
@@ -111,7 +110,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Connect video call to the random room
         connectVideoCall(randomRoomID)
     }
-
 
     // Join video call with randomly generated roomId
     private fun connectVideoCall(roomId: String) {
@@ -398,8 +396,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
             disconnect()
         }
     }
-
-
 
     // -----Implementation of PeerConnectionClient.PeerConnectionEvents.---------
     // Send local peer connection SDP and ICE candidates to remote party.
