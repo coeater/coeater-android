@@ -67,7 +67,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     override fun sendOfferSdp(sdp: SessionDescription) {
         handler.post(Runnable {
 
-            val offerSdp = OfferSdp(sdp.description, roomId)
+            val offerSdp = OfferSdp(sdp.description)
             val gson = Gson()
             val json = gson.toJson(offerSdp)
             wsClient?.send("offer", json)
@@ -78,7 +78,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     // Send local answer SDP to the other participant.
     override fun sendAnswerSdp(sdp: SessionDescription) {
         handler.post(Runnable {
-            val answerSdp = AnswerSdp(sdp.description, roomId)
+            val answerSdp = AnswerSdp(sdp.description)
             val gson = Gson()
             val json = gson.toJson(answerSdp)
 
@@ -89,7 +89,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     // Send Ice candidate to the other participant.
     override fun sendLocalIceCandidate(candidate: IceCandidate) {
         handler.post(Runnable {
-            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp, roomId)
+            val signal = SignalIceCandidate(candidate.sdpMLineIndex, candidate.sdpMid, candidate.sdp)
             val gson = Gson()
             val json = gson.toJson(signal)
             wsClient?.send("send iceCandidate", json)
@@ -118,16 +118,20 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
 
     override fun onWebSocketGetOffer(message: String) {
         Log.d(TAG, message)
+        val gson = Gson()
+        val offer = gson.fromJson(message, OfferSdp::class.java)
         val sdp = SessionDescription(
-            SessionDescription.Type.OFFER, message
+            SessionDescription.Type.OFFER, offer.sessionDescription
         )
         events.onRemoteDescription(sdp)
     }
 
     override fun onWebSocketGetAnswer(message: String) {
         Log.d(TAG, message)
+        val gson = Gson()
+        val answer = gson.fromJson(message, AnswerSdp::class.java)
         val sdp = SessionDescription(
-            SessionDescription.Type.ANSWER, message
+            SessionDescription.Type.ANSWER, answer.sessionDescription
         )
         events.onRemoteDescription(sdp)
     }
