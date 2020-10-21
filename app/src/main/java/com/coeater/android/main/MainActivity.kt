@@ -9,6 +9,7 @@ import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.main.fragment.OneOnOneFragment
 import com.coeater.android.model.FriendsInfo
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,14 +32,17 @@ class MainActivity : AppCompatActivity() {
     private fun setup() {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
-        fragmentTransaction.commit()
 
         viewModel = ViewModelProviders.of(
             this, viewModelFactory)[MainViewModel::class.java]
         viewModel.friendsInfo.observe(this, Observer<FriendsInfo> { friends ->
             showFriends(friends)
         })
+
+        fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
+        fragmentTransaction.commit()
+
+        iv_menu.setOnClickListener { showMe() }
     }
 
     override fun onStart() {
@@ -49,5 +53,9 @@ class MainActivity : AppCompatActivity() {
     private fun showFriends(friendsInfo: FriendsInfo) {
         Toast.makeText(this, friendsInfo.toString(), Toast.LENGTH_LONG)
             .show()
+    }
+
+    private fun showMe() {
+        Toast.makeText(this, viewModel.friendsInfo.value?.owner.toString(), Toast.LENGTH_SHORT).show()
     }
 }

@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dusk">
+    android:background="@color/salmon">
 
     <ImageView
         android:id="@+id/iv_icon"
         android:layout_width="200dp"
         android:layout_height="220dp"
-        android:src="@drawable/coeater_logo"
+        android:src="@drawable/logo_3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
