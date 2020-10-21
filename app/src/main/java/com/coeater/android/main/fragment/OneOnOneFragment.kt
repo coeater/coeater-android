@@ -11,13 +11,28 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
+import com.coeater.android.api.provideUserApi
+import com.coeater.android.main.MainViewModel
+import com.coeater.android.main.MainViewModelFactory
+import com.coeater.android.main.recyclerview.addFriendAdapter
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.fragment_oneonone.*
+import kotlinx.android.synthetic.main.view_main_friends.view.*
 
 class OneOnOneFragment : Fragment() {
+
+    private val viewModel : MainViewModel by activityViewModels {
+        MainViewModelFactory(
+            provideUserApi(requireContext())
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +53,16 @@ class OneOnOneFragment : Fragment() {
         main_button_invite_friend.setOnClickListener {
             checkPermission()
         }
+        setRecyclerView(include_friends.rv_friends)
+    }
+
+    private fun setRecyclerView(FriendsRecyclerView : RecyclerView) {
+        viewModel.friendsInfo.observe(viewLifecycleOwner, Observer { friendsInfo ->
+            FriendsRecyclerView.apply {
+                adapter = addFriendAdapter(requireContext(), friendsInfo.friends)
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+            }
+        })
     }
 
     private fun openCallActivity() {
