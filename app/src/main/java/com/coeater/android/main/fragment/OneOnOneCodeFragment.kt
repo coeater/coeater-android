@@ -1,6 +1,7 @@
 package com.coeater.android.main.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.coeater.android.R
 import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 
+private val TAG = "CodeFragment"
 class OneOnOneCodeFragment(val state: State) : Fragment() {
 
     enum class State { SHARE, JOIN }
@@ -18,15 +20,19 @@ class OneOnOneCodeFragment(val state: State) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.i(TAG, "On Create View")
         return inflater.inflate(R.layout.fragment_oneonone_code, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        Log.i(TAG, "On View Created")
         super.onViewCreated(view, savedInstanceState)
         setup()
     }
 
     fun setup() {
+        Log.i(TAG, "Setup")
         when (state) {
             State.SHARE -> {
                 tv_code_title.text = "Your Code"
