@@ -40,19 +40,18 @@
         <activity
             android:name=".main.MainActivity"
             android:screenOrientation="portrait">
-
         </activity>
         <activity
             android:name=".join.JoinActivity"
             android:screenOrientation="portrait">
-
         </activity>
         <activity
             android:name=".invitation.InvitationActivity"
             android:screenOrientation="portrait">
-
         </activity>
-
+        <activity
+            android:name=".main.AddFriendActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".webrtc.CallActivity"
             android:configChanges="orientation|screenSize"

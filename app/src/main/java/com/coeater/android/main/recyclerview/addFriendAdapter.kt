@@ -1,29 +1,62 @@
 package com.coeater.android.main.recyclerview
 
 import android.content.Context
+import android.content.Intent
 import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
+import com.coeater.android.main.AddFriendActivity
 import com.coeater.android.model.User
+import kotlinx.android.synthetic.main.view_friends_add_recycler_item.view.*
 import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
-class addFriendAdapter(private val context : Context, private val friendsDataset : List<User>) : FriendsAdapter(context, friendsDataset) {
+class AddFriendAdapter(private val context : Context, private val friendsDataset : List<User>) : FriendsAdapter(context, friendsDataset) {
+
+    companion object ViewType {
+        const val DEFAULT = 0;
+        const val ADD = 1;
+    }
+
+    class AddFriendsViewHolder(val ItemLayout : ConstraintLayout) : RecyclerView.ViewHolder(ItemLayout)
+
     override fun getItemCount(): Int {
         return super.getItemCount()+1
     }
 
-    override fun onBindViewHolder(holder: FriendsViewHolder, position: Int) {
-        if(position == 0) {
-            holder.ItemLayout.iv_profile.setImageResource(R.drawable.add_circle_outline_24_px)
-            holder.ItemLayout.iv_profile.layoutParams.width =
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40F, context.resources.displayMetrics).toInt()
-            holder.ItemLayout.iv_profile.layoutParams.height =
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40F, context.resources.displayMetrics).toInt()
-            val layoutParams : ConstraintLayout.LayoutParams = holder.ItemLayout.iv_profile.layoutParams as ConstraintLayout.LayoutParams
-            layoutParams.topMargin = 0;
-            holder.ItemLayout.iv_profile.layoutParams = layoutParams
-            holder.ItemLayout.tv_name.text = "Add friend"
+    override fun getItemViewType(position: Int): Int {
+        return when(position) {
+            0 -> ADD;
+            else -> DEFAULT;
         }
-        else super.onBindViewHolder(holder, position-1)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType) {
+            ADD -> {
+                val itemLayout = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.view_friends_add_recycler_item, parent, false) as ConstraintLayout
+
+                AddFriendsViewHolder(itemLayout)
+            }
+            else -> super.onCreateViewHolder(parent, viewType)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is AddFriendsViewHolder -> {
+                holder.ItemLayout.iv_add.setOnClickListener { startAddFriendActivity() }
+            }
+            else -> super.onBindViewHolder(holder, position-1)
+        }
+    }
+
+    private fun startAddFriendActivity() {
+        val intent : Intent = Intent(context, AddFriendActivity::class.java)
+        context.startActivity(intent)
     }
 }
