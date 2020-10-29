@@ -43,7 +43,7 @@
 
         </activity>
         <activity
-            android:name=".code.CodeActivity"
+            android:name=".join.JoinActivity"
             android:screenOrientation="portrait">
 
         </activity>

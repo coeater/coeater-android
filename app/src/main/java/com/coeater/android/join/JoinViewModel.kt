@@ -1,18 +1,17 @@
-package com.coeater.android.code
+package com.coeater.android.join
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.MatchApi
 import com.coeater.android.api.UserManageProvider
-import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.model.HTTPResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class CodeViewModel(
+class JoinViewModel(
     private val api: MatchApi,
     private val userManageProvider: UserManageProvider
 ) : ViewModel() {
