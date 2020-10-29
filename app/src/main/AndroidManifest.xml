@@ -42,6 +42,11 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <activity
+            android:name=".code.CodeActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
 
         <activity
             android:name=".webrtc.CallActivity"
