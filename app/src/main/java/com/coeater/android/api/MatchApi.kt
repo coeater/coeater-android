@@ -2,10 +2,8 @@ package com.coeater.android.api
 
 import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.RoomResponse
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.POST
+import com.coeater.android.model.UserManage
+import retrofit2.http.*
 
 interface MatchApi {
     @FormUrlEncoded
@@ -15,4 +13,14 @@ interface MatchApi {
     @FormUrlEncoded
     @POST("match/invitation/")
     suspend fun createRoom(@Field("id")id: Int? = null): RoomResponse
+
+    @GET("match/invitation/{id}/")
+    suspend fun getRoom(
+        @Path("id") id: Int
+    ): RoomResponse
+
+    @PUT("match/invitation/{id}/")
+    suspend fun acceptInvitation(
+        @Path("id") id: Int
+    ): RoomResponse
 }
