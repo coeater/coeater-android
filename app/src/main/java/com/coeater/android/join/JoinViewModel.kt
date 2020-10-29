@@ -32,7 +32,15 @@ class JoinViewModel(
             val response = getRoom(code)
             when (response) {
                 is HTTPResult.Success<RoomResponse> -> {
-                    roomCreateSuccess.postValue(response.data)
+                    val result = accept(response.data.id)
+                    when (result) {
+                        is HTTPResult.Success<RoomResponse> -> {
+                            roomCreateSuccess.postValue(result.data)
+                        }
+                        is Error -> {
+
+                        }
+                    }
                 }
                 is Error -> {
 
@@ -40,6 +48,19 @@ class JoinViewModel(
                 }
             }
 
+        }
+    }
+
+    private suspend fun accept(id: Int): HTTPResult<RoomResponse> {
+        return try {
+            val response = api.acceptInvitation(id)
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+            // 룸이 존재하지 않는 것
+        } catch (e: Exception) {
+            // 네트워크가 불안정함
+            HTTPResult.Error(e)
         }
     }
     private suspend fun getRoom(code: String): HTTPResult<RoomResponse> {
