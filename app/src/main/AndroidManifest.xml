@@ -16,7 +16,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -25,7 +27,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:usesCleartextTraffic="true"
+        android:name=".GlobalApplication"
         tools:replace="allowBackup">
+
         <activity
             android:name=".splash.SplashActivity"
             android:launchMode="singleTop"
@@ -35,6 +39,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- "kakao{YOUR_NATIVE_APP_KEY}://kakaolink" 형식의 앱 실행 스킴을 설정하는데 사용 -->
+                <data android:host="kakaolink"
+                    android:scheme="kakao5a266dea13fcf275e773bc6392f74fe7" />
             </intent-filter>
         </activity>
         <activity
