@@ -32,7 +32,7 @@ class InvitationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_code)
+        setContentView(R.layout.activity_join)
         setup()
     }
 
