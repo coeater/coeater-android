@@ -43,7 +43,7 @@ class InvitationViewModel(
     fun onStart(id: Int) {
         var trigger: Boolean = true
         viewModelScope.launch(Dispatchers.IO) {
-            while (trigger == null) {
+            while (trigger) {
                 delay(1000)
                 val response = getRoom(id)
                 when (response) {

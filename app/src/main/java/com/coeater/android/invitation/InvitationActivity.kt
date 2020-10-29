@@ -52,7 +52,7 @@ class InvitationActivity : AppCompatActivity() {
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
             tv_code_number.text = it.room_code
-            this.roomId = it.id
+            roomId = it.id
 
             if(it.accepted != AcceptedState.NOTCHECK) {
                 if(it.checked) {
@@ -62,7 +62,10 @@ class InvitationActivity : AppCompatActivity() {
                     if(roomId != null) {
                         viewModel.onAccept(roomId ?: 0)
                     }
-                }
+            }
+            }
+            else {
+                viewModel.onStart(roomId ?: 0)
             }
 
         })
@@ -70,8 +73,6 @@ class InvitationActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(roomId != null)
-            viewModel.onStart(roomId ?: 0)
     }
 
     private fun checkPermission(url: String) {
