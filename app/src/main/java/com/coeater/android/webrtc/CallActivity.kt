@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.UiThread
@@ -49,9 +50,9 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     private var isSwappedFeeds = false
 
     // Control buttons for limited UI
-    private var disconnectButton: ImageButton? = null
-    private var cameraSwitchButton: ImageButton? = null
-    private var toggleMuteButton: ImageButton? = null
+    private var disconnectButton: RelativeLayout? = null
+    private var cameraSwitchButton: RelativeLayout? = null
+//    private var toggleMuteButton: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,17 +68,17 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Create UI controls.
         pipRenderer = findViewById(R.id.pip_video_view)
         fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
-        disconnectButton = findViewById(R.id.button_call_disconnect)
-        cameraSwitchButton = findViewById(R.id.button_call_switch_camera)
-        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
+        disconnectButton = findViewById(R.id.button_exit)
+        cameraSwitchButton = findViewById(R.id.button_change)
+//        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
 
         // Add buttons click events.
         disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
         cameraSwitchButton?.setOnClickListener(View.OnClickListener { onCameraSwitch() })
-        toggleMuteButton?.setOnClickListener(View.OnClickListener {
-            val enabled = onToggleMic()
-            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
-        })
+//        toggleMuteButton?.setOnClickListener(View.OnClickListener {
+//            val enabled = onToggleMic()
+//            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
+//        })
 
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
@@ -100,8 +101,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Generate a random room ID with 7 uppercase letters and digits
         val randomRoomID = url
         // Show the random room ID so that another client can join from https://appr.tc
-        val roomIdTextView = findViewById<TextView>(R.id.roomID)
-        roomIdTextView.text = getString(R.string.room_id_caption).toString() + randomRoomID
         Log.d(
             TAG,
             getString(R.string.room_id_caption).toString() + randomRoomID
@@ -113,7 +112,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
 
     // Join video call with randomly generated roomId
     private fun connectVideoCall(roomId: String) {
-        val roomUri = Uri.parse(APPRTC_URL)
         val videoWidth = 0
         val videoHeight = 0
         peerConnectionParameters = PeerConnectionParameters(
@@ -194,6 +192,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Enable statistics callback.
         peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
+        pipRenderer?.visibility = View.VISIBLE
     }
 
     // Disconnect from remote resources, dispose of local resources, and exit.
@@ -526,10 +525,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
 
     companion object {
         private const val TAG = "CallActivity"
-        private const val APPRTC_URL = "https://appr.tc"
-        private const val UPPER_ALPHA_DIGITS = "ACEFGHJKLMNPQRUVWXY123456789"
-
-        // Peer connection statistics callback period in ms.
         private const val STAT_CALLBACK_PERIOD = 1000
     }
 }
