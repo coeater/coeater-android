@@ -87,58 +87,58 @@ class OneOnOneFragment : Fragment() {
         })
     }
 
-//    private fun openCallActivity() {
-//        Log.i(TAG, "Open Call Activity")
-//        val txtUrl = EditText(this.context)
-//
-//        txtUrl.hint = "7자 숫자"
-//
-//        AlertDialog.Builder(this.context)
-//            .setTitle("Test ID")
-//            .setMessage("Paste in the link of an image to moustachify!")
-//            .setView(txtUrl)
-//            .setPositiveButton("확인",
-//                DialogInterface.OnClickListener { dialog, whichButton ->
-//                    val url = txtUrl.text.toString()
-//                    val intent = Intent(getActivity(), CallActivity::class.java)
-//                    intent.putExtra("url", url)
-//                    startActivity(intent)
-//                })
-//            .setNegativeButton("Cancel",
-//                DialogInterface.OnClickListener { dialog, whichButton -> })
-//            .show()
-//    }
-//
-//    private fun checkPermission() {
-//        Log.i(TAG, "Check Permission")
-//        val permissionListener: PermissionListener = object : PermissionListener {
-//            override fun onPermissionGranted() {
-//                Toast.makeText(
-//                    this@OneOnOneFragment.context,
-//                    "Permission Granted",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                openCallActivity()
-////                (activity as MainActivity).replaceFragment("OneOnOneCode", OneOnOneCodeFragment.State.SHARE)
-//            }
-//
-//            override fun onPermissionDenied(deniedPermissions: List<String>) {
-//                Toast.makeText(
-//                    this@OneOnOneFragment.context,
-//                    "Permission Denied\n$deniedPermissions",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
-//
-//        TedPermission.with(this.context)
-//            .setPermissionListener(permissionListener)
-//            .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
-//            .setPermissions(
-//                Manifest.permission.RECORD_AUDIO,
-//                Manifest.permission.CAMERA,
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE
-//            )
-//            .check()
-//    }
+    private fun openCallActivity() {
+        Log.i(TAG, "Open Call Activity")
+        val txtUrl = EditText(this.context)
+
+        txtUrl.hint = "7자 숫자"
+
+        AlertDialog.Builder(this.context)
+            .setTitle("Test ID")
+            .setMessage("Paste in the link of an image to moustachify!")
+            .setView(txtUrl)
+            .setPositiveButton("확인",
+                DialogInterface.OnClickListener { dialog, whichButton ->
+                    val url = txtUrl.text.toString()
+                    val intent = Intent(getActivity(), CallActivity::class.java)
+                    intent.putExtra("url", url)
+                    startActivity(intent)
+                })
+            .setNegativeButton("Cancel",
+                DialogInterface.OnClickListener { dialog, whichButton -> })
+            .show()
+    }
+
+    private fun checkPermission() {
+        Log.i(TAG, "Check Permission")
+        val permissionListener: PermissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {
+                Toast.makeText(
+                    this@OneOnOneFragment.context,
+                    "Permission Granted",
+                    Toast.LENGTH_SHORT
+                ).show()
+                openCallActivity()
+//                (activity as MainActivity).replaceFragment("OneOnOneCode", OneOnOneCodeFragment.State.SHARE)
+            }
+
+            override fun onPermissionDenied(deniedPermissions: List<String>) {
+                Toast.makeText(
+                    this@OneOnOneFragment.context,
+                    "Permission Denied\n$deniedPermissions",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        TedPermission.with(this.context)
+            .setPermissionListener(permissionListener)
+            .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
+            .setPermissions(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            .check()
+    }
 }
