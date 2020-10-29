@@ -1,13 +1,12 @@
-package com.coeater.android.code
+package com.coeater.android.join
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.coeater.android.api.MatchApi
-import com.coeater.android.api.UserApi
 import com.coeater.android.api.UserManageProvider
 
 
-class CodeViewModelFactory(
+class JoinViewModelFactory(
     private val api: MatchApi,
     private val userManageProvider: UserManageProvider
 ) :
@@ -15,6 +14,6 @@ class CodeViewModelFactory(
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return CodeViewModel(api, userManageProvider) as T
+        return JoinViewModel(api, userManageProvider) as T
     }
 }

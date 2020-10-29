@@ -18,9 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
-import com.coeater.android.code.CodeActivity
 import com.coeater.android.invitation.InvitationActivity
-import com.coeater.android.main.MainActivity
+import com.coeater.android.join.JoinActivity
 import com.coeater.android.main.MainViewModel
 import com.coeater.android.main.MainViewModelFactory
 import com.coeater.android.main.recyclerview.addFriendAdapter
@@ -70,7 +69,7 @@ class OneOnOneFragment : Fragment() {
             startActivity(intent)
         }
         main_button_search_friend.setOnClickListener {
-            val intent = Intent(getActivity(), CodeActivity::class.java)
+            val intent = Intent(getActivity(), JoinActivity::class.java)
             startActivity(intent)
         }
         setRecyclerView(include_friends.rv_friends)
