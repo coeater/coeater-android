@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.code.CodeActivity
+import com.coeater.android.invitation.InvitationActivity
 import com.coeater.android.main.MainActivity
 import com.coeater.android.main.MainViewModel
 import com.coeater.android.main.MainViewModelFactory
@@ -65,10 +66,8 @@ class OneOnOneFragment : Fragment() {
         )
         main_button_invite_friend.setOnClickListener {
 //            checkPermission()
-            (activity as MainActivity).replaceFragment(
-                "OneOnOneCode",
-                OneOnOneCodeFragment.State.SHARE
-            )
+            val intent = Intent(getActivity(), InvitationActivity::class.java)
+            startActivity(intent)
         }
         main_button_search_friend.setOnClickListener {
             val intent = Intent(getActivity(), CodeActivity::class.java)
