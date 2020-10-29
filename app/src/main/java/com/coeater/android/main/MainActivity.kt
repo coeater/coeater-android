@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     private val oneOnOneFragment = OneOnOneFragment()
     private val oneOnOneConnectingFragment = OneOnOneConnectingFragment()
-//    private val oneOnOneCodeFragment = OneOnOneCodeFragment(OneOnOneCodeFragment.State.SHARE)
     private lateinit var oneOnOneCodeFragment: OneOnOneCodeFragment
     private lateinit var oneOnOneMatchingFragment: OneOnOneMatchingFragment
     private val ONEONONE_FRAG = "OneOnOne"
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             CODE_FRAG -> {
                 if(state != null) {
                     oneOnOneCodeFragment = OneOnOneCodeFragment(state)
-                    fragmentTransaction.replace(R.id.f_main, oneOnOneCodeFragment).addToBackStack(null).commit()
+                    fragmentTransaction.replace(R.id.f_main, oneOnOneCodeFragment)
                 } else {
                     Log.i(TAG, "Code Fragemt의 state가 필요합니다.")
                 }
@@ -103,5 +102,6 @@ class MainActivity : AppCompatActivity() {
             else -> Log.i(TAG, "sth else came in")
         }
 
+        fragmentTransaction.addToBackStack(null).commit()
     }
 }

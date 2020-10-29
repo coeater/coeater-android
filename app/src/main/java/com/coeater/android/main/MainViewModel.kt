@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.UserApi
 import com.coeater.android.model.FriendsInfo
-import com.coeater.android.model.Result
+import com.coeater.android.model.HTTPResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -21,7 +21,7 @@ class MainViewModel(
     fun fetchFriends() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val friendsResult = getFriends()) {
-                is Result.Success<FriendsInfo> -> {
+                is HTTPResult.Success<FriendsInfo> -> {
                     friendsInfo.postValue(friendsResult.data)
                 }
                 is Error -> {
@@ -30,14 +30,14 @@ class MainViewModel(
         }
     }
 
-    private suspend fun getFriends(): Result<FriendsInfo> {
+    private suspend fun getFriends(): HTTPResult<FriendsInfo> {
         return try {
             val response = api.getFriends()
-            Result.Success(response)
+            HTTPResult.Success(response)
         } catch (e: HttpException) {
-            Result.Error(e)
+            HTTPResult.Error(e)
         } catch (e: Exception) {
-            Result.Error(e)
+            HTTPResult.Error(e)
         }
     }
 }

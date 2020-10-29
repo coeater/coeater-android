@@ -31,6 +31,18 @@ fun provideUserApi(context: Context): UserApi = Retrofit.Builder()
     .build()
     .create(UserApi::class.java)
 
+fun provideMatchApi(context: Context): MatchApi = Retrofit.Builder()
+    .baseUrl(baseUrl)
+    .client(
+        provideOkHttpClient(
+            provideLoggingInterceptor(),
+            provideAuthInterceptor(provideAuthTokenProvider(context))
+        )
+    )
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+    .create(MatchApi::class.java)
+
 private fun provideOkHttpClient(
     interceptor: HttpLoggingInterceptor,
     authInterceptor: AuthInterceptor?
