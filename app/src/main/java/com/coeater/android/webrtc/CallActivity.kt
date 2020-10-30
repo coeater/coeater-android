@@ -93,15 +93,12 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         pipRenderer?.setEnableHardwareScaler(true /* enabled */)
         fullscreenRenderer?.setEnableHardwareScaler(true /* enabled */)
         // Start with local feed in fullscreen and swap it to the pip when the call is connected.
-        setSwappedFeeds(true /* isSwappedFeeds */)
+        setSwappedFeeds(false /* isSwappedFeeds */)
 
         // Generate a random room ID with 7 uppercase letters and digits
         val randomRoomID = url
         // Show the random room ID so that another client can join from https://appr.tc
-        Log.d(
-            TAG,
-            getString(R.string.room_id_caption).toString() + randomRoomID
-        )
+
 
         // Connect video call to the random room
         connectVideoCall(randomRoomID)
@@ -189,7 +186,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Enable statistics callback.
         peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
-        pipRenderer?.visibility = View.VISIBLE
+        fullscreenRenderer?.visibility = View.VISIBLE
     }
 
     // Disconnect from remote resources, dispose of local resources, and exit.
@@ -243,11 +240,11 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     // Log |msg| and Toast about it.
     private fun logAndToast(msg: String) {
         Log.d(TAG, msg)
-        if (logToast != null) {
-            logToast!!.cancel()
-        }
-        logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT)
-        logToast?.show()
+//        if (logToast != null) {
+//            logToast!!.cancel()
+//        }
+//        logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT)
+//        logToast?.show()
     }
 
     private fun reportError(description: String) {

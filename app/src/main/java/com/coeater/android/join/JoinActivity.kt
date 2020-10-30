@@ -49,7 +49,7 @@ class JoinActivity : AppCompatActivity() {
         iv_state.setImageResource(R.drawable.login_24_px)
         tv_state.text = "Join"
         et_code_number.visibility = View.VISIBLE
-        et_code_number.setText(intent.extras.getString(ROOM_CODE) ?: "", TextView.BufferType.EDITABLE)
+        et_code_number.setText(intent?.extras?.getString(ROOM_CODE) ?: "", TextView.BufferType.EDITABLE)
         this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         btn_share_or_join.setOnClickListener {
