@@ -1,5 +1,4 @@
 package com.coeater.android.webrtc
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -8,6 +7,7 @@ import android.view.View
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatActivity
 import com.coeater.android.R
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
@@ -16,7 +16,9 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
+import com.coeater.android.model.RoomResponse
 import java.util.*
+import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
@@ -25,7 +27,16 @@ import org.webrtc.VideoRenderer.I420Frame
  * Activity for peer connection call setup, call waiting
  * and call view.
  */
-class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
+class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
+
+    companion object {
+        const val ROOM_CODE = "ROOM_CODE"
+        const val IS_INVITER = "IS_INVITER"
+        const val ROOM_RESPONSE = "ROOM_RESPONSE"
+        private const val TAG = "CallActivity"
+        private const val STAT_CALLBACK_PERIOD = 1000
+    }
+
     private val remoteProxyRenderer =
         ProxyRenderer()
     private val localProxyVideoSink =
@@ -54,10 +65,6 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
-        val intent = intent
-
-        val url =
-            intent.extras.getString("url") // intent.getStringExtra("name") 라고해도됨
 
         iceConnected = false
         signalingParameters = null
@@ -95,13 +102,23 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Start with local feed in fullscreen and swap it to the pip when the call is connected.
         setSwappedFeeds(false /* isSwappedFeeds */)
 
-        // Generate a random room ID with 7 uppercase letters and digits
-        val randomRoomID = url
-        // Show the random room ID so that another client can join from https://appr.tc
+        val room_code = intent.extras.getString(ROOM_CODE)
+        connectVideoCall(room_code)
+        setupOtherInfo()
+    }
 
+    /**
+     * 통화하는 상대방의 정보를 보여 준다.
+     */
+    private fun setupOtherInfo() {
+        val is_inviter = intent.extras.getBoolean(IS_INVITER)
+        val room_response = intent.extras.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
 
-        // Connect video call to the random room
-        connectVideoCall(randomRoomID)
+        if (is_inviter) {
+            tv_name.text = room_response.target?.nickname ?: ""
+        } else {
+            tv_name.text = room_response.owner.nickname
+        }
     }
 
     // Join video call with randomly generated roomId
@@ -515,10 +532,5 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         fun setTarget(target: VideoSink?) {
             this.target = target
         }
-    }
-
-    companion object {
-        private const val TAG = "CallActivity"
-        private const val STAT_CALLBACK_PERIOD = 1000
     }
 }

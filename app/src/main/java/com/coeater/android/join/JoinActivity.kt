@@ -57,7 +57,7 @@ class JoinActivity : AppCompatActivity() {
             join()
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
-            checkPermission(it.room_code)
+            checkPermission(it.room_code, it)
         })
         viewModel.roomCreateFail.observe(this, Observer<Unit> {
             noSuchRoomError()
@@ -86,7 +86,6 @@ class JoinActivity : AppCompatActivity() {
         }
 
         viewModel.invitation(codeNumber)
-
     }
 
     private fun noSuchRoomError() {
@@ -100,18 +99,18 @@ class JoinActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
-
-
     override fun onStart() {
         super.onStart()
         viewModel.onCreate()
     }
 
-    private fun checkPermission(url: String) {
+    private fun checkPermission(roomCode: String, roomResponse: RoomResponse) {
         val permissionListener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-               val intent = Intent(this@JoinActivity, CallActivity::class.java)
-                intent.putExtra("url", url)
+                val intent = Intent(this@JoinActivity, CallActivity::class.java)
+                intent.putExtra(CallActivity.ROOM_CODE, roomCode)
+                intent.putExtra(CallActivity.IS_INVITER, false)
+                intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
                 startActivity(intent)
             }
 

@@ -39,7 +39,6 @@ class JoinViewModel(
                         is HTTPResult.Success<RoomResponse> -> {
                             roomCreateSuccess.postValue(result.data)
                         }
-
                     }
                 }
                 is HTTPResult.Error -> {

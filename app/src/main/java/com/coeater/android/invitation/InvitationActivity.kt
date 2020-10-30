@@ -69,7 +69,7 @@ class InvitationActivity : AppCompatActivity() {
 
             if (it.accepted != AcceptedState.NOTCHECK) {
                 if (it.checked) {
-                    checkPermission(it.room_code.toString())
+                    checkPermission(it.room_code, it)
                 } else {
                     if (roomId != null) {
                         viewModel.onAccept(roomId ?: 0)
@@ -118,11 +118,14 @@ class InvitationActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkPermission(url: String) {
+    private fun checkPermission(roomCode: String, roomResponse: RoomResponse) {
         val permissionListener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
                 val intent = Intent(this@InvitationActivity, CallActivity::class.java)
-                intent.putExtra("url", url)
+                intent.putExtra(CallActivity.ROOM_CODE, roomCode)
+                intent.putExtra(CallActivity.IS_INVITER, true)
+                intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
+
                 startActivity(intent)
             }
             override fun onPermissionDenied(deniedPermissions: List<String>) {
