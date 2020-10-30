@@ -50,7 +50,10 @@
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".main.AddFriendActivity"
+            android:name=".friends.AddFriendActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".mypage.MyPageActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".webrtc.CallActivity"

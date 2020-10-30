@@ -2,17 +2,14 @@ package com.coeater.android.main.recyclerview
 
 import android.content.Context
 import android.content.Intent
-import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
-import com.coeater.android.main.AddFriendActivity
+import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friends_add_recycler_item.view.*
-import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
 class AddFriendAdapter(private val context : Context, private val friendsDataset : List<User>) : FriendsAdapter(context, friendsDataset) {
 

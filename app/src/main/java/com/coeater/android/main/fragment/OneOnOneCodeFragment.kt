@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 private val TAG = "CodeFragment"
 class OneOnOneCodeFragment(val state: State) : Fragment() {
 
-    enum class State { SHARE, JOIN, ADD }
+    enum class State { SHARE, JOIN }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +52,9 @@ class OneOnOneCodeFragment(val state: State) : Fragment() {
                 }
             }
             State.JOIN -> {
-                setEnterCode()
+                tv_code_title.text = "Enter Code"
+                tv_code_number.text = "_______"
+                iv_state.setImageResource(R.drawable.login_24_px)
                 tv_state.text = "Join"
                 et_code_number.visibility = View.VISIBLE
                 activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
@@ -65,11 +67,6 @@ class OneOnOneCodeFragment(val state: State) : Fragment() {
                 intent.putExtra("url", codeNumber)
                 startActivity(intent)
 
-            }
-            State.ADD -> {
-                setEnterCode()
-                tv_state.text = "Add"
-                setAddListener()
             }
         }
     }
@@ -127,30 +124,5 @@ class OneOnOneCodeFragment(val state: State) : Fragment() {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             .check()
-    }
-
-    private fun setEnterCode() {
-        tv_code_title.text = "Enter Code"
-        tv_code_number.text = "_______"
-        iv_state.setImageResource(R.drawable.login_24_px)
-        et_code_number.visibility = View.VISIBLE
-        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-    }
-
-
-    private fun setAddListener() {
-        et_code_number.setOnEditorActionListener { v, actionId, event ->
-            if(event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                addFriend(et_code_number.text.toString())
-                true
-            }
-            else false
-        }
-
-        btn_share_or_join.setOnClickListener { addFriend(et_code_number.text.toString()) }
-    }
-
-    private fun addFriend(text: String) {
-        Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
     }
 }
