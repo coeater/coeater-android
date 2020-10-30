@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
+import com.coeater.android.friends.AddFriendViewModel
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friend_requests_recycler_item.view.*
 
-class RequestsAdapter(private val context : Context, private val requestsDataset : List<User>) : RecyclerView.Adapter<RequestsAdapter.RequestsViewHolder>() {
+class RequestsAdapter(private val viewModel : MyPageViewModel, private val context : Context, private val requestsDataset : List<User>) : RecyclerView.Adapter<RequestsAdapter.RequestsViewHolder>() {
 
     class RequestsViewHolder(val ItemLayout : ConstraintLayout) : RecyclerView.ViewHolder(ItemLayout)
 
@@ -29,6 +30,19 @@ class RequestsAdapter(private val context : Context, private val requestsDataset
             .apply(RequestOptions.circleCropTransform())
             .into(holder.ItemLayout.iv_profile)
             .clearOnDetach()
+
+        holder.ItemLayout.button_accept.setOnClickListener { acceptRequest(position) }
+        holder.ItemLayout.button_close.setOnClickListener { denyRequest(position) }
+    }
+
+    private fun acceptRequest(position: Int) {
+        viewModel.accept(requestsDataset[position].id)
+        viewModel.fetchRequest()
+    }
+
+    private fun denyRequest(position: Int) {
+        viewModel.reject(requestsDataset[position].id)
+        viewModel.fetchRequest()
     }
 
     override fun getItemCount(): Int {

@@ -1,5 +1,6 @@
 package com.coeater.android.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
+import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.main.fragment.OneOnOneCodeFragment
 import com.coeater.android.main.fragment.OneOnOneConnectingFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
@@ -49,14 +51,17 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(
             this, viewModelFactory)[MainViewModel::class.java]
-        viewModel.friendsInfo.observe(this, Observer<FriendsInfo> { friends ->
-            showFriends(friends)
-        })
+//        viewModel.friendsInfo.observe(this, Observer<FriendsInfo> { friends ->
+//            showFriends(friends)
+//        })
 
         fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
         fragmentTransaction.commit()
 
-        iv_menu.setOnClickListener { showMe() }
+        iv_menu.setOnClickListener {
+            val intent = Intent(this, AddFriendActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onStart() {

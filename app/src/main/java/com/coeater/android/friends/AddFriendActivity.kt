@@ -1,13 +1,17 @@
 package com.coeater.android.friends
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationViewModel
+import com.coeater.android.main.MainActivity
+import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.activity_add_friend.*
 import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 import kotlinx.android.synthetic.main.fragment_oneonone_code.et_code_number
@@ -46,7 +50,12 @@ class AddFriendActivity : AppCompatActivity() {
         btn_add.setOnClickListener { addFriend(et_code_number.text.toString()) }
     }
 
-    private fun addFriend(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    private fun addFriend(code: String) {
+        viewModel.invite(code)
+        viewModel.invitee.observe(this, Observer<User> { invitee ->
+            Toast.makeText(this, invitee.toString(), Toast.LENGTH_LONG).show()
+        })
+
+        finish()
     }
 }
