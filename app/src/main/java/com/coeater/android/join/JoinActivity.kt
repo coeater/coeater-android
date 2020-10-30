@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
@@ -53,13 +54,54 @@ class JoinActivity : AppCompatActivity() {
         this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         btn_share_or_join.setOnClickListener {
-            val codeNumber = et_code_number.text.toString()
-            viewModel.invitation(codeNumber)
+            join()
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
             checkPermission(it.room_code)
         })
+        viewModel.roomCreateFail.observe(this, Observer<Unit> {
+            noSuchRoomError()
+        })
+        et_code_number.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                join()
+                return@OnKeyListener true
+            }
+            false
+        })
     }
+
+    private fun join() {
+        val codeNumber = et_code_number.text.toString()
+        if (codeNumber.length != 5) {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this@JoinActivity)
+            builder.setTitle("Room Code Error").setMessage("Room Code has 5 length.")
+
+            builder.setPositiveButton("OK",
+                DialogInterface.OnClickListener { dialog, id ->
+                })
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
+            return
+        }
+
+        viewModel.invitation(codeNumber)
+
+    }
+
+    private fun noSuchRoomError() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this@JoinActivity)
+        builder.setTitle("Room Code Error").setMessage("You entered a wrong room code.")
+
+        builder.setPositiveButton("OK",
+            DialogInterface.OnClickListener { dialog, id ->
+            })
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
+    }
+
+
+
     override fun onStart() {
         super.onStart()
         viewModel.onCreate()

@@ -20,6 +20,10 @@ class JoinViewModel(
         MutableLiveData<RoomResponse>()
     }
 
+    val roomCreateFail: MutableLiveData<Unit> by lazy {
+        MutableLiveData<Unit>()
+    }
+
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
         }
@@ -35,13 +39,11 @@ class JoinViewModel(
                         is HTTPResult.Success<RoomResponse> -> {
                             roomCreateSuccess.postValue(result.data)
                         }
-                        is Error -> {
-                        }
+
                     }
                 }
-                is Error -> {
-
-                    // TODO
+                is HTTPResult.Error -> {
+                    roomCreateFail.postValue(Unit)
                 }
             }
         }
