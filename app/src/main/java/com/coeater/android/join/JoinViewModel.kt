@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.MatchApi
 import com.coeater.android.api.UserManageProvider
-import com.coeater.android.model.RoomResponse
 import com.coeater.android.model.HTTPResult
+import com.coeater.android.model.RoomResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -22,10 +22,8 @@ class JoinViewModel(
 
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
-
         }
     }
-
 
     fun invitation(code: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,16 +36,14 @@ class JoinViewModel(
                             roomCreateSuccess.postValue(result.data)
                         }
                         is Error -> {
-
                         }
                     }
                 }
                 is Error -> {
 
-                    //TODO
+                    // TODO
                 }
             }
-
         }
     }
 

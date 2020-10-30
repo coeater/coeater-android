@@ -1,11 +1,13 @@
 package com.coeater.android.join
 
 import android.Manifest
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -19,6 +21,10 @@ import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 
 class JoinActivity : AppCompatActivity() {
+
+    companion object {
+        const val ROOM_CODE = "ROOM_CODE"
+    }
 
     private val viewModelFactory by lazy {
         JoinViewModelFactory(
@@ -43,6 +49,7 @@ class JoinActivity : AppCompatActivity() {
         iv_state.setImageResource(R.drawable.login_24_px)
         tv_state.text = "Join"
         et_code_number.visibility = View.VISIBLE
+        et_code_number.setText(intent.extras.getString(ROOM_CODE) ?: "", TextView.BufferType.EDITABLE)
         this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         btn_share_or_join.setOnClickListener {
@@ -52,7 +59,6 @@ class JoinActivity : AppCompatActivity() {
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
             checkPermission(it.room_code)
         })
-
     }
     override fun onStart() {
         super.onStart()
@@ -62,22 +68,22 @@ class JoinActivity : AppCompatActivity() {
     private fun checkPermission(url: String) {
         val permissionListener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
-                Toast.makeText(
-                    this@JoinActivity,
-                    "Permission Granted",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val intent = Intent(this@JoinActivity, CallActivity::class.java)
+               val intent = Intent(this@JoinActivity, CallActivity::class.java)
                 intent.putExtra("url", url)
                 startActivity(intent)
             }
 
             override fun onPermissionDenied(deniedPermissions: List<String>) {
-                Toast.makeText(
-                    this@JoinActivity,
-                    "Permission Denied\n$deniedPermissions",
-                    Toast.LENGTH_SHORT
-                ).show()
+
+                val builder: AlertDialog.Builder = AlertDialog.Builder(this@JoinActivity)
+                builder.setTitle("Permission Denied").setMessage("You Denied Permission, so you cannot use this service.")
+
+                builder.setPositiveButton("OK",
+                    DialogInterface.OnClickListener { dialog, id ->
+                    })
+
+                val alertDialog: AlertDialog = builder.create()
+                alertDialog.show()
             }
         }
 
@@ -91,5 +97,4 @@ class JoinActivity : AppCompatActivity() {
             )
             .check()
     }
-
 }

@@ -2,13 +2,10 @@ package com.coeater.android.webrtc
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageButton
 import android.widget.RelativeLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.UiThread
 import com.coeater.android.R
@@ -19,10 +16,10 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
+import java.util.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
-import java.util.*
 
 /**
  * Activity for peer connection call setup, call waiting
