@@ -35,7 +35,9 @@ class AddFriendActivity : AppCompatActivity() {
     private fun setup() {
         viewModel = ViewModelProviders.of(
             this, viewModelFactory)[AddFriendViewModel::class.java]
-
+        viewModel.invitee.observe(this, Observer<User> { invitee ->
+            finish()
+        })
         setAddListener()
     }
     private fun setAddListener() {
@@ -52,10 +54,5 @@ class AddFriendActivity : AppCompatActivity() {
 
     private fun addFriend(code: String) {
         viewModel.invite(code)
-        viewModel.invitee.observe(this, Observer<User> { invitee ->
-            Toast.makeText(this, invitee.toString(), Toast.LENGTH_LONG).show()
-        })
-
-        finish()
     }
 }
