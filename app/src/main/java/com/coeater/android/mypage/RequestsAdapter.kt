@@ -25,7 +25,7 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
 
     override fun onBindViewHolder(holder: RequestsViewHolder, position: Int) {
         holder.ItemLayout.tv_nickname.text = requestsDataset[position].nickname
-        holder.ItemLayout.tv_code.text = "code : " + requestsDataset[position].code
+        holder.ItemLayout.tv_code.text = "Code : " + requestsDataset[position].code
         Glide.with(context)
             .load(R.drawable.ic_dummy_profile)
             .apply(RequestOptions.circleCropTransform())
