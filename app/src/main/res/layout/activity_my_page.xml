@@ -15,6 +15,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <include layout="@layout/view_main_horizontal_lines" />
+    <include layout="@layout/view_main_vertical_lines" />
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/arrow_back_24_px"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_title"
         android:text="My Page"
@@ -61,6 +74,7 @@
         />
 
     <TextView
+        android:id="@+id/tv_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/oswald_light"
@@ -104,7 +118,6 @@
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
         android:layout_marginTop="10.5dp"
-        android:layout_marginHorizontal="30dp"
         android:paddingBottom="40dp"
         app:layout_constraintTop_toBottomOf="@id/tv_friend_requests"
         />
@@ -126,7 +139,5 @@
         android:visibility="gone"
         />
 
-    <include layout="@layout/view_main_horizontal_lines" />
-    <include layout="@layout/view_main_vertical_lines" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
