@@ -82,7 +82,7 @@ class InvitationActivity : AppCompatActivity() {
     }
 
     /**
-     *
+     * 카카오에 룸버튼 처리를 한다.
      */
     private fun shareToKakao(roomCode: String) {
         val defaultFeed = FeedTemplate(

@@ -87,7 +87,9 @@
         app:layout_constraintTop_toBottomOf="@id/tv_nickname"
         />
     
-    <ImageView
+    <ImageButton
+        android:id="@+id/ib_share"
+        android:background="@color/white"
         android:layout_width="26dp"
         android:layout_height="29.2dp"
         android:src="@drawable/share_salmon"

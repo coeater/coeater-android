@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
+import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.fragment.OneOnOneCodeFragment
@@ -79,6 +80,12 @@ class MainActivity : AppCompatActivity() {
             kakaoLinkExecuter.deleteRoomCode()
             val intent = Intent(this, JoinActivity::class.java)
             intent.putExtra(JoinActivity.ROOM_CODE, it)
+            startActivity(intent)
+        }
+        kakaoLinkExecuter.userCode?.let {
+            kakaoLinkExecuter.deleteUserCode()
+            val intent = Intent(this, AddFriendActivity::class.java)
+            intent.putExtra(AddFriendActivity.USER_CODE, it)
             startActivity(intent)
         }
     }
