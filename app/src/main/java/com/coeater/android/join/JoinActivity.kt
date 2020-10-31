@@ -57,7 +57,11 @@ class JoinActivity : AppCompatActivity() {
             join()
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
-            checkPermission(it.room_code, it)
+//            val intent = Intent(this@JoinActivity, MatchActivity::class.java)
+//            intent.putExtra(CallActivity.ROOM_CODE, roomCode)
+//            intent.putExtra(CallActivity.IS_INVITER, false)
+//            intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
+//            startActivity(intent)
         })
         viewModel.roomCreateFail.observe(this, Observer<Unit> {
             noSuchRoomError()
