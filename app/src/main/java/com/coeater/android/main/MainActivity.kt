@@ -1,5 +1,6 @@
 package com.coeater.android.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,11 +9,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
+import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.main.fragment.OneOnOneCodeFragment
 import com.coeater.android.main.fragment.OneOnOneConnectingFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
 import com.coeater.android.main.fragment.OneOnOneMatchingFragment
 import com.coeater.android.model.FriendsInfo
+import com.coeater.android.mypage.MyPageActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val TAG = "MainActivity"
@@ -56,7 +59,10 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
         fragmentTransaction.commit()
 
-        iv_menu.setOnClickListener { showMe() }
+        iv_menu.setOnClickListener {
+            val intent = Intent(this, MyPageActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onStart() {
@@ -68,12 +74,6 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, friendsInfo.toString(), Toast.LENGTH_LONG)
             .show()
     }
-
-    private fun showMe() {
-        Toast.makeText(this, viewModel.friendsInfo.value?.owner.toString(), Toast.LENGTH_SHORT).show()
-        val fragmentManager = supportFragmentManager
-    }
-
 
     // Fragment로부터 다른 Fragment로 아래와 같이 전환할 수 있습니다.
     // (activity as MainActivity).replaceFragment("OneOnOneCode", OneOnOneCodeFragment.State.SHARE)

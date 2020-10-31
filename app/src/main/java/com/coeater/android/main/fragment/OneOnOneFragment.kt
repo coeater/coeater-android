@@ -22,7 +22,7 @@ import com.coeater.android.invitation.InvitationActivity
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.main.MainViewModel
 import com.coeater.android.main.MainViewModelFactory
-import com.coeater.android.main.recyclerview.addFriendAdapter
+import com.coeater.android.main.recyclerview.AddFriendAdapter
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
@@ -78,9 +78,8 @@ class OneOnOneFragment : Fragment() {
     private fun setRecyclerView(FriendsRecyclerView: RecyclerView) {
         viewModel.friendsInfo.observe(viewLifecycleOwner, Observer { friendsInfo ->
             FriendsRecyclerView.apply {
-                adapter = addFriendAdapter(requireContext(), friendsInfo.friends)
-                layoutManager =
-                    LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+                adapter = AddFriendAdapter(requireContext(), friendsInfo.friends)
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         })
     }

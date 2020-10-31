@@ -11,11 +11,11 @@ import com.coeater.android.R
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
-open class FriendsAdapter(private val context : Context, private val friendsDataset : List<User>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
+open class FriendsAdapter(private val context : Context, private val friendsDataset : List<User>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class FriendsViewHolder(val ItemLayout : ConstraintLayout) : RecyclerView.ViewHolder(ItemLayout)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val itemLayout = LayoutInflater.from(parent.context)
             .inflate(R.layout.view_friends_recycler_item, parent, false) as ConstraintLayout
 
@@ -26,8 +26,8 @@ open class FriendsAdapter(private val context : Context, private val friendsData
         return friendsDataset.size
     }
 
-    override fun onBindViewHolder(holder : FriendsViewHolder, position: Int) {
-        holder.ItemLayout.tv_name.text = friendsDataset[position].nickname
+    override fun onBindViewHolder(holder : RecyclerView.ViewHolder, position: Int) {
+        (holder as FriendsViewHolder).ItemLayout.tv_name.text = friendsDataset[position].nickname
         Glide.with(context)
             .load(R.drawable.ic_dummy_profile)
             .apply(RequestOptions.circleCropTransform())
