@@ -37,7 +37,7 @@
         />
 
     <TextView
-        android:id="@+id/tv_message"
+        android:id="@+id/tv_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/oswald_light"
@@ -45,7 +45,7 @@
         android:textSize="16sp"
         android:textColor="@color/dusk"
         android:lineSpacingExtra="8sp"
-        android:text="My Code : "
+        android:text="Code : "
         app:layout_constraintStart_toStartOf="@id/tv_nickname"
         app:layout_constraintTop_toBottomOf="@id/tv_nickname"
         />
@@ -70,8 +70,8 @@
             </ImageView>
             <ImageView
                 android:id="@+id/button_accept"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/check_24px"/>
@@ -94,8 +94,8 @@
             </ImageView>
             <ImageView
                 android:id="@+id/button_close"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/close_24px"/>

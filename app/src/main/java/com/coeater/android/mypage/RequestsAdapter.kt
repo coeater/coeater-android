@@ -25,6 +25,7 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
 
     override fun onBindViewHolder(holder: RequestsViewHolder, position: Int) {
         holder.ItemLayout.tv_nickname.text = requestsDataset[position].nickname
+        holder.ItemLayout.tv_code.text = "code : " + requestsDataset[position].code
         Glide.with(context)
             .load(R.drawable.ic_dummy_profile)
             .apply(RequestOptions.circleCropTransform())
@@ -32,7 +33,7 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
             .clearOnDetach()
 
         holder.ItemLayout.button_accept.setOnClickListener { acceptRequest(position) }
-        holder.ItemLayout.button_close.setOnClickListener { denyRequest(position) }
+        holder.ItemLayout.button_close.setOnClickListener { rejectRequest(position) }
     }
 
     private fun acceptRequest(position: Int) {
@@ -40,7 +41,7 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
         viewModel.fetchRequest()
     }
 
-    private fun denyRequest(position: Int) {
+    private fun rejectRequest(position: Int) {
         viewModel.reject(requestsDataset[position].id)
         viewModel.fetchRequest()
     }
