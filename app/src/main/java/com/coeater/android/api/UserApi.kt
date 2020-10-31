@@ -25,7 +25,7 @@ interface UserApi {
     ): User
 
     @FormUrlEncoded
-    @PUT("user/friend/")
+    @PUT("users/friend/")
     suspend fun rejectFriend(
         @Field("id") id : Int
     ): Unit
