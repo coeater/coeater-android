@@ -1,14 +1,12 @@
 package com.coeater.android.api
 
-import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.RoomResponse
-import com.coeater.android.model.UserManage
 import retrofit2.http.*
 
 interface MatchApi {
     @FormUrlEncoded
     @POST("match/invitation/")
-    suspend fun joinRoom( @Field("room_code") roomCode: String): RoomResponse
+    suspend fun joinRoom(@Field("room_code") roomCode: String): RoomResponse
 
     @FormUrlEncoded
     @POST("match/invitation/")

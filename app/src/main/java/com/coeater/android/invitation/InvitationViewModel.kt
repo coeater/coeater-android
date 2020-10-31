@@ -1,20 +1,17 @@
 package com.coeater.android.invitation
 
-
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.MatchApi
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.model.AcceptedState
-import com.coeater.android.model.FriendsInfo
-import com.coeater.android.model.RoomResponse
 import com.coeater.android.model.HTTPResult
+import com.coeater.android.model.RoomResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.net.HttpRetryException
 
 class InvitationViewModel(
     private val api: MatchApi,
@@ -34,7 +31,7 @@ class InvitationViewModel(
                 }
                 is Error -> {
 
-                    //TODO
+                    // TODO
                 }
             }
         }
@@ -56,7 +53,7 @@ class InvitationViewModel(
                     }
 
                     is Error -> {
-                        //TODO
+                        // TODO
                     }
                 }
             }
@@ -72,7 +69,7 @@ class InvitationViewModel(
                 }
                 is Error -> {
 
-                    //TODO
+                    // TODO
                 }
             }
         }
@@ -116,6 +113,4 @@ class InvitationViewModel(
             HTTPResult.Error(e)
         }
     }
-
-
 }

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.coeater.android.api.MatchApi
 import com.coeater.android.api.UserManageProvider
 
-
 class JoinViewModelFactory(
     private val api: MatchApi,
     private val userManageProvider: UserManageProvider

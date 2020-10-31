@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.friends.AddFriendActivity
+import com.coeater.android.join.JoinActivity
+import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.fragment.OneOnOneCodeFragment
 import com.coeater.android.main.fragment.OneOnOneConnectingFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
@@ -39,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private val CODE_FRAG = "OneOnOneCode"
     private val MATCH_FRAG = "OneOnOneMatching"
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,7 +54,6 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(
             this, viewModelFactory)[MainViewModel::class.java]
         viewModel.friendsInfo.observe(this, Observer<FriendsInfo> { friends ->
-            showFriends(friends)
         })
 
         fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
@@ -68,20 +68,35 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.fetchFriends()
+        openJoinIfNeeded()
     }
 
-    private fun showFriends(friendsInfo: FriendsInfo) {
-        Toast.makeText(this, friendsInfo.toString(), Toast.LENGTH_LONG)
-            .show()
+    /**
+     * 카카오링크로 열었을 경우, Join Activity 로 랜딩하도록 처리한다.
+     */
+    private fun openJoinIfNeeded() {
+        val kakaoLinkExecuter = KakaoLinkExecuter(this)
+        kakaoLinkExecuter.roomCode?.let {
+            kakaoLinkExecuter.deleteRoomCode()
+            val intent = Intent(this, JoinActivity::class.java)
+            intent.putExtra(JoinActivity.ROOM_CODE, it)
+            startActivity(intent)
+        }
+        kakaoLinkExecuter.userCode?.let {
+            kakaoLinkExecuter.deleteUserCode()
+            val intent = Intent(this, AddFriendActivity::class.java)
+            intent.putExtra(AddFriendActivity.USER_CODE, it)
+            startActivity(intent)
+        }
     }
 
     // Fragment로부터 다른 Fragment로 아래와 같이 전환할 수 있습니다.
     // (activity as MainActivity).replaceFragment("OneOnOneCode", OneOnOneCodeFragment.State.SHARE)
-    fun replaceFragment(fragment: String, state: OneOnOneCodeFragment.State?){
+    fun replaceFragment(fragment: String, state: OneOnOneCodeFragment.State?) {
         Log.i(TAG, "replace fragment to $fragment")
 
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        when(fragment){
+        when (fragment) {
             ONEONONE_FRAG -> {
                 fragmentTransaction.replace(R.id.f_main, oneOnOneFragment)
             }
@@ -89,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 fragmentTransaction.replace(R.id.f_main, oneOnOneConnectingFragment)
             }
             CODE_FRAG -> {
-                if(state != null) {
+                if (state != null) {
                     oneOnOneCodeFragment = OneOnOneCodeFragment(state)
                     fragmentTransaction.replace(R.id.f_main, oneOnOneCodeFragment)
                 } else {

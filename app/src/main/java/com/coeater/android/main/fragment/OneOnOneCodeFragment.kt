@@ -59,14 +59,12 @@ class OneOnOneCodeFragment(val state: State) : Fragment() {
                 et_code_number.visibility = View.VISIBLE
                 activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
                 btn_share_or_join.setOnClickListener {
-
                 }
 
                 val codeNumber = et_code_number.text.toString()
                 val intent = Intent(getActivity(), CallActivity::class.java)
                 intent.putExtra("url", codeNumber)
                 startActivity(intent)
-
             }
         }
     }

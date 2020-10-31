@@ -95,5 +95,4 @@ class WebSocketChannelClient(
     private fun checkIfCalledOnValidThread() {
         check(!(Thread.currentThread() !== handler.looper.thread)) { "WebSocket method is not called on valid thread" }
     }
-
 }

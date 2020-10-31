@@ -1,15 +1,13 @@
 package com.coeater.android.webrtc
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatActivity
 import com.coeater.android.R
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
@@ -18,16 +16,27 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
+import com.coeater.android.model.RoomResponse
+import java.util.*
+import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
 import org.webrtc.VideoRenderer.I420Frame
-import java.util.*
 
 /**
  * Activity for peer connection call setup, call waiting
  * and call view.
  */
-class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
+class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
+
+    companion object {
+        const val ROOM_CODE = "ROOM_CODE"
+        const val IS_INVITER = "IS_INVITER"
+        const val ROOM_RESPONSE = "ROOM_RESPONSE"
+        private const val TAG = "CallActivity"
+        private const val STAT_CALLBACK_PERIOD = 1000
+    }
+
     private val remoteProxyRenderer =
         ProxyRenderer()
     private val localProxyVideoSink =
@@ -49,17 +58,13 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     private var isSwappedFeeds = false
 
     // Control buttons for limited UI
-    private var disconnectButton: ImageButton? = null
-    private var cameraSwitchButton: ImageButton? = null
-    private var toggleMuteButton: ImageButton? = null
+    private var disconnectButton: RelativeLayout? = null
+    private var cameraSwitchButton: RelativeLayout? = null
+//    private var toggleMuteButton: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
-        val intent = intent
-
-        val url =
-            intent.extras.getString("url") // intent.getStringExtra("name") 라고해도됨
 
         iceConnected = false
         signalingParameters = null
@@ -67,17 +72,17 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Create UI controls.
         pipRenderer = findViewById(R.id.pip_video_view)
         fullscreenRenderer = findViewById(R.id.fullscreen_video_view)
-        disconnectButton = findViewById(R.id.button_call_disconnect)
-        cameraSwitchButton = findViewById(R.id.button_call_switch_camera)
-        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
+        disconnectButton = findViewById(R.id.button_exit)
+        cameraSwitchButton = findViewById(R.id.button_change)
+//        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
 
         // Add buttons click events.
         disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
         cameraSwitchButton?.setOnClickListener(View.OnClickListener { onCameraSwitch() })
-        toggleMuteButton?.setOnClickListener(View.OnClickListener {
-            val enabled = onToggleMic()
-            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
-        })
+//        toggleMuteButton?.setOnClickListener(View.OnClickListener {
+//            val enabled = onToggleMic()
+//            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
+//        })
 
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
@@ -95,25 +100,29 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         pipRenderer?.setEnableHardwareScaler(true /* enabled */)
         fullscreenRenderer?.setEnableHardwareScaler(true /* enabled */)
         // Start with local feed in fullscreen and swap it to the pip when the call is connected.
-        setSwappedFeeds(true /* isSwappedFeeds */)
+        setSwappedFeeds(false /* isSwappedFeeds */)
 
-        // Generate a random room ID with 7 uppercase letters and digits
-        val randomRoomID = url
-        // Show the random room ID so that another client can join from https://appr.tc
-        val roomIdTextView = findViewById<TextView>(R.id.roomID)
-        roomIdTextView.text = getString(R.string.room_id_caption).toString() + randomRoomID
-        Log.d(
-            TAG,
-            getString(R.string.room_id_caption).toString() + randomRoomID
-        )
+        val room_code = intent.extras.getString(ROOM_CODE)
+        connectVideoCall(room_code)
+        setupOtherInfo()
+    }
 
-        // Connect video call to the random room
-        connectVideoCall(randomRoomID)
+    /**
+     * 통화하는 상대방의 정보를 보여 준다.
+     */
+    private fun setupOtherInfo() {
+        val is_inviter = intent.extras.getBoolean(IS_INVITER)
+        val room_response = intent.extras.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
+
+        if (is_inviter) {
+            tv_name.text = room_response.target?.nickname ?: ""
+        } else {
+            tv_name.text = room_response.owner.nickname
+        }
     }
 
     // Join video call with randomly generated roomId
     private fun connectVideoCall(roomId: String) {
-        val roomUri = Uri.parse(APPRTC_URL)
         val videoWidth = 0
         val videoHeight = 0
         peerConnectionParameters = PeerConnectionParameters(
@@ -194,6 +203,7 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         // Enable statistics callback.
         peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
+        fullscreenRenderer?.visibility = View.VISIBLE
     }
 
     // Disconnect from remote resources, dispose of local resources, and exit.
@@ -247,11 +257,11 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
     // Log |msg| and Toast about it.
     private fun logAndToast(msg: String) {
         Log.d(TAG, msg)
-        if (logToast != null) {
-            logToast!!.cancel()
-        }
-        logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT)
-        logToast?.show()
+//        if (logToast != null) {
+//            logToast!!.cancel()
+//        }
+//        logToast = Toast.makeText(this, msg, Toast.LENGTH_SHORT)
+//        logToast?.show()
     }
 
     private fun reportError(description: String) {
@@ -522,14 +532,5 @@ class CallActivity : Activity(), SignalingEvents, PeerConnectionEvents {
         fun setTarget(target: VideoSink?) {
             this.target = target
         }
-    }
-
-    companion object {
-        private const val TAG = "CallActivity"
-        private const val APPRTC_URL = "https://appr.tc"
-        private const val UPPER_ALPHA_DIGITS = "ACEFGHJKLMNPQRUVWXY123456789"
-
-        // Peer connection statistics callback period in ms.
-        private const val STAT_CALLBACK_PERIOD = 1000
     }
 }
