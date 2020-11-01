@@ -18,14 +18,18 @@ class AddFriendViewModel (
         MutableLiveData<User>()
     }
 
+    val addFriendFail: MutableLiveData<Unit> by lazy {
+        MutableLiveData<Unit>()
+    }
+
     fun invite(code : String) {
         viewModelScope.launch(Dispatchers.IO) {
             when (val response = inviteFriend(code)) {
                 is HTTPResult.Success<User> -> {
                     invitee.postValue(response.data)
                 }
-                is Error -> {
-                    //TODO error message
+                is HTTPResult.Error -> {
+                    addFriendFail.postValue(Unit)
                 }
             }
         }
