@@ -105,12 +105,10 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         val stunServer = PeerConnection.IceServer
             .builder("stun:stun.l.google.com:19302")
             .createIceServer()
-
-        val turnServer = PeerConnection.IceServer.builder("turn:3.35.168.135")
+        val turnServer = PeerConnection.IceServer.builder("turn:ec2-3-34-96-48.ap-northeast-2.compute.amazonaws.com:3478")
             .setUsername("test")
             .setPassword("test")
             .createIceServer()
-
         Log.d(TAG, initiator.toString() + "on WebSocket Ready!")
         val parameter = SignalServerRTCClient.SignalingParameters(listOf(stunServer, turnServer), initiator)
         events.onConnectedToRoom(parameter)
