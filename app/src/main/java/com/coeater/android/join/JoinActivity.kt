@@ -61,7 +61,7 @@ class JoinActivity : AppCompatActivity() {
             val intent = Intent(this@JoinActivity, MatchingActivity::class.java)
             intent.putExtra("mode", "INVITEE")
             intent.putExtra("roomId", it.id)
-            intent.putExtra("nickname", it.target?.nickname)
+            intent.putExtra("nickname", it.owner?.nickname)
             startActivity(intent)
             finish()
         })
