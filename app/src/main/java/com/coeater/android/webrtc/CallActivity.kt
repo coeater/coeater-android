@@ -102,7 +102,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         // Start with local feed in fullscreen and swap it to the pip when the call is connected.
         setSwappedFeeds(false /* isSwappedFeeds */)
 
-        val room_code = intent.extras.getString(ROOM_CODE)
+        val room_code = intent.extras?.getString(ROOM_CODE) ?: ""
         connectVideoCall(room_code)
         setupOtherInfo()
     }
@@ -111,8 +111,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
      * 통화하는 상대방의 정보를 보여 준다.
      */
     private fun setupOtherInfo() {
-        val is_inviter = intent.extras.getBoolean(IS_INVITER)
-        val room_response = intent.extras.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
+        val is_inviter = intent.extras?.getBoolean(IS_INVITER) ?: false
+        val room_response = intent.extras?.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
 
         if (is_inviter) {
             tv_name.text = room_response.target?.nickname ?: ""

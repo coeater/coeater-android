@@ -36,12 +36,12 @@ class SplashActivity : AppCompatActivity() {
         if (url != null && url.scheme == "kakao5a266dea13fcf275e773bc6392f74fe7") {
             when (url.getQueryParameter("type")) {
                 "room_invitation" -> {
-                    val roomCode = url.getQueryParameter("room_code")
+                    val roomCode = url.getQueryParameter("room_code") ?: ""
                     val kakaoLinkExecuter = KakaoLinkExecuter(this)
                     kakaoLinkExecuter.updatedRoomCode(roomCode)
                 }
                 "user_code" -> {
-                    val userCode = url.getQueryParameter("user_code")
+                    val userCode = url.getQueryParameter("user_code") ?: ""
                     val kakaoLinkExecuter = KakaoLinkExecuter(this)
                     kakaoLinkExecuter.updatedUserCode(userCode)
                 }

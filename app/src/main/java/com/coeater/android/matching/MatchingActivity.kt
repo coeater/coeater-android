@@ -53,9 +53,9 @@ class MatchingActivity : AppCompatActivity() {
         var nickname: String = ""
         var mode: String = ""
         if (b != null) {
-            roomId = b.getInt("roomId")
-            mode = b.getString("mode")
-            nickname = b.getString("nickname")
+            roomId = b?.getInt("roomId") ?: -1
+            mode = b?.getString("mode") ?: ""
+            nickname = b?.getString("nickname") ?: ""
         }
 
         viewModel = ViewModelProviders.of(
