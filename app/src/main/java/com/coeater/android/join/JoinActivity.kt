@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideMatchApi
+import com.coeater.android.matching.MatchingActivity
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
@@ -57,7 +58,12 @@ class JoinActivity : AppCompatActivity() {
             join()
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
-            checkPermission(it.room_code, it)
+            val intent = Intent(this@JoinActivity, MatchingActivity::class.java)
+            intent.putExtra("mode", "INVITEE")
+            intent.putExtra("roomId", it.id)
+            intent.putExtra("nickname", it.target?.nickname)
+            startActivity(intent)
+            finish()
         })
         viewModel.roomCreateFail.observe(this, Observer<Unit> {
             noSuchRoomError()

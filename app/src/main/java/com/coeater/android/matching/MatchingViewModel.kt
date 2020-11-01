@@ -1,4 +1,4 @@
-package com.coeater.android.invitation
+package com.coeater.android.matching
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,41 +11,64 @@ import com.coeater.android.model.RoomResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 import retrofit2.HttpException
 
-class InvitationViewModel(
+class MatchingViewModel(
     private val api: MatchApi,
     private val userManageProvider: UserManageProvider
 ) : ViewModel() {
 
-    val roomCreateSuccess: MutableLiveData<RoomResponse> by lazy {
+    val matched: MutableLiveData<RoomResponse> by lazy {
         MutableLiveData<RoomResponse>()
     }
 
-    val inviteeAccepted: MutableLiveData<RoomResponse> by lazy {
+    val notMatched: MutableLiveData<RoomResponse> by lazy {
         MutableLiveData<RoomResponse>()
     }
 
-    val expiredMatch: MutableLiveData<Unit> by lazy {
+    val matchError: MutableLiveData<Unit> by lazy {
         MutableLiveData<Unit>()
     }
 
-    fun onCreate(id: Int?) {
+    val matchRejected: MutableLiveData<Unit> by lazy {
+        MutableLiveData<Unit>()
+    }
+
+    fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = createRoom(id)
+        }
+    }
+
+    fun onClickAccept(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = acceptInvitation(id)
             when (response) {
                 is HTTPResult.Success<RoomResponse> -> {
-                    roomCreateSuccess.postValue(response.data)
+                    matched.postValue(response.data)
                 }
-                is Error -> {
-
-                    // TODO
+                is HTTPResult.Error -> {
+                    matchError.postValue(Unit)
                 }
             }
         }
     }
 
-    fun checkAcceptance(id: Int) {
+    fun onClickReject(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = discardRoom(id)
+            when (response) {
+                is HTTPResult.Success<RoomResponse> -> {
+                    matchRejected.postValue(Unit)
+                }
+                is HTTPResult.Error -> {
+                    matchRejected.postValue(Unit)
+                }
+            }
+        }
+    }
+
+    fun waitToBeMatched(id: Int) {
         var trigger: Boolean = true
         viewModelScope.launch(Dispatchers.IO) {
             while (trigger) {
@@ -54,30 +77,28 @@ class InvitationViewModel(
                 when (response) {
                     is HTTPResult.Success<RoomResponse> -> {
                         val accepted: AcceptedState = response.data.accepted
-                        if (accepted != AcceptedState.NOTCHECK) {
+                        val checked: Boolean = response.data.checked
+                        if (accepted == AcceptedState.ACCEPTED && checked) {
                             trigger = false
-                            inviteeAccepted.postValue(response.data)
+                            matched.postValue(response.data)
+                        }
+                        else if (accepted == AcceptedState.DECLINE) {
+                            trigger = false
+                            notMatched.postValue(response.data)
                         }
                     }
-
-                    is HTTPResult.Error  -> {
+                    is HTTPResult.Error -> {
                         trigger = false
-                        expiredMatch.postValue(Unit)
+                        matchRejected.postValue(Unit)
                     }
                 }
             }
         }
     }
 
-    fun finishMatch(id: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = discardRoom(id)
-        }
-    }
-
-    private suspend fun discardRoom(id: Int): HTTPResult<RoomResponse> {
+    private suspend fun acceptInvitation(id: Int): HTTPResult<RoomResponse> {
         return try {
-            val response = api.rejectInvitation(id)
+            val response = api.acceptInvitation(id)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)
@@ -87,20 +108,6 @@ class InvitationViewModel(
             HTTPResult.Error(e)
         }
     }
-
-    private suspend fun createRoom(id: Int? = null): HTTPResult<RoomResponse> {
-        return try {
-            val response = api.createRoom(id)
-            HTTPResult.Success(response)
-        } catch (e: HttpException) {
-            HTTPResult.Error(e)
-            // 룸이 존재하지 않는 것
-        } catch (e: Exception) {
-            // 네트워크가 불안정함
-            HTTPResult.Error(e)
-        }
-    }
-
     private suspend fun getRoom(id: Int): HTTPResult<RoomResponse> {
         return try {
             val response = api.getRoom(id)
@@ -114,9 +121,9 @@ class InvitationViewModel(
         }
     }
 
-    private suspend fun acceptInvitation(id: Int): HTTPResult<RoomResponse> {
+    private suspend fun discardRoom(id: Int): HTTPResult<RoomResponse> {
         return try {
-            val response = api.acceptInvitation(id)
+            val response = api.rejectInvitation(id)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)

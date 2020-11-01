@@ -52,6 +52,10 @@
             android:screenOrientation="portrait">
         </activity>
         <activity
+            android:name=".matching.MatchingActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
             android:name=".join.JoinActivity"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait">

@@ -14,6 +14,7 @@ import com.coeater.android.R
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideMatchApi
 import com.coeater.android.code.InvitationViewModelFactory
+import com.coeater.android.matching.MatchingActivity
 import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
@@ -50,7 +51,8 @@ class InvitationActivity : AppCompatActivity() {
 
     private fun setup() {
         viewModel = ViewModelProviders.of(
-            this, viewModelFactory)[InvitationViewModel::class.java]
+            this, viewModelFactory
+        )[InvitationViewModel::class.java]
         viewModel.onCreate(roomId)
 
         tv_code_title.text = "Your Code"
@@ -67,18 +69,38 @@ class InvitationActivity : AppCompatActivity() {
             tv_code_number.text = it.room_code
             roomId = it.id
 
-            if (it.accepted != AcceptedState.NOTCHECK) {
-                if (it.checked) {
-                    checkPermission(it.room_code, it)
-                } else {
-                    if (roomId != null) {
-                        viewModel.onAccept(roomId ?: 0)
-                    }
-            }
-            } else {
-                viewModel.onStart(roomId ?: 0)
+            if (it.accepted == AcceptedState.NOTCHECK) {
+                viewModel.checkAcceptance(roomId ?: 0)
             }
         })
+
+        viewModel.inviteeAccepted.observe(this, Observer<RoomResponse> {
+            if(it.accepted == AcceptedState.ACCEPTED) {
+                val intent = Intent(this@InvitationActivity, MatchingActivity::class.java)
+                intent.putExtra("mode", "INVITER")
+                intent.putExtra("roomId", roomId ?:0)
+                intent.putExtra("nickname", it.target?.nickname)
+                startActivity(intent)
+                finish()
+            }
+            else {
+                finishWithDialog("Match rejected", "The other person rejected.")
+            }
+        })
+        viewModel.expiredMatch.observe(this, Observer<Unit> {
+            finish()
+        })
+    }
+
+    private fun finishWithDialog(title: String, msg: String) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this@InvitationActivity)
+        builder.setTitle(title).setMessage(msg)
+        builder.setPositiveButton("OK",
+            DialogInterface.OnClickListener { dialog, id ->
+                finish()
+            })
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
     }
 
     /**
@@ -95,10 +117,13 @@ class InvitationActivity : AppCompatActivity() {
                 )
             ),
             buttons = listOf(
-             Button(
+                Button(
                     "Open Coeater",
                     Link(
-                        androidExecParams = mapOf("room_code" to roomCode, "type" to "room_invitation")
+                        androidExecParams = mapOf(
+                            "room_code" to roomCode,
+                            "type" to "room_invitation"
+                        )
                     )
                 )
             )
@@ -116,39 +141,5 @@ class InvitationActivity : AppCompatActivity() {
                 Log.w(TAG, "Argument Msg: ${linkResult.argumentMsg}")
             }
         }
-    }
-
-    private fun checkPermission(roomCode: String, roomResponse: RoomResponse) {
-        val permissionListener: PermissionListener = object : PermissionListener {
-            override fun onPermissionGranted() {
-                val intent = Intent(this@InvitationActivity, CallActivity::class.java)
-                intent.putExtra(CallActivity.ROOM_CODE, roomCode)
-                intent.putExtra(CallActivity.IS_INVITER, true)
-                intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
-
-                startActivity(intent)
-            }
-            override fun onPermissionDenied(deniedPermissions: List<String>) {
-
-                val builder: AlertDialog.Builder = AlertDialog.Builder(this@InvitationActivity)
-                builder.setTitle("Permission Denied").setMessage("You Denied Permission, so you cannot use this service.")
-
-                builder.setPositiveButton("OK",
-                    DialogInterface.OnClickListener { dialog, id ->
-                    })
-
-                val alertDialog: AlertDialog = builder.create()
-                alertDialog.show()
-            }
-        }
-        TedPermission.with(this)
-            .setPermissionListener(permissionListener)
-            .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
-            .setPermissions(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            .check()
     }
 }
