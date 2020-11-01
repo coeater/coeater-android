@@ -115,11 +115,11 @@ class MatchingActivity : AppCompatActivity() {
             if (it.accepted == AcceptedState.NOTCHECK) {
                 finishWithDialog(title, "Successfully rejected match.")
             } else {
-                finishWithDialog(title, "Opponent rejected.")
+                finishWithDialog(title, "The other person rejected.")
             }
         })
         viewModel.matchRejected.observe(this, Observer<Unit> {
-            finishWithDialog("Match rejected", "You or opponent rejected match.")
+            finishWithDialog("Match rejected", "You or the other person rejected match.")
         })
 
 
