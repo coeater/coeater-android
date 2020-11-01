@@ -48,6 +48,25 @@ class JoinViewModel(
         }
     }
 
+    fun finishMatch(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = discardRoom(id)
+        }
+    }
+
+    private suspend fun discardRoom(id: Int): HTTPResult<RoomResponse> {
+        return try {
+            val response = api.rejectInvitation(id)
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+            // 룸이 존재하지 않는 것
+        } catch (e: Exception) {
+            // 네트워크가 불안정함
+            HTTPResult.Error(e)
+        }
+    }
+
     private suspend fun accept(id: Int): HTTPResult<RoomResponse> {
         return try {
             val response = api.acceptInvitation(id)
