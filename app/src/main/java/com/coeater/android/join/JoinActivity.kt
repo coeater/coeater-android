@@ -110,38 +110,4 @@ class JoinActivity : AppCompatActivity() {
         viewModel.onCreate()
     }
 
-    private fun checkPermission(roomCode: String, roomResponse: RoomResponse) {
-        val permissionListener: PermissionListener = object : PermissionListener {
-            override fun onPermissionGranted() {
-                val intent = Intent(this@JoinActivity, CallActivity::class.java)
-                intent.putExtra(CallActivity.ROOM_CODE, roomCode)
-                intent.putExtra(CallActivity.IS_INVITER, false)
-                intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
-                startActivity(intent)
-            }
-
-            override fun onPermissionDenied(deniedPermissions: List<String>) {
-
-                val builder: AlertDialog.Builder = AlertDialog.Builder(this@JoinActivity)
-                builder.setTitle("Permission Denied").setMessage("You Denied Permission, so you cannot use this service.")
-
-                builder.setPositiveButton("OK",
-                    DialogInterface.OnClickListener { dialog, id ->
-                    })
-
-                val alertDialog: AlertDialog = builder.create()
-                alertDialog.show()
-            }
-        }
-
-        TedPermission.with(this)
-            .setPermissionListener(permissionListener)
-            .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
-            .setPermissions(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            .check()
-    }
 }
