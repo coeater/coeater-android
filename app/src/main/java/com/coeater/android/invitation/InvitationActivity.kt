@@ -84,7 +84,7 @@ class InvitationActivity : AppCompatActivity() {
                 finish()
             }
             else {
-                finishWithDialog("Match rejected", "Opponent rejected.")
+                finishWithDialog("Match rejected", "The other person rejected.")
             }
         })
         viewModel.expiredMatch.observe(this, Observer<Unit> {
