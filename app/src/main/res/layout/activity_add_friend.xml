@@ -7,7 +7,7 @@
     android:background="@color/light_salmon">
 
     <View
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="120dp"
         android:layout_marginBottom="120dp"
@@ -33,38 +33,38 @@
     <ImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="170dp"
+        android:layout_marginEnd="151dp"
+        android:layout_marginBottom="180dp"
         android:src="@drawable/bg_code_circle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@id/iv_logo_frame"
+        app:layout_constraintBottom_toBottomOf="@id/iv_logo_frame" />
 
     <ImageView
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginBottom="165dp"
+        android:layout_marginStart="180dp"
+        android:layout_marginTop="209dp"
         android:src="@drawable/bg_code_circle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="@id/iv_logo_frame"
+        app:layout_constraintTop_toTopOf="@id/iv_logo_frame" />
 
     <ImageView
         android:layout_width="33.8dp"
         android:layout_height="64.1dp"
-        android:layout_marginStart="48.7dp"
+        android:layout_marginEnd="197.5dp"
         android:layout_marginTop="2.8dp"
         android:src="@drawable/fork_and_knife_svgrepo_com"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/iv_logo_frame"
         app:layout_constraintTop_toBottomOf="@id/iv_logo_frame" />
 
     <ImageView
         android:layout_width="9dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4.9dp"
-        android:layout_marginStart="85dp"
+        android:layout_marginStart="5dp"
         android:src="@drawable/knife"
         app:layout_constraintTop_toBottomOf="@id/iv_logo_frame"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="@id/iv_logo_frame"/>
 
     <TextView
         android:id="@+id/tv_code_title"
@@ -121,13 +121,12 @@
 
     <View
         android:id="@+id/btn_add"
-        android:layout_width="146dp"
+        android:layout_width="121dp"
         android:layout_height="50dp"
         android:background="@drawable/rounded_rectangle_salmon"
         android:layout_marginBottom="25dp"
-        android:layout_marginStart="239dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageView
         android:id="@+id/iv_state"
@@ -152,7 +151,7 @@
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_state"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/btn_add"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
