@@ -17,12 +17,14 @@ class MyPageViewModel(
     val requests: MutableLiveData<FriendsInfo> by lazy {
         MutableLiveData<FriendsInfo>()
     }
+    var id: Int? = null
 
     fun fetchRequest() {
         viewModelScope.launch(Dispatchers.IO) {
             when(val response = getRequests()) {
                 is HTTPResult.Success<FriendsInfo> -> {
                     requests.postValue(response.data)
+                    id = response.data.owner.id
                 }
                 is Error -> {
                     //TODO error message
@@ -57,6 +59,27 @@ class MyPageViewModel(
         }
     }
 
+    fun changeNickname(nickname : String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if(id == null) {
+                //TODO error message}
+            }
+            else when(val response = setNickname(id!!, nickname)) {
+                is HTTPResult.Success<User> -> {
+                    when(val response = getRequests()) {
+                        is HTTPResult.Success<FriendsInfo> -> {
+                            requests.postValue(response.data)
+                        }
+                        is Error -> {}
+                    }
+                }
+                is Error -> {
+                    //TODO error message
+                }
+            }
+        }
+    }
+
     private suspend fun getRequests(): HTTPResult<FriendsInfo> {
         return try {
             val response = api.getFriendRequests()
@@ -82,6 +105,17 @@ class MyPageViewModel(
     private suspend fun rejectFriend(id: Int): HTTPResult<Unit> {
         return try {
             val response = api.rejectFriend(id)
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+        } catch (e: Exception) {
+            HTTPResult.Error(e)
+        }
+    }
+
+    private suspend fun setNickname(id: Int, nickname: String): HTTPResult<User> {
+        return try {
+            val response = api.setNickname(id, nickname)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)

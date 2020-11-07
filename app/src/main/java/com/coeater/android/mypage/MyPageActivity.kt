@@ -1,9 +1,13 @@
 package com.coeater.android.mypage
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginStart
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +30,10 @@ import kotlinx.android.synthetic.main.activity_my_page.*
 import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
 class MyPageActivity: AppCompatActivity() {
+
+    companion object {
+        const val TAG = "MyPageActivity"
+    }
 
     private val viewModelFactory by lazy {
         MyPageViewModelFactory(
@@ -50,6 +58,26 @@ class MyPageActivity: AppCompatActivity() {
         setMyInfo()
         iv_back.setOnClickListener { finish() }
         ib_share.setOnClickListener { shareToKakao() }
+        iv_edit.setOnClickListener { setChangeNickname() }
+    }
+
+    private fun setChangeNickname() {
+        val et_nickname = EditText(this)
+        et_nickname.hint = "nickname"
+
+
+        AlertDialog.Builder(this)
+            .setTitle("Change Nickname")
+            .setMessage("Please enter a new nickname")
+            .setView(et_nickname)
+            .setPositiveButton("Enter",
+                DialogInterface.OnClickListener {dialog, whichButton ->
+                    val nickname = et_nickname.text.toString()
+                    this.viewModel.changeNickname(nickname)
+                })
+            .setNegativeButton("Cancel",
+                DialogInterface.OnClickListener {dialog, whichButton -> dialog.dismiss() })
+            .show()
     }
 
     /**
@@ -98,7 +126,7 @@ class MyPageActivity: AppCompatActivity() {
             .into(iv_profile)
             .clearOnDetach()
 
-        viewModel.requests.observe(this, Observer<FriendsInfo> { requests ->
+        viewModel.requests.observe(this, Observer { requests ->
             tv_nickname.text = requests.owner.nickname
             tv_code.text = "My Code : " + requests.owner.code
             Glide.with(this)
@@ -115,7 +143,7 @@ class MyPageActivity: AppCompatActivity() {
     }
 
     private fun setRecyclerView(FriendRequestRecyclerView: RecyclerView) {
-        viewModel.requests.observe(this,Observer { friendRequests ->
+        viewModel.requests.observe(this, Observer { friendRequests ->
             FriendRequestRecyclerView.apply {
                 adapter = RequestsAdapter(viewModel, context, friendRequests.friends)
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)

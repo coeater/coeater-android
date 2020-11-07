@@ -73,6 +73,15 @@
         app:layout_constraintStart_toEndOf="@id/iv_profile"
         />
 
+    <ImageView
+        android:id="@+id/iv_edit"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_edit_48px"
+        android:layout_marginStart="5dp"
+        app:layout_constraintStart_toEndOf="@id/tv_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/tv_nickname" />
+
     <TextView
         android:id="@+id/tv_code"
         android:layout_width="wrap_content"

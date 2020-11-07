@@ -29,4 +29,11 @@ interface UserApi {
     suspend fun rejectFriend(
         @Field("id") id : Int
     ): Unit
+
+    @FormUrlEncoded
+    @PUT("users/{id}/")
+    suspend fun setNickname(
+        @Path("id") id : Int,
+        @Field("nickname") nickname : String
+    ): User
 }
