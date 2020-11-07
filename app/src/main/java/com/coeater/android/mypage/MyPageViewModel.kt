@@ -17,14 +17,16 @@ class MyPageViewModel(
     val requests: MutableLiveData<FriendsInfo> by lazy {
         MutableLiveData<FriendsInfo>()
     }
-    var id: Int? = null
+    val myInfo: MutableLiveData<User> by lazy {
+        MutableLiveData<User>()
+    }
 
     fun fetchRequest() {
         viewModelScope.launch(Dispatchers.IO) {
             when(val response = getRequests()) {
                 is HTTPResult.Success<FriendsInfo> -> {
                     requests.postValue(response.data)
-                    id = response.data.owner.id
+                    myInfo.postValue(response.data.owner)
                 }
                 is Error -> {
                     //TODO error message
@@ -61,17 +63,9 @@ class MyPageViewModel(
 
     fun changeNickname(nickname : String) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(id == null) {
-                //TODO error message}
-            }
-            else when(val response = setNickname(id!!, nickname)) {
+            when(val response = setNickname(myInfo.value!!.id, nickname)) {
                 is HTTPResult.Success<User> -> {
-                    when(val response = getRequests()) {
-                        is HTTPResult.Success<FriendsInfo> -> {
-                            requests.postValue(response.data)
-                        }
-                        is Error -> {}
-                    }
+                    myInfo.postValue(response.data)
                 }
                 is Error -> {
                     //TODO error message

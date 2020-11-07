@@ -1,13 +1,13 @@
 package com.coeater.android.mypage
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.marginStart
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,17 +17,12 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
-import com.coeater.android.invitation.InvitationViewModel
-import com.coeater.android.main.MainViewModel
-import com.coeater.android.main.MainViewModelFactory
-import com.coeater.android.model.FriendsInfo
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
 import kotlinx.android.synthetic.main.activity_my_page.*
-import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
 class MyPageActivity: AppCompatActivity() {
 
@@ -35,6 +30,8 @@ class MyPageActivity: AppCompatActivity() {
         const val TAG = "MyPageActivity"
     }
 
+    private val EDIT_PROFILE: Int = 2
+    private val GET_IMAGE: Int = 1
     private val viewModelFactory by lazy {
         MyPageViewModelFactory(
             provideUserApi(this)
@@ -59,6 +56,27 @@ class MyPageActivity: AppCompatActivity() {
         iv_back.setOnClickListener { finish() }
         ib_share.setOnClickListener { shareToKakao() }
         iv_edit.setOnClickListener { setChangeNickname() }
+        iv_profile.setOnClickListener { setProfile() }
+    }
+
+    private fun setProfile() {
+        val intent = Intent().apply {
+            action = Intent.ACTION_PICK
+            data = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            type = "image/*"
+        }
+        startActivityForResult(intent, GET_IMAGE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == GET_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
+            val intent = Intent(this, EditProfileActivity::class.java).apply {
+                setData(data.data)
+            }
+            startActivityForResult(intent, EDIT_PROFILE)
+        }
     }
 
     private fun setChangeNickname() {
@@ -126,9 +144,9 @@ class MyPageActivity: AppCompatActivity() {
             .into(iv_profile)
             .clearOnDetach()
 
-        viewModel.requests.observe(this, Observer { requests ->
-            tv_nickname.text = requests.owner.nickname
-            tv_code.text = "My Code : " + requests.owner.code
+        viewModel.myInfo.observe(this, Observer { myInfo ->
+            tv_nickname.text = myInfo.nickname
+            tv_code.text = "My Code : " + myInfo.code
             Glide.with(this)
                 .load(R.drawable.ic_dummy_profile)
                 .apply(RequestOptions.circleCropTransform())
