@@ -1,5 +1,6 @@
 package com.coeater.android.mypage
 
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.coeater.android.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.io.File
 
 class MyPageViewModel(
     private val api: UserApi
@@ -74,6 +76,20 @@ class MyPageViewModel(
         }
     }
 
+    fun changeProfile(destinationUri: Uri?) {
+        val profile = File(destinationUri?.path)
+        viewModelScope.launch(Dispatchers.IO) {
+            when(val response = setProfile(myInfo.value!!.id, profile)) {
+                is HTTPResult.Success<User> -> {
+                    myInfo.postValue(response.data)
+                }
+                is Error -> {
+                    //TODO error message
+                }
+            }
+        }
+    }
+
     private suspend fun getRequests(): HTTPResult<FriendsInfo> {
         return try {
             val response = api.getFriendRequests()
@@ -110,6 +126,17 @@ class MyPageViewModel(
     private suspend fun setNickname(id: Int, nickname: String): HTTPResult<User> {
         return try {
             val response = api.setNickname(id, nickname)
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+        } catch (e: Exception) {
+            HTTPResult.Error(e)
+        }
+    }
+
+    private suspend fun setProfile(id: Int, profile: File?): HTTPResult<User> {
+        return try {
+            val response = api.setProfile(id, profile)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)

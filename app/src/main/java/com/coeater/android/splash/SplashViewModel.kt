@@ -11,6 +11,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.io.File
 
 class SplashViewModel(
     private val api: AuthApi,
@@ -20,16 +21,38 @@ class SplashViewModel(
     val isLoginSuccess: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
+    val isInitialLogin: MutableLiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>()
+    }
 
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
             val instanceId = getInstanceId()
-            when (val myInfo = getMyInfo(instanceId)) {
+            when (val myInfo = login(instanceId)) {
                 is HTTPResult.Success<UserManage> -> {
                     userManageProvider.updateUserManage(myInfo.data)
                     isLoginSuccess.postValue(true)
                 }
-                is Error -> {
+                is HTTPResult.Error -> {
+                    when (myInfo.exception) {
+                        is HttpException -> {
+                            isInitialLogin.postValue(true)
+                        }
+                        is Exception -> { isLoginSuccess.postValue(false) }
+                    }
+                }
+            }
+        }
+    }
+
+    fun setMyInfo(nickname: String, profile: File? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val myInfo = register(nickname, profile)) {
+                is HTTPResult.Success<UserManage> -> {
+                    userManageProvider.updateUserManage(myInfo.data)
+                    isLoginSuccess.postValue(true)
+                }
+                is HTTPResult.Error -> {
                     isLoginSuccess.postValue(false)
                 }
             }
@@ -40,12 +63,12 @@ class SplashViewModel(
         return FirebaseInstanceId.getInstance().id
     }
 
-    private suspend fun getMyInfo(uid: String): HTTPResult<UserManage> {
+    private suspend fun register(nickname: String, profile: File? = null): HTTPResult<UserManage> {
         return try {
-            val response = api.register(uid, uid)
+            val response = api.register(getInstanceId(), nickname, profile)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
-            login(uid)
+            HTTPResult.Error(e)
         } catch (e: Exception) {
             HTTPResult.Error(e)
         }

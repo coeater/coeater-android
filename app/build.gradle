@@ -76,6 +76,9 @@ dependencies {
     // Image Showing
     implementation 'com.github.bumptech.glide:glide:4.11.0'
 
+    //image crop
+    implementation 'com.github.yalantis:ucrop:2.2.6'
+
     // Kakao
     implementation "com.kakao.sdk:v2-link:2.0.5"
 

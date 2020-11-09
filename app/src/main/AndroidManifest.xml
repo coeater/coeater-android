@@ -73,7 +73,10 @@
             android:name=".mypage.MyPageActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".mypage.EditProfileActivity"
+            android:name=".splash.RegisterActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".webrtc.CallActivity"

@@ -1,11 +1,14 @@
 package com.coeater.android.mypage
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -22,7 +25,9 @@ import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
+import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_my_page.*
+import java.io.File
 
 class MyPageActivity: AppCompatActivity() {
 
@@ -30,13 +35,13 @@ class MyPageActivity: AppCompatActivity() {
         const val TAG = "MyPageActivity"
     }
 
-    private val EDIT_PROFILE: Int = 2
     private val GET_IMAGE: Int = 1
     private val viewModelFactory by lazy {
         MyPageViewModelFactory(
             provideUserApi(this)
         )
     }
+    private lateinit var destinationUri : Uri
 
     private lateinit var viewModel: MyPageViewModel
 
@@ -50,6 +55,7 @@ class MyPageActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(
             this, viewModelFactory
         )[MyPageViewModel::class.java]
+        destinationUri = Uri.fromFile(File(cacheDir, "profile.jpeg"))
 
         setRecyclerView(rv_requests)
         setMyInfo()
@@ -59,6 +65,7 @@ class MyPageActivity: AppCompatActivity() {
         iv_profile.setOnClickListener { setProfile() }
     }
 
+    //media app을 통해 이미지 파일을 가져옴
     private fun setProfile() {
         val intent = Intent().apply {
             action = Intent.ACTION_PICK
@@ -68,14 +75,23 @@ class MyPageActivity: AppCompatActivity() {
         startActivityForResult(intent, GET_IMAGE)
     }
 
+    //GET_IMAGE : image파일을 가져올 경우 crop activity로 보내서 1:1로 crop
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == GET_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            val intent = Intent(this, EditProfileActivity::class.java).apply {
-                setData(data.data)
+            val options = UCrop.Options().apply {
+                setCircleDimmedLayer(true)
+                setShowCropGrid(false)
             }
-            startActivityForResult(intent, EDIT_PROFILE)
+
+            UCrop.of(data.data!!, destinationUri)
+                .withAspectRatio(1F, 1F)
+                .withOptions(options)
+                .start(this)
+        }
+        if(requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
+            viewModel.changeProfile(destinationUri)
         }
     }
 
@@ -147,6 +163,7 @@ class MyPageActivity: AppCompatActivity() {
         viewModel.myInfo.observe(this, Observer { myInfo ->
             tv_nickname.text = myInfo.nickname
             tv_code.text = "My Code : " + myInfo.code
+            Toast.makeText(this, "profile uri: " + myInfo.profile, Toast.LENGTH_SHORT).show()
             Glide.with(this)
                 .load(R.drawable.ic_dummy_profile)
                 .apply(RequestOptions.circleCropTransform())
