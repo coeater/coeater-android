@@ -14,6 +14,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -32,6 +34,8 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.Face;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
+import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Range;
@@ -39,6 +43,8 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.core.app.ActivityCompat;
+
+import com.coeater.android.R;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -415,8 +421,33 @@ class CameraHookSession implements CameraSession {
 
                         transformMatrix = RendererCommon.rotateTextureMatrix(transformMatrix, (float)(-CameraHookSession.this.cameraOrientation));
                         Buffer buffer = CameraHookSession.this.surfaceTextureHelper.createTextureBuffer(CameraHookSession.this.captureFormat.width, CameraHookSession.this.captureFormat.height, RendererCommon.convertMatrixToAndroidGraphicsMatrix(transformMatrix));
+
                         VideoFrame frame = new VideoFrame(buffer, rotation, timestampNs);
-                        CameraHookSession.this.events.onFrameCaptured(CameraHookSession.this, frame);
+
+                        Bitmap bitmapToDraw = BitmapFactory.decodeResource(applicationContext.getResources(), R.drawable.access_time_24_px);
+
+
+                        //At this point, bitmmapToDraw contains the drawing and the frame captured from the camera overlayed
+                        //Now we need to convert it to fit into the onFrameCaptured callback (requires a VideoFrame).
+
+                        // Set filtering
+                        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+                        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+
+                        // Load the bitmap into the bound texture.
+                        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmapToDraw, 0);
+
+                        bitmapToDraw.recycle();
+
+                        //The bitmap is drawn on the GPU at this point.
+
+                        //We transfer it to the VideoFrame
+                        VideoFrame.I420Buffer i420Buf = buffer.toI420();
+                        i420Buf.
+                        VideoFrame videoFrame = new VideoFrame(i420Buf, rotation, timestampNs);
+
+
+                        CameraHookSession.this.events.onFrameCaptured(CameraHookSession.this, videoFrame);
                         frame.release();
                     }
                 }
