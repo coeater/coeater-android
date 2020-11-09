@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import com.coeater.android.R
+import com.coeater.android.apprtc.CustomCapturer
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
@@ -271,6 +272,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private fun createVideoCapturer(): VideoCapturer? {
         val videoCapturer: VideoCapturer?
         Logging.d(TAG, "Creating capturer using camera2 API.")
+
         videoCapturer = createCameraCapturer(Camera2Enumerator(this))
         if (videoCapturer == null) {
             reportError("Failed to open camera")
@@ -281,8 +283,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
     // Create VideoCapturer from camera
     private fun createCameraCapturer(enumerator: CameraEnumerator): VideoCapturer? {
+        return CustomCapturer()
         val deviceNames = enumerator.deviceNames
-
         // First, try to find front facing camera
         Logging.d(TAG, "Looking for front facing cameras.")
         for (deviceName in deviceNames) {
