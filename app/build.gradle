@@ -14,8 +14,8 @@ android {
         applicationId "com.coeater.android"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 4
-        versionName "1.3"
+        versionCode 6
+        versionName "1.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -44,7 +44,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // WEBRTC
-    implementation 'org.webrtc:google-webrtc:1.0.22672'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
 
     // Socket
     implementation('io.socket:socket.io-client:1.0.0') {

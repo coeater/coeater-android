@@ -20,11 +20,9 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
-import java.util.*
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
-import org.webrtc.VideoRenderer.I420Frame
 
 /**
  * Activity for peer connection call setup, call waiting
@@ -40,12 +38,9 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         private const val STAT_CALLBACK_PERIOD = 1000
     }
 
-    private val remoteProxyRenderer =
-        ProxyRenderer()
     private val localProxyVideoSink =
         ProxyVideoSink()
-    private val remoteRenderers: MutableList<VideoRenderer.Callbacks> =
-        ArrayList()
+    private val remoteProxyVideoSink = ProxyVideoSink()
     private var peerConnectionClient: PeerConnectionClient? = null
     private var signalServerRtcClient: SignalServerRTCClient? = null
     private var signalingParameters: SignalingParameters? = null
@@ -97,7 +92,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
-        remoteRenderers.add(remoteProxyRenderer)
 
         // Create peer connection client.
         peerConnectionClient = PeerConnectionClient()
@@ -220,8 +214,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     // Disconnect from remote resources, dispose of local resources, and exit.
     private fun disconnect() {
         activityRunning = false
-        remoteProxyRenderer.setTarget(null)
         localProxyVideoSink.setTarget(null)
+        remoteProxyVideoSink.setTarget(null)
         if (signalServerRtcClient != null) {
             signalServerRtcClient?.disconnectFromRoom()
             signalServerRtcClient = null
@@ -333,7 +327,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         Logging.d(TAG, "setSwappedFeeds: $isSwappedFeeds")
         this.isSwappedFeeds = isSwappedFeeds
         localProxyVideoSink.setTarget(if (isSwappedFeeds) fullscreenRenderer else pipRenderer)
-        remoteProxyRenderer.setTarget(if (isSwappedFeeds) pipRenderer else fullscreenRenderer)
+        remoteProxyVideoSink.setTarget(if (isSwappedFeeds) pipRenderer else fullscreenRenderer)
         fullscreenRenderer!!.setMirror(isSwappedFeeds)
         pipRenderer!!.setMirror(!isSwappedFeeds)
     }
@@ -348,7 +342,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
             videoCapturer = createVideoCapturer()
         }
         peerConnectionClient?.createPeerConnection(
-            localProxyVideoSink!!, remoteRenderers!!, videoCapturer, signalingParameters!!
+            localProxyVideoSink!!, remoteProxyVideoSink!!, videoCapturer, signalingParameters!!
         )
         if (signalingParameters?.initiator == true) {
             logAndToast("Creating OFFER...")
@@ -502,27 +496,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         super.onDestroy()
     }
 
-    private class ProxyRenderer : VideoRenderer.Callbacks {
-        private var target: VideoRenderer.Callbacks? = null
-
-        @Synchronized
-        override fun renderFrame(frame: I420Frame) {
-            if (target == null) {
-                Logging.d(
-                    TAG,
-                    "Dropping frame in proxy because target is null."
-                )
-                VideoRenderer.renderFrameDone(frame)
-                return
-            }
-            target!!.renderFrame(frame)
-        }
-
-        @Synchronized
-        fun setTarget(target: VideoRenderer.Callbacks?) {
-            this.target = target
-        }
-    }
 
     private class ProxyVideoSink : VideoSink {
         private var target: VideoSink? = null

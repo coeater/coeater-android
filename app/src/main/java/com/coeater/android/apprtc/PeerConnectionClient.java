@@ -40,10 +40,10 @@ import org.webrtc.SoftwareVideoDecoderFactory;
 import org.webrtc.SoftwareVideoEncoderFactory;
 import org.webrtc.StatsObserver;
 import org.webrtc.StatsReport;
+import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
-import org.webrtc.VideoRenderer;
 import org.webrtc.VideoSink;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
@@ -132,7 +132,7 @@ public class PeerConnectionClient {
   private boolean isError;
   private Timer statsTimer;
   private VideoSink localRender;
-  private List<VideoRenderer.Callbacks> remoteRenders;
+  private VideoSink remoteRender;
   private SignalingParameters signalingParameters;
   private int videoWidth;
   private int videoHeight;
@@ -159,6 +159,7 @@ public class PeerConnectionClient {
   private AudioTrack localAudioTrack;
   private DataChannel dataChannel;
   private boolean dataChannelEnabled;
+  private Context context;
 
   /**
    * Peer connection parameters.
@@ -291,6 +292,7 @@ public class PeerConnectionClient {
       final PeerConnectionParameters peerConnectionParameters, final PeerConnectionEvents events) {
     this.peerConnectionParameters = peerConnectionParameters;
     this.events = events;
+    this.context = context;
     videoCallEnabled = peerConnectionParameters.videoCallEnabled;
     dataChannelEnabled = peerConnectionParameters.dataChannelParameters != null;
     // Reset variables to initial states.
@@ -320,15 +322,14 @@ public class PeerConnectionClient {
   }
 
 
-  public void createPeerConnection(final VideoSink localRender,
-      final List<VideoRenderer.Callbacks> remoteRenders, final VideoCapturer videoCapturer,
+  public void createPeerConnection(final VideoSink localRender, final VideoSink remoteRender, final VideoCapturer videoCapturer,
       final SignalingParameters signalingParameters) {
     if (peerConnectionParameters == null) {
       Log.e(TAG, "Creating peer connection without initializing factory.");
       return;
     }
     this.localRender = localRender;
-    this.remoteRenders = remoteRenders;
+    this.remoteRender = remoteRender;
     this.videoCapturer = videoCapturer;
     this.signalingParameters = signalingParameters;
     executor.execute(new Runnable() {
@@ -405,7 +406,6 @@ public class PeerConnectionClient {
     PeerConnectionFactory.initialize(
         PeerConnectionFactory.InitializationOptions.builder(context)
             .setFieldTrials(fieldTrials)
-            .setEnableVideoHwAcceleration(peerConnectionParameters.videoCodecHwAcceleration)
             .setEnableInternalTracer(true)
             .createInitializationOptions());
     if (peerConnectionParameters.tracing) {
@@ -512,7 +512,10 @@ public class PeerConnectionClient {
       decoderFactory = new SoftwareVideoDecoderFactory();
     }
 
-    factory = new PeerConnectionFactory(options, encoderFactory, decoderFactory);
+    factory = PeerConnectionFactory.builder().setOptions(options)
+            .setVideoEncoderFactory(encoderFactory)
+            .setVideoDecoderFactory(decoderFactory)
+            .createPeerConnectionFactory();
     Log.d(TAG, "Peer connection factory created.");
   }
 
@@ -582,11 +585,6 @@ public class PeerConnectionClient {
 
     queuedRemoteCandidates = new ArrayList<>();
 
-    if (videoCallEnabled) {
-      factory.setVideoHwAccelerationOptions(
-          rootEglBase.getEglBaseContext(), rootEglBase.getEglBaseContext());
-    }
-
     PeerConnection.RTCConfiguration rtcConfig =
         new PeerConnection.RTCConfiguration(signalingParameters.getIceServers());
     // TCP candidates are only useful when connecting to a server that supports
@@ -641,7 +639,6 @@ public class PeerConnectionClient {
         Log.e(TAG, "Can not open aecdump file", e);
       }
     }
-
     Log.d(TAG, "Peer connection created.");
   }
 
@@ -681,7 +678,6 @@ public class PeerConnectionClient {
       videoSource = null;
     }
     localRender = null;
-    remoteRenders = null;
     Log.d(TAG, "Closing peer connection factory.");
     if (factory != null) {
       factory.dispose();
@@ -931,7 +927,9 @@ public class PeerConnectionClient {
   }
 
   private VideoTrack createVideoTrack(VideoCapturer capturer) {
-    videoSource = factory.createVideoSource(capturer);
+    videoSource = factory.createVideoSource(false);
+    SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create(Thread.currentThread().getName(), rootEglBase.getEglBaseContext());
+    capturer.initialize(surfaceTextureHelper, context, videoSource.getCapturerObserver());
     capturer.startCapture(videoWidth, videoHeight, videoFps);
 
     localVideoTrack = factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
@@ -1105,6 +1103,12 @@ public class PeerConnectionClient {
   }
 
   private void switchCameraInternal() {
+//    CameraEnumerator enumerator = new Camera1Enumerator(false);
+//    VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
+//    VideoSource videoSource = peerConnectionFactory.createVideoSource(false);
+//    videoCapturer.initialize(surfaceTextureHelper, this.getApplicationContext(), videoSource.getCapturerObserver());
+//    VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack(VideoTrackID, videoSource);
+
     if (videoCapturer instanceof CameraVideoCapturer) {
       if (!videoCallEnabled || isError) {
         Log.e(TAG, "Failed to switch camera. Video: " + videoCallEnabled + ". Error : " + isError);
@@ -1206,9 +1210,7 @@ public class PeerConnectionClient {
           if (stream.videoTracks.size() == 1) {
             remoteVideoTrack = stream.videoTracks.get(0);
             remoteVideoTrack.setEnabled(renderVideo);
-            for (VideoRenderer.Callbacks remoteRender : remoteRenders) {
-              remoteVideoTrack.addRenderer(new VideoRenderer(remoteRender));
-            }
+            remoteVideoTrack.addSink(remoteRender);
           }
         }
       });
