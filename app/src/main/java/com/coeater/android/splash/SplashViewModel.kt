@@ -10,6 +10,10 @@ import com.coeater.android.model.UserManage
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.HttpException
 import java.io.File
 
@@ -45,7 +49,7 @@ class SplashViewModel(
         }
     }
 
-    fun setMyInfo(nickname: String, profile: File? = null) {
+    fun setMyInfo(nickname: String, profile: File?) {
         viewModelScope.launch(Dispatchers.IO) {
             when (val myInfo = register(nickname, profile)) {
                 is HTTPResult.Success<UserManage> -> {
@@ -63,9 +67,19 @@ class SplashViewModel(
         return FirebaseInstanceId.getInstance().id
     }
 
-    private suspend fun register(nickname: String, profile: File? = null): HTTPResult<UserManage> {
+    private suspend fun register(nickname: String, profile: File?): HTTPResult<UserManage> {
+        val requestUid = RequestBody.create("multipart/from-data".toMediaTypeOrNull(), getInstanceId())
+        val requestNickname = RequestBody.create("multipart/from-data".toMediaTypeOrNull(), nickname)
+        var requestProfile: RequestBody
+        var profileBody: MultipartBody.Part?
+        if(profile == null) profileBody = null
+        else {
+            requestProfile = RequestBody.create("multipart/from-data".toMediaTypeOrNull(), profile!!)
+            profileBody = MultipartBody.Part.createFormData("profile", profile.name, requestProfile )
+        }
+
         return try {
-            val response = api.register(getInstanceId(), nickname, profile)
+            val response = api.register(requestUid, requestNickname, profileBody)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)

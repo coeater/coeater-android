@@ -38,7 +38,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: SplashViewModel
-    private lateinit var profileUri: Uri?
+    private var profileFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +51,8 @@ class RegisterActivity : AppCompatActivity() {
             this, viewModelFactory)[SplashViewModel::class.java]
 
         iv_next.setOnClickListener {
-            viewModel.setMyInfo(et_nickname.text.toString())
+
+            viewModel.setMyInfo(et_nickname.text.toString(), profileFile)
         }
         viewModel.isLoginSuccess.observe(this, Observer { complete ->
             if(complete) {
@@ -98,21 +99,20 @@ class RegisterActivity : AppCompatActivity() {
                 setCircleDimmedLayer(true)
                 setShowCropGrid(false)
             }
+            profileFile = File(cacheDir, UUID.randomUUID().toString() + ".jpg")
 
-            UCrop.of(data.data!!, Uri.fromFile(File(cacheDir, UUID.randomUUID().toString() + ".jpg")))
+            UCrop.of(data.data!!, Uri.fromFile(profileFile))
                 .withAspectRatio(1F, 1F)
                 .withOptions(options)
                 .start(this)
         }
         if(requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
-            profileUri = UCrop.getOutput(data!!)
             Glide.with(this)
-                .load(profileUri)
+                .load(profileFile)
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
             iv_photo.visibility = View.GONE
-            //TODO using api
         }
     }
 
@@ -122,6 +122,7 @@ class RegisterActivity : AppCompatActivity() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         this.startActivity(intent)
+        finish()
     }
     private fun showError() {
         AlertDialog.Builder(this)
