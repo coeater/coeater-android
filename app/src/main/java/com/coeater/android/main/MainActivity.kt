@@ -53,8 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProviders.of(
             this, viewModelFactory)[MainViewModel::class.java]
-        viewModel.friendsInfo.observe(this, Observer<FriendsInfo> { friends ->
-        })
 
         fragmentTransaction.add(R.id.f_main, oneOnOneFragment)
         fragmentTransaction.commit()

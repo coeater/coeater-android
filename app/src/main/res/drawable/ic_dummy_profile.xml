@@ -3,8 +3,6 @@
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48"
-    android:tintMode="screen"
-    android:tint="@color/dusk"
     >
   <path
       android:pathData="M34.0814,34.3703H13.9186c0,-5.5642 4.509,-10.0814 10.0814,-10.0814C29.5641,24.2889 34.0814,28.8062 34.0814,34.3703z"

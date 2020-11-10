@@ -60,7 +60,17 @@ class SplashActivity : AppCompatActivity() {
                 showError()
             }
         })
+        viewModel.isInitialLogin.observe(this, Observer { isSuccess ->
+            if(isSuccess) {
+                moveToRegister()
+            } else {
+                showError()
+            }
+        })
     }
+
+
+
     override fun onStart() {
         super.onStart()
         viewModel.onCreate()
@@ -68,6 +78,14 @@ class SplashActivity : AppCompatActivity() {
 
     private fun moveToMain() {
         val intent = Intent(this, MainActivity::class.java).apply {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        this.startActivity(intent)
+    }
+
+    private fun moveToRegister() {
+        val intent = Intent(this, RegisterActivity::class.java).apply {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

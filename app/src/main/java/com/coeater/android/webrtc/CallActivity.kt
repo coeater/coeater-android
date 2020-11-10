@@ -8,6 +8,8 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
@@ -16,6 +18,7 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
+import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
 import java.util.*
 import kotlinx.android.synthetic.main.activity_call.*
@@ -65,6 +68,14 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
+
+        val profile = intent.getStringExtra("profile")
+        Glide.with(this)
+            .load(Profile.getUrl(profile))
+            .error(R.drawable.ic_dummy_circle_crop)
+            .apply(RequestOptions.circleCropTransform())
+            .into(iv_profile)
+            .clearOnDetach()
 
         iceConnected = false
         signalingParameters = null

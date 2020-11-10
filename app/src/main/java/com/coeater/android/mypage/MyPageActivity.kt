@@ -1,8 +1,15 @@
 package com.coeater.android.mypage
 
+import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -13,25 +20,29 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
-import com.coeater.android.invitation.InvitationViewModel
-import com.coeater.android.main.MainViewModel
-import com.coeater.android.main.MainViewModelFactory
-import com.coeater.android.model.FriendsInfo
+import com.coeater.android.model.Profile
+import com.coeater.android.splash.RegisterActivity
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
+import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_my_page.*
-import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
+import java.io.File
 
 class MyPageActivity: AppCompatActivity() {
+
+    companion object {
+        const val TAG = "MyPageActivity"
+    }
 
     private val viewModelFactory by lazy {
         MyPageViewModelFactory(
             provideUserApi(this)
         )
     }
+    private lateinit var destinationUri : Uri
 
     private lateinit var viewModel: MyPageViewModel
 
@@ -45,11 +56,18 @@ class MyPageActivity: AppCompatActivity() {
         viewModel = ViewModelProviders.of(
             this, viewModelFactory
         )[MyPageViewModel::class.java]
+        destinationUri = Uri.fromFile(File(cacheDir, "profile.jpeg"))
 
         setRecyclerView(rv_requests)
         setMyInfo()
         iv_back.setOnClickListener { finish() }
         ib_share.setOnClickListener { shareToKakao() }
+        iv_edit.setOnClickListener { moveToEdit() }
+    }
+
+    private fun moveToEdit() {
+        val intent = Intent(this, EditProfileActivity::class.java)
+        startActivity(intent)
     }
 
     /**
@@ -93,16 +111,17 @@ class MyPageActivity: AppCompatActivity() {
     private fun setMyInfo() {
         //dummy image
         Glide.with(this)
-            .load(R.drawable.ic_dummy_profile)
-            .apply(RequestOptions.circleCropTransform())
+            .load(R.drawable.ic_dummy_circle_crop)
             .into(iv_profile)
             .clearOnDetach()
 
-        viewModel.requests.observe(this, Observer<FriendsInfo> { requests ->
-            tv_nickname.text = requests.owner.nickname
-            tv_code.text = "My Code : " + requests.owner.code
+        viewModel.myInfo.observe(this, Observer { myInfo ->
+            tv_nickname.text = myInfo.nickname
+            tv_code.text = "My Code : " + myInfo.code
+            Toast.makeText(this, "profile url: " + Profile.getUrl(myInfo.profile), Toast.LENGTH_SHORT).show()
             Glide.with(this)
-                .load(R.drawable.ic_dummy_profile)
+                .load(Profile.getUrl(myInfo.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
@@ -115,7 +134,7 @@ class MyPageActivity: AppCompatActivity() {
     }
 
     private fun setRecyclerView(FriendRequestRecyclerView: RecyclerView) {
-        viewModel.requests.observe(this,Observer { friendRequests ->
+        viewModel.requests.observe(this, Observer { friendRequests ->
             FriendRequestRecyclerView.apply {
                 adapter = RequestsAdapter(viewModel, context, friendRequests.friends)
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)

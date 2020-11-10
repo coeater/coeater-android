@@ -80,6 +80,7 @@ class InvitationActivity : AppCompatActivity() {
                 intent.putExtra("mode", "INVITER")
                 intent.putExtra("roomId", roomId ?:0)
                 intent.putExtra("nickname", it.target?.nickname)
+                intent.putExtra("profile", it.target?.profile)
                 startActivity(intent)
                 finish()
             }

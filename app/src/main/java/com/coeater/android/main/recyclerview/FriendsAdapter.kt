@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
+import com.coeater.android.model.Profile
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friends_recycler_item.view.*
 
@@ -29,7 +30,8 @@ open class FriendsAdapter(private val context : Context, private val friendsData
     override fun onBindViewHolder(holder : RecyclerView.ViewHolder, position: Int) {
         (holder as FriendsViewHolder).ItemLayout.tv_name.text = friendsDataset[position].nickname
         Glide.with(context)
-            .load(R.drawable.ic_dummy_profile)
+            .load(Profile.getUrl(friendsDataset[position].profile))
+            .error(R.drawable.ic_dummy_circle_crop)
             .apply(RequestOptions.circleCropTransform())
             .into(holder.ItemLayout.iv_profile)
             .clearOnDetach()

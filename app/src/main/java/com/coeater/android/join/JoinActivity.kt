@@ -62,6 +62,7 @@ class JoinActivity : AppCompatActivity() {
             intent.putExtra("mode", "INVITEE")
             intent.putExtra("roomId", it.id)
             intent.putExtra("nickname", it.owner?.nickname)
+            intent.putExtra("profile", it.owner?.profile)
             startActivity(intent)
             finish()
         })
