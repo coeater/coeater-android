@@ -10,6 +10,9 @@ import com.coeater.android.model.HTTPResult
 import com.coeater.android.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.HttpException
 import java.io.File
 
@@ -21,6 +24,9 @@ class MyPageViewModel(
     }
     val myInfo: MutableLiveData<User> by lazy {
         MutableLiveData<User>()
+    }
+    val isEditSuccess: MutableLiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>()
     }
 
     fun fetchRequest() {
@@ -63,28 +69,14 @@ class MyPageViewModel(
         }
     }
 
-    fun changeNickname(nickname : String) {
+    fun editProfile(nickname: String, profile: File?) {
         viewModelScope.launch(Dispatchers.IO) {
-            when(val response = setNickname(myInfo.value!!.id, nickname)) {
+            when (val myInfo = setProfile(nickname, profile)) {
                 is HTTPResult.Success<User> -> {
-                    myInfo.postValue(response.data)
+                    isEditSuccess.postValue(true)
                 }
-                is Error -> {
-                    //TODO error message
-                }
-            }
-        }
-    }
-
-    fun changeProfile(destinationUri: Uri?) {
-        val profile = File(destinationUri?.path)
-        viewModelScope.launch(Dispatchers.IO) {
-            when(val response = setProfile(myInfo.value!!.id, profile)) {
-                is HTTPResult.Success<User> -> {
-                    myInfo.postValue(response.data)
-                }
-                is Error -> {
-                    //TODO error message
+                is HTTPResult.Error -> {
+                    isEditSuccess.postValue(false)
                 }
             }
         }
@@ -123,20 +115,18 @@ class MyPageViewModel(
         }
     }
 
-    private suspend fun setNickname(id: Int, nickname: String): HTTPResult<User> {
-        return try {
-            val response = api.setNickname(id, nickname)
-            HTTPResult.Success(response)
-        } catch (e: HttpException) {
-            HTTPResult.Error(e)
-        } catch (e: Exception) {
-            HTTPResult.Error(e)
+    private suspend fun setProfile(nickname: String, profile: File?): HTTPResult<User> {
+        val requestNickname = RequestBody.create("multipart/from-data".toMediaTypeOrNull(), nickname)
+        var requestProfile: RequestBody
+        var profileBody: MultipartBody.Part?
+        if(profile == null) profileBody = null
+        else {
+            requestProfile = RequestBody.create("multipart/from-data".toMediaTypeOrNull(), profile!!)
+            profileBody = MultipartBody.Part.createFormData("profile", profile.name, requestProfile )
         }
-    }
 
-    private suspend fun setProfile(id: Int, profile: File?): HTTPResult<User> {
         return try {
-            val response = api.setProfile(id, profile)
+            val response = api.setProfile(myInfo.value!!.id, requestNickname, profileBody)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)

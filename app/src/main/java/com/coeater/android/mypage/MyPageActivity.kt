@@ -20,6 +20,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
+import com.coeater.android.splash.RegisterActivity
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
@@ -35,7 +36,6 @@ class MyPageActivity: AppCompatActivity() {
         const val TAG = "MyPageActivity"
     }
 
-    private val GET_IMAGE: Int = 1
     private val viewModelFactory by lazy {
         MyPageViewModelFactory(
             provideUserApi(this)
@@ -61,57 +61,12 @@ class MyPageActivity: AppCompatActivity() {
         setMyInfo()
         iv_back.setOnClickListener { finish() }
         ib_share.setOnClickListener { shareToKakao() }
-        iv_edit.setOnClickListener { setChangeNickname() }
-        iv_profile.setOnClickListener { setProfile() }
+        iv_edit.setOnClickListener { moveToEdit() }
     }
 
-    //media app을 통해 이미지 파일을 가져옴
-    private fun setProfile() {
-        val intent = Intent().apply {
-            action = Intent.ACTION_PICK
-            data = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            type = "image/*"
-        }
-        startActivityForResult(intent, GET_IMAGE)
-    }
-
-    //GET_IMAGE : image파일을 가져올 경우 crop activity로 보내서 1:1로 crop
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == GET_IMAGE && resultCode == RESULT_OK && data != null && data.data != null) {
-            val options = UCrop.Options().apply {
-                setCircleDimmedLayer(true)
-                setShowCropGrid(false)
-            }
-
-            UCrop.of(data.data!!, destinationUri)
-                .withAspectRatio(1F, 1F)
-                .withOptions(options)
-                .start(this)
-        }
-        if(requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
-            viewModel.changeProfile(destinationUri)
-        }
-    }
-
-    private fun setChangeNickname() {
-        val et_nickname = EditText(this)
-        et_nickname.hint = "nickname"
-
-
-        AlertDialog.Builder(this)
-            .setTitle("Change Nickname")
-            .setMessage("Please enter a new nickname")
-            .setView(et_nickname)
-            .setPositiveButton("Enter",
-                DialogInterface.OnClickListener {dialog, whichButton ->
-                    val nickname = et_nickname.text.toString()
-                    this.viewModel.changeNickname(nickname)
-                })
-            .setNegativeButton("Cancel",
-                DialogInterface.OnClickListener {dialog, whichButton -> dialog.dismiss() })
-            .show()
+    private fun moveToEdit() {
+        val intent = Intent(this, EditProfileActivity::class.java)
+        startActivity(intent)
     }
 
     /**
@@ -155,8 +110,7 @@ class MyPageActivity: AppCompatActivity() {
     private fun setMyInfo() {
         //dummy image
         Glide.with(this)
-            .load(R.drawable.ic_dummy_profile)
-            .apply(RequestOptions.circleCropTransform())
+            .load(R.drawable.ic_dummy_circle_crop)
             .into(iv_profile)
             .clearOnDetach()
 
@@ -165,8 +119,7 @@ class MyPageActivity: AppCompatActivity() {
             tv_code.text = "My Code : " + myInfo.code
             Toast.makeText(this, "profile uri: " + myInfo.profile, Toast.LENGTH_SHORT).show()
             Glide.with(this)
-                .load(R.drawable.ic_dummy_profile)
-                .apply(RequestOptions.circleCropTransform())
+                .load(R.drawable.ic_dummy_circle_crop)
                 .into(iv_profile)
                 .clearOnDetach()
         })

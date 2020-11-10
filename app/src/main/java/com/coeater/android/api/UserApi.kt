@@ -2,6 +2,8 @@ package com.coeater.android.api
 
 import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.User
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.*
 import java.io.File
 
@@ -38,10 +40,11 @@ interface UserApi {
         @Field("nickname") nickname : String
     ): User
 
-    @FormUrlEncoded
+    @Multipart
     @PUT("users/{id}/")
     suspend fun setProfile(
         @Path("id") id : Int,
-        @Field("profile") profile: File?
+        @Part("nickname") nickname: RequestBody,
+        @Part profile: MultipartBody.Part?
     ): User
 }
