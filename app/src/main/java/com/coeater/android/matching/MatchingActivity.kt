@@ -5,8 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.view.KeyEvent
 import android.view.View
-import android.view.WindowManager
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -18,11 +16,12 @@ import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
-import kotlinx.android.synthetic.main.fragment_oneonone_code.*
 import android.os.Bundle
 import androidx.lifecycle.observe
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.model.AcceptedState
-import kotlinx.android.synthetic.main.activity_my_page.*
+import com.coeater.android.model.Profile
 import kotlinx.android.synthetic.main.fragment_oneonone_matching.*
 
 class MatchingActivity : AppCompatActivity() {
@@ -40,6 +39,7 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MatchingViewModel
+    var profile: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,11 +56,18 @@ class MatchingActivity : AppCompatActivity() {
             roomId = b?.getInt("roomId") ?: -1
             mode = b?.getString("mode") ?: ""
             nickname = b?.getString("nickname") ?: ""
+            profile = b?.getString("profile") ?: ""
         }
 
         viewModel = ViewModelProviders.of(
             this, viewModelFactory
         )[MatchingViewModel::class.java]
+        Glide.with(this)
+            .load(Profile.getUrl(profile))
+            .error(R.drawable.ic_dummy_circle_crop)
+            .apply(RequestOptions.circleCropTransform())
+            .into(iv_profile)
+            .clearOnDetach()
         when (mode) {
             "INVITER" -> {
                 tv_text1.text = nickname
@@ -151,6 +158,7 @@ class MatchingActivity : AppCompatActivity() {
                 intent.putExtra(CallActivity.ROOM_CODE, roomCode)
                 intent.putExtra(CallActivity.IS_INVITER, false)
                 intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
+                intent.putExtra("profile", profile)
                 startActivity(intent)
             }
 

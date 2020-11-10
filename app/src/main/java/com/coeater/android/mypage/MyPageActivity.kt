@@ -20,6 +20,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
+import com.coeater.android.model.Profile
 import com.coeater.android.splash.RegisterActivity
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
@@ -117,9 +118,11 @@ class MyPageActivity: AppCompatActivity() {
         viewModel.myInfo.observe(this, Observer { myInfo ->
             tv_nickname.text = myInfo.nickname
             tv_code.text = "My Code : " + myInfo.code
-            Toast.makeText(this, "profile uri: " + myInfo.profile, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "profile url: " + Profile.getUrl(myInfo.profile), Toast.LENGTH_SHORT).show()
             Glide.with(this)
-                .load(R.drawable.ic_dummy_circle_crop)
+                .load(Profile.getUrl(myInfo.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
+                .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
         })

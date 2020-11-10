@@ -51,7 +51,7 @@
         android:id="@+id/iv_profile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/ic_dummy_profile"
+        android:src="@drawable/ic_dummy_circle_crop"
         android:layout_marginStart="30dp"
         android:layout_marginTop="161dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -75,12 +75,13 @@
 
     <ImageView
         android:id="@+id/iv_edit"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="32dp"
+        android:layout_height="40dp"
         android:src="@drawable/ic_edit_48px"
-        android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/tv_nickname"
-        app:layout_constraintBottom_toBottomOf="@id/tv_nickname" />
+        android:layout_marginEnd="5dp"
+        app:layout_constraintEnd_toStartOf="@id/ib_share"
+        app:layout_constraintTop_toTopOf="@id/ib_share"
+        app:layout_constraintBottom_toBottomOf="@id/ib_share" />
 
     <TextView
         android:id="@+id/tv_code"
