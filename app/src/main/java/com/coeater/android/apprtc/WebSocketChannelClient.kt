@@ -31,6 +31,7 @@ class WebSocketChannelClient(
 
     companion object {
         private const val baseURL = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:4000/"
+//        private const val baseURL = "httpL//localhost:8000/"
         private const val TAG = "WSChannelRTCClient"
     }
     /**
@@ -43,6 +44,7 @@ class WebSocketChannelClient(
         fun onWebSocketGetOffer(message: String)
         fun onWebSocketGetAnswer(message: String)
         fun onWebSocketGetIceCandidate(message: String)
+        fun onWebSocketPlayLikeness(message: String)
     }
 
     fun connect(roomID: String) {
@@ -72,6 +74,10 @@ class WebSocketChannelClient(
                 .on("candidate", Emitter.Listener {
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetIceCandidate(it[0].toString())
+                })
+                .on("play likeness", {
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketPlayLikeness(it[0].toString())
                 })
             this.connect()
         }
