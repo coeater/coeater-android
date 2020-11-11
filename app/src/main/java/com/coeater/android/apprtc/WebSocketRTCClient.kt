@@ -151,7 +151,8 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
 
     override fun onWebSocketPlayLikeness(message: String) {
 //        TODO("Not yet implemented")
-        events.onPlayGameLikeness(message)
+        Log.d("LIKENESS", message)
+//        events.onPlayGameLikeness(message)
     }
 
     companion object {

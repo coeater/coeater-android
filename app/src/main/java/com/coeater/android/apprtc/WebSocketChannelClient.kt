@@ -76,15 +76,15 @@ class WebSocketChannelClient(
                     events.onWebSocketGetIceCandidate(it[0].toString())
                 })
                 .on("play likeness", {
-                    Log.d(TAG, it[0].toString())
-                    events.onWebSocketPlayLikeness(it[0].toString())
+                    Log.d(TAG, "play likeness" + it[0].toString())
+//                    events.onWebSocketPlayLikeness(it[0].toString())
                 })
             this.connect()
         }
     }
 
     fun send(event: String, message: String) {
-        checkIfCalledOnValidThread()
+//        checkIfCalledOnValidThread()
 
         socket?.emit(event, message)
     }

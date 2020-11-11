@@ -41,6 +41,11 @@ interface SignalServerRTCClient {
     fun sendLocalIceCandidate(candidate: IceCandidate)
 
     /**
+     * Send Ice candidate to the other participant.
+     */
+    fun startGameLikeness()
+
+    /**
      * Disconnect from room.
      */
     fun disconnectFromRoom()
@@ -86,5 +91,11 @@ interface SignalServerRTCClient {
          * Callback fired once channel is closed.
          */
         fun onChannelClose()
+
+        /**
+         * Callback fired once channel is closed.
+         */
+        fun onPlayGameLikeness(gameData: String)
+
     }
 }

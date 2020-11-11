@@ -3,7 +3,10 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuInflater
 import android.view.View
+import android.widget.Button
+import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
@@ -59,6 +62,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private var disconnectButton: RelativeLayout? = null
     private var cameraSwitchButton: RelativeLayout? = null
 //    private var toggleMuteButton: ImageButton? = null
+    private var gameButton: RelativeLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +85,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         disconnectButton = findViewById(R.id.button_exit)
         cameraSwitchButton = findViewById(R.id.button_change)
 //        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
+        gameButton = findViewById(R.id.button_games)
 
         // Add buttons click events.
         disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
@@ -89,6 +94,19 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 //            val enabled = onToggleMic()
 //            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
 //        })
+        gameButton?.setOnClickListener{
+            val popupMenu: PopupMenu = PopupMenu(this, gameButton)
+            popupMenu.menuInflater.inflate(R.menu.menu_call_games,popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+                when(item.itemId) {
+                    R.id.menu_game_likeness -> startGameLikeness()
+                    R.id.menu_game_subtitles ->
+                        Toast.makeText(this@CallActivity, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
+                }
+                true
+            })
+            popupMenu.show()
+        }
 
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
@@ -516,5 +534,16 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         fun setTarget(target: VideoSink?) {
             this.target = target
         }
+    }
+
+    /************* Game Contents *************/
+    private var dataChannel: DataChannel? = null
+
+    private fun startGameLikeness(){
+        signalServerRtcClient?.startGameLikeness()
+    }
+
+    override fun onPlayGameLikeness(data: String) {
+        Toast.makeText(this@CallActivity, "이구동성! "+ data, Toast.LENGTH_SHORT).show()
     }
 }

@@ -106,4 +106,25 @@
             android:src="@drawable/ic_exit_to_app_24px"/>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/button_games"
+
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="65dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white"/>
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_games_24"/>
+    </RelativeLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
