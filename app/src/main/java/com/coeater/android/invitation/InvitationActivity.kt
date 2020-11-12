@@ -25,7 +25,7 @@ import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
-import kotlinx.android.synthetic.main.fragment_oneonone_code.*
+import kotlinx.android.synthetic.main.activity_join.*
 
 class InvitationActivity : AppCompatActivity() {
 

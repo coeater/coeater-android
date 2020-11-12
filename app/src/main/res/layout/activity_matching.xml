@@ -55,7 +55,7 @@
         android:fontFamily="@font/regular"
         tools:text="your invitation"
         android:textColor="@color/dusk"/>
-    
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:orientation="horizontal"

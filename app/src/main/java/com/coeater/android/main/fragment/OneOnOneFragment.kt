@@ -23,8 +23,6 @@ import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.fragment_oneonone.*
 import kotlinx.android.synthetic.main.view_main_friends.view.*
 
-private val TAG = "OneOnOneFragment"
-
 class OneOnOneFragment : Fragment() {
 
     private val viewModel: MainViewModel by activityViewModels {

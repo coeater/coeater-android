@@ -13,13 +13,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
-import com.coeater.android.invitation.InvitationViewModel
-import com.coeater.android.join.JoinActivity
-import com.coeater.android.main.MainActivity
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.activity_add_friend.*
-import kotlinx.android.synthetic.main.fragment_oneonone_code.*
-import kotlinx.android.synthetic.main.fragment_oneonone_code.et_code_number
 
 class AddFriendActivity : AppCompatActivity() {
 

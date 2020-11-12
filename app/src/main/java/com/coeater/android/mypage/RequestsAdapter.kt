@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
-import com.coeater.android.friends.AddFriendViewModel
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friend_requests_recycler_item.view.*
 
