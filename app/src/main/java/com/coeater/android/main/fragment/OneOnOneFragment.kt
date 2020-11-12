@@ -74,4 +74,9 @@ class OneOnOneFragment : Fragment() {
             }
         })
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.fetchFriends()
+    }
 }

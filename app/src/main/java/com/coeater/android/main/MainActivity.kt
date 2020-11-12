@@ -3,11 +3,10 @@ package com.coeater.android.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.GestureDetector
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.*
 import androidx.lifecycle.ViewModelProviders
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.friends.AddFriendActivity
@@ -30,6 +29,10 @@ class MainActivity : FragmentActivity() {
 
     private lateinit var viewModel: MainViewModel
 
+    private val oneOnOne = OneOnOneFragment()
+    private val myPage = MyPageFragment()
+    private val history = Fragment()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,7 +48,29 @@ class MainActivity : FragmentActivity() {
         iv_my_page.setOnClickListener { vp_main.currentItem = 1 }
         iv_history.setOnClickListener { vp_main.currentItem = 2 }
 
-
+        vp_main.addOnPageChangeListener(object: ViewPager.OnPageChangeListener {
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageSelected(position: Int) {
+                when(position) {
+                    0 -> {
+                        iv_one_on_one.setImageResource(R.drawable.ic_group_24px_salmon)
+                        iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
+                        iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                    }
+                    1 -> {
+                        iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
+                        iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
+                        iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                    }
+                    2 -> {
+                        iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
+                        iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
+                        iv_history.setImageResource(R.drawable.ic_history_24px_salmon)
+                    }
+                }
+            }
+            override fun onPageScrollStateChanged(state: Int) {}
+        })
     }
 
     override fun onStart() {
@@ -55,34 +80,18 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onBackPressed() {
-        vp_main.currentItem = 1;
+        if(vp_main.currentItem != 0) vp_main.currentItem = 0
+        else super.onBackPressed()
     }
 
     private inner class MainPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
         override fun getCount(): Int = NUM_PAGES
         override fun getItem(position: Int): Fragment {
             return when(position) {
-                0 -> {
-                    iv_one_on_one.setImageResource(R.drawable.ic_group_24px_salmon)
-                    iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
-                    iv_history.setImageResource(R.drawable.ic_history_light_salmon)
-                    OneOnOneFragment()
-                }
-                1 -> {
-                    iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
-                    iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
-                    iv_history.setImageResource(R.drawable.ic_history_light_salmon)
-                    MyPageFragment()
-                }
-                2 -> {
-                    iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
-                    iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
-                    iv_history.setImageResource(R.drawable.ic_history_24px_salmon)
-                    Fragment()
-                }
-                else -> {
-                    Fragment()
-                }
+                0 -> { oneOnOne }
+                1 -> { myPage }
+                2 -> { history }
+                else -> { Fragment() }
             }
         }
     }
