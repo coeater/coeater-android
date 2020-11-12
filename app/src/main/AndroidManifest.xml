@@ -70,9 +70,6 @@
             android:name=".friends.AddFriendActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".mypage.MyPageActivity"
-            android:screenOrientation="portrait"/>
-        <activity
             android:name=".splash.RegisterActivity"
             android:screenOrientation="portrait"/>
         <activity

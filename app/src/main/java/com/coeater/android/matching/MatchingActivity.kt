@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.Profile
-import kotlinx.android.synthetic.main.fragment_oneonone_matching.*
+import kotlinx.android.synthetic.main.activity_matching.*
 
 class MatchingActivity : AppCompatActivity() {
     /*
@@ -43,7 +43,7 @@ class MatchingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_oneonone_matching)
+        setContentView(R.layout.activity_matching)
         setup()
     }
 

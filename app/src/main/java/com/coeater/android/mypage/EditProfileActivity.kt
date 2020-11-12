@@ -2,26 +2,19 @@ package com.coeater.android.mypage
 
 import android.app.Activity
 import android.content.Intent
-import android.inputmethodservice.InputMethodService
 import android.net.Uri
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
-import com.coeater.android.api.UserManageProvider
-import com.coeater.android.api.provideAuthApi
 import com.coeater.android.api.provideUserApi
-import com.coeater.android.main.MainActivity
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_register.*
 import java.io.File
