@@ -8,18 +8,19 @@ import android.content.Context;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Looper;
-import java.util.Arrays;
-import javax.annotation.Nullable;
 
+import androidx.annotation.Nullable;
+
+import java.util.Arrays;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
 import org.webrtc.CameraVideoCapturer.CameraEventsHandler;
 import org.webrtc.CameraVideoCapturer.CameraStatistics;
 import org.webrtc.CameraVideoCapturer.CameraSwitchHandler;
 import org.webrtc.CameraVideoCapturer.MediaRecorderHandler;
+import org.webrtc.CapturerObserver;
 import org.webrtc.Logging;
 import org.webrtc.SurfaceTextureHelper;
-import org.webrtc.VideoCapturer.CapturerObserver;
 import org.webrtc.VideoFrame;
 
 abstract class CameraCapturer implements CameraVideoCapturer {
@@ -329,14 +330,29 @@ abstract class CameraCapturer implements CameraVideoCapturer {
         this.stopCapture();
     }
 
-    public void switchCamera(final CameraSwitchHandler switchEventsHandler) {
-        Logging.d("CameraCapturer", "switchCamera");
-        this.cameraThreadHandler.post(new Runnable() {
+
+    @Override
+    public void switchCamera(CameraSwitchHandler cameraSwitchHandler, String s) {
+        Logging.d(TAG, "switchCamera");
+        cameraThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
-                CameraCapturer.this.switchCameraInternal(switchEventsHandler);
+                switchCameraInternal(switchEventsHandler);
             }
         });
     }
+
+    @Override
+    public void switchCamera(final CameraSwitchHandler switchEventsHandler) {
+        Logging.d(TAG, "switchCamera");
+        cameraThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                switchCameraInternal(switchEventsHandler);
+            }
+        });
+    }
+
 
     public void addMediaRecorderToCamera(final MediaRecorder mediaRecorder, final MediaRecorderHandler mediaRecoderEventsHandler) {
         Logging.d("CameraCapturer", "addMediaRecorderToCamera");

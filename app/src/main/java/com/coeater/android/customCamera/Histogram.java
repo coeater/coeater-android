@@ -1,8 +1,5 @@
 package com.coeater.android.customCamera;
 
-import org.webrtc.JNINamespace;
-
-@JNINamespace("webrtc::jni")
 class Histogram {
     private final long handle;
 

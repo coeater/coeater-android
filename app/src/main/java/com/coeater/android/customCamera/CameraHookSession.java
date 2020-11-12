@@ -16,6 +16,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -42,6 +46,7 @@ import android.util.Range;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 import com.coeater.android.R;
@@ -56,8 +61,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
-
 import org.jetbrains.annotations.NotNull;
 import org.webrtc.CameraEnumerationAndroid;
 import org.webrtc.CameraEnumerationAndroid.CaptureFormat;
@@ -66,9 +69,12 @@ import org.webrtc.Logging;
 import org.webrtc.RendererCommon;
 import org.webrtc.Size;
 import org.webrtc.SurfaceTextureHelper;
-import org.webrtc.SurfaceTextureHelper.OnTextureFrameAvailableListener;
+import org.webrtc.TextureBufferImpl;
 import org.webrtc.VideoFrame;
 import org.webrtc.VideoFrame.Buffer;
+import org.webrtc.VideoSink;
+import org.webrtc.YuvConverter;
+
 
 class CameraHookSession implements CameraSession {
     private static final String TAG = "CameraHookSession";
@@ -103,6 +109,7 @@ class CameraHookSession implements CameraSession {
     private final long constructionTimeNs;
     private HookHandler hookHandler;
     static final ArrayList<Size> COMMON_RESOLUTIONS = new ArrayList(Arrays.asList(new Size(160, 120), new Size(240, 160), new Size(320, 240), new Size(400, 240), new Size(480, 320), new Size(640, 360), new Size(640, 480), new Size(768, 480), new Size(854, 480), new Size(800, 600), new Size(960, 540), new Size(960, 640), new Size(1024, 576), new Size(1024, 600), new Size(1280, 720), new Size(1280, 1024), new Size(1920, 1080), new Size(1920, 1440), new Size(2560, 1440), new Size(3840, 2160)));
+
 
     public static void create(HookHandler hookHandler, CreateSessionCallback callback, Events events, Context applicationContext, CameraManager cameraManager, SurfaceTextureHelper surfaceTextureHelper, MediaRecorder mediaRecorder, String cameraId, int width, int height, int framerate) {
         new CameraHookSession(hookHandler, callback, events, applicationContext, cameraManager, surfaceTextureHelper, mediaRecorder, cameraId, width, height, framerate);
@@ -399,59 +406,70 @@ class CameraHookSession implements CameraSession {
                 CameraHookSession.this.reportError("Failed to start capture request. " + var3);
                 return;
             }
+            CameraHookSession.this.surfaceTextureHelper.startListening(new VideoSink() {
+                @Override
+                public void onFrame(VideoFrame videoFrame) {
 
-            CameraHookSession.this.surfaceTextureHelper.startListening(new OnTextureFrameAvailableListener() {
-                public void onTextureFrameAvailable(int oesTextureId, float[] transformMatrix, long timestampNs) {
-                    CameraHookSession.this.checkIsOnCameraThread();
-                    if (CameraHookSession.this.state != CameraHookSession.SessionState.RUNNING) {
-                        Logging.d("CameraHookSession", "Texture frame captured but camera is no longer running.");
-                        CameraHookSession.this.surfaceTextureHelper.returnTextureFrame();
-                    } else {
-                        int rotation;
-                        if (!CameraHookSession.this.firstFrameReported) {
-                            CameraHookSession.this.firstFrameReported = true;
-                            rotation = (int)TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - CameraHookSession.this.constructionTimeNs);
-                            CameraHookSession.camera2StartTimeMsHistogram.addSample(rotation);
-                        }
+                        CameraHookSession.this.checkIsOnCameraThread();
 
-                        rotation = CameraHookSession.this.getFrameOrientation();
-                        if (CameraHookSession.this.isCameraFrontFacing) {
-                            transformMatrix = RendererCommon.multiplyMatrices(transformMatrix, RendererCommon.horizontalFlipMatrix());
-                        }
+                            int rotation;
+                            if (!CameraHookSession.this.firstFrameReported) {
+                                CameraHookSession.this.firstFrameReported = true;
+                                rotation = (int)TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - CameraHookSession.this.constructionTimeNs);
+                                CameraHookSession.camera2StartTimeMsHistogram.addSample(rotation);
+                            }
 
-                        transformMatrix = RendererCommon.rotateTextureMatrix(transformMatrix, (float)(-CameraHookSession.this.cameraOrientation));
-                        Buffer buffer = CameraHookSession.this.surfaceTextureHelper.createTextureBuffer(CameraHookSession.this.captureFormat.width, CameraHookSession.this.captureFormat.height, RendererCommon.convertMatrixToAndroidGraphicsMatrix(transformMatrix));
+                            rotation = CameraHookSession.this.getFrameOrientation();
+//                            if (CameraHookSession.this.isCameraFrontFacing) {
+//
+//                                transformMatrix = RendererCommon.multiplyMatrices(transformMatrix, RendererCommon.horizontalFlipMatrix());
+//
+//                            }
+//                            videoFrame
+//                            transformMatrix = RendererCommon.rotateTextureMatrix(transformMatrix, (float)(-CameraHookSession.this.cameraOrientation));
+//                            Buffer buffer = CameraHookSession.this.surfaceTextureHelper.createTextureBuffer(CameraHookSession.this.captureFormat.width, CameraHookSession.this.captureFormat.height, RendererCommon.convertMatrixToAndroidGraphicsMatrix(transformMatrix));
+//
+//                            VideoFrame frame = new VideoFrame(buffer, rotation, timestampNs);
+                    final int[] textureHandle = new int[1];
+                    GLES20.glGenTextures(1, textureHandle, 0);
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(1f, -1f);
 
-                        VideoFrame frame = new VideoFrame(buffer, rotation, timestampNs);
+                    YuvConverter converter = new YuvConverter();
+                    TextureBufferImpl buffer = new TextureBufferImpl(width, height, VideoFrame.TextureBuffer.Type.RGB, textureHandle[0], matrix,
+                            surfaceTextureHelper.getHandler(), converter, null);
+                    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+                    canvas.drawRGB(255, 255, 0);
+                    Paint paint = new Paint();
+                    paint.setColor(Color.RED);
+                    paint.setAlpha(0xff);
+                    canvas.drawRect(100, 100, 200, 200, paint);
 
-                        Bitmap bitmapToDraw = BitmapFactory.decodeResource(applicationContext.getResources(), R.drawable.access_time_24_px);
+                            //At this point, bitmmapToDraw contains the drawing and the frame captured from the camera overlayed
+                            //Now we need to convert it to fit into the onFrameCaptured callback (requires a VideoFrame).
 
+                            // Set filtering
+                            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+                            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
-                        //At this point, bitmmapToDraw contains the drawing and the frame captured from the camera overlayed
-                        //Now we need to convert it to fit into the onFrameCaptured callback (requires a VideoFrame).
+                            // Load the bitmap into the bound texture.
+                            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
-                        // Set filtering
-                        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-                        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+                            bitmap.recycle();
 
-                        // Load the bitmap into the bound texture.
-                        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmapToDraw, 0);
+                            //The bitmap is drawn on the GPU at this point.
 
-                        bitmapToDraw.recycle();
+                            //We transfer it to the VideoFrame
+//                            VideoFrame.I420Buffer i420Buf = buffer.toI420();
+//
+//
+                            CameraHookSession.this.events.onFrameCaptured(CameraHookSession.this, videoFrame);
+                            videoFrame.release();
 
-                        //The bitmap is drawn on the GPU at this point.
-
-                        //We transfer it to the VideoFrame
-                        VideoFrame.I420Buffer i420Buf = buffer.toI420();
-                        i420Buf.
-                        VideoFrame videoFrame = new VideoFrame(i420Buf, rotation, timestampNs);
-
-
-                        CameraHookSession.this.events.onFrameCaptured(CameraHookSession.this, videoFrame);
-                        frame.release();
-                    }
                 }
             });
+
             Logging.d("CameraHookSession", "Camera device successfully started.");
             CameraHookSession.this.callback.onDone(CameraHookSession.this);
         }
