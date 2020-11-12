@@ -12,31 +12,30 @@
     
     <ImageView
         android:id="@+id/iv_history"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:background="@drawable/ic_history_light_salmon"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageView
         android:id="@+id/iv_my_page"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/ic_my_page_light_salmon"
         android:layout_marginEnd="13dp"
-        android:layout_marginBottom="2dp"
         app:layout_constraintEnd_toStartOf="@id/iv_history"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageView
         android:id="@+id/iv_one_on_one"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:background="@drawable/ic_group_light_salmon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_group_24px_salmon"
         android:layout_marginEnd="13dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toStartOf="@id/iv_my_page"
         app:layout_constraintBottom_toBottomOf="parent" />
 
