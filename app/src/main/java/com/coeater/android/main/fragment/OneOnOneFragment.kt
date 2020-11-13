@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.view_main_friends.view.*
 
 class OneOnOneFragment : Fragment() {
 
-    private val viewModel: MainViewModel by activityViewModels {
+    val viewModel: MainViewModel by activityViewModels {
         MainViewModelFactory(
             provideUserApi(requireContext())
         )
@@ -73,10 +73,5 @@ class OneOnOneFragment : Fragment() {
                 layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         })
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.fetchFriends()
     }
 }

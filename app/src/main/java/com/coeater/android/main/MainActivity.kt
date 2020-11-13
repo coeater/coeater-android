@@ -12,6 +12,7 @@ import com.coeater.android.api.provideUserApi
 import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.kakaolink.KakaoLinkExecuter
+import com.coeater.android.main.fragment.HistoryFragment
 import com.coeater.android.main.fragment.MyPageFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -31,7 +32,7 @@ class MainActivity : FragmentActivity() {
 
     private val oneOnOne = OneOnOneFragment()
     private val myPage = MyPageFragment()
-    private val history = Fragment()
+    private val history = HistoryFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,19 +54,25 @@ class MainActivity : FragmentActivity() {
             override fun onPageSelected(position: Int) {
                 when(position) {
                     0 -> {
+                        tv_title.text = "One On One"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_24px_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                        oneOnOne.viewModel.fetchFriends()
                     }
                     1 -> {
+                        tv_title.text = "My Page"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                        myPage.viewModel.fetchRequest()
                     }
                     2 -> {
+                        tv_title.text = "History"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_24px_salmon)
+                        history.viewModel.fetchHistory()
                     }
                 }
             }
