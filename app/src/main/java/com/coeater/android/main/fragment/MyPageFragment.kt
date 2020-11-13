@@ -40,7 +40,7 @@ class MyPageFragment : Fragment() {
     }
     private lateinit var destinationUri : Uri
 
-    private lateinit var viewModel: MyPageViewModel
+    lateinit var viewModel: MyPageViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -126,11 +126,6 @@ class MyPageFragment : Fragment() {
                 .into(iv_profile)
                 .clearOnDetach()
         })
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.fetchRequest()
     }
 
     private fun setRecyclerView(FriendRequestRecyclerView: RecyclerView) {
