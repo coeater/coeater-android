@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ImageButton
-        android:id="@+id/button_left_background"
+        android:id="@+id/button_left_choice"
         android:layout_width="0dp"
         android:layout_height="207dp"
         android:layout_marginStart="28dp"
@@ -13,13 +13,13 @@
         android:background="@drawable/bg_game_button"
         android:padding="48dp"
         android:scaleType="centerCrop"
-        app:layout_constraintEnd_toStartOf="@+id/button_right_background"
+        app:layout_constraintEnd_toStartOf="@+id/button_right_choice"
         app:layout_constraintStart_toStartOf="parent"
 
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/button_right_background"
+        android:id="@+id/button_right_choice"
         android:layout_width="0dp"
         android:layout_height="207dp"
         android:layout_marginStart="17dp"
@@ -31,11 +31,11 @@
         app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toEndOf="@+id/button_left_background"
+        app:layout_constraintStart_toEndOf="@+id/button_left_choice"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
-        android:id="@+id/progress"
+        android:id="@+id/progressbar_game_choice"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="10dp"
@@ -49,7 +49,7 @@
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_left_background"
+        app:layout_constraintTop_toBottomOf="@+id/button_left_choice"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
