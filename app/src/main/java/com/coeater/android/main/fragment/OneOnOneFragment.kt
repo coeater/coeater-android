@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.view_main_friends.view.*
 
 class OneOnOneFragment : Fragment() {
 
-    val viewModel: MainViewModel by activityViewModels {
+    private val viewModel: MainViewModel by activityViewModels {
         MainViewModelFactory(
             provideUserApi(requireContext())
         )

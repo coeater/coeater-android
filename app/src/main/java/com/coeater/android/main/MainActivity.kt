@@ -3,32 +3,47 @@ package com.coeater.android.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.GestureDetector
+import android.widget.TextView
 import androidx.fragment.app.*
 import androidx.lifecycle.ViewModelProviders
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.coeater.android.R
+import com.coeater.android.api.provideHistoryApi
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.friends.AddFriendActivity
+import com.coeater.android.history.HistoryViewModel
+import com.coeater.android.history.HistoryViewModelFactory
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.fragment.HistoryFragment
 import com.coeater.android.main.fragment.MyPageFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
+import com.coeater.android.mypage.MyPageViewModel
+import com.coeater.android.mypage.MyPageViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
-
-private const val TAG = "MainActivity"
-private const val NUM_PAGES = 3
 
 class MainActivity : FragmentActivity() {
 
-    private val viewModelFactory by lazy {
+    private val mainViewModelFactory by lazy {
         MainViewModelFactory(
             provideUserApi(this)
         )
     }
+    private val myPageViewModelFactory by lazy {
+        MyPageViewModelFactory(
+            provideUserApi(this)
+        )
+    }
+    private val historyViewModelFactory by lazy {
+        HistoryViewModelFactory(
+            provideHistoryApi(this)
+        )
+    }
 
-    private lateinit var viewModel: MainViewModel
+    private lateinit var mainViewModel: MainViewModel
+    private lateinit var myPageViewModel: MyPageViewModel
+    private lateinit var historyViewModel: HistoryViewModel
 
     private val oneOnOne = OneOnOneFragment()
     private val myPage = MyPageFragment()
@@ -41,9 +56,17 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun setup() {
-        viewModel = ViewModelProviders.of(
-            this, viewModelFactory)[MainViewModel::class.java]
+        mainViewModel = ViewModelProviders.of(
+            this, mainViewModelFactory)[MainViewModel::class.java]
+        myPageViewModel = ViewModelProviders.of(
+            this, myPageViewModelFactory)[MyPageViewModel::class.java]
+        historyViewModel = ViewModelProviders.of(
+            this, historyViewModelFactory)[HistoryViewModel::class.java]
+
         vp_main.adapter = MainPagerAdapter(supportFragmentManager)
+
+        val title = tv_title
+
 
         iv_one_on_one.setOnClickListener { vp_main.currentItem = 0 }
         iv_my_page.setOnClickListener { vp_main.currentItem = 1 }
@@ -54,25 +77,25 @@ class MainActivity : FragmentActivity() {
             override fun onPageSelected(position: Int) {
                 when(position) {
                     0 -> {
-                        tv_title.text = "One On One"
+                        title.text = "Co-eating"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_24px_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
-                        oneOnOne.viewModel.fetchFriends()
+                        mainViewModel.fetchFriends()
                     }
                     1 -> {
-                        tv_title.text = "My Page"
+                        title.text = "My page"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
-                        myPage.viewModel.fetchRequest()
+                        myPageViewModel.fetchRequest()
                     }
                     2 -> {
-                        tv_title.text = "History"
+                        title.text = "History"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_24px_salmon)
-                        history.viewModel.fetchHistory()
+                        historyViewModel.fetchHistory()
                     }
                 }
             }
@@ -82,7 +105,9 @@ class MainActivity : FragmentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.fetchFriends()
+        mainViewModel.fetchFriends()
+        myPageViewModel.fetchRequest()
+        historyViewModel.fetchHistory()
         openJoinIfNeeded()
     }
 
@@ -92,7 +117,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private inner class MainPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
-        override fun getCount(): Int = NUM_PAGES
+        override fun getCount(): Int = 3
         override fun getItem(position: Int): Fragment {
             return when(position) {
                 0 -> { oneOnOne }

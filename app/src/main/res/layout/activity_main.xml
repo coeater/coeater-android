@@ -23,7 +23,7 @@
 
     <TextView
         android:id="@+id/tv_title"
-        android:text="History"
+        android:text="Co-eating"
         android:layout_width="153dp"
         android:layout_height="68dp"
         android:layout_marginTop="15dp"

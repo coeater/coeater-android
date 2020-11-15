@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProviders
 import com.coeater.android.R
 import com.coeater.android.api.provideHistoryApi
@@ -13,13 +14,11 @@ import com.coeater.android.history.HistoryViewModelFactory
 
 class HistoryFragment : Fragment() {
 
-    private val viewModelFactory by lazy {
+    private val viewModel: HistoryViewModel by activityViewModels {
         HistoryViewModelFactory(
             provideHistoryApi(requireContext())
         )
     }
-
-    lateinit var viewModel: HistoryViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,8 +34,5 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setup() {
-        viewModel = ViewModelProviders.of(
-            this, viewModelFactory
-        )[HistoryViewModel::class.java]
     }
 }

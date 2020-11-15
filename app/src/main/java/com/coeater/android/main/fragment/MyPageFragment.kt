@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,14 +34,13 @@ import java.io.File
 
 class MyPageFragment : Fragment() {
 
-    private val viewModelFactory by lazy {
+    private lateinit var destinationUri : Uri
+
+    private val viewModel: MyPageViewModel by activityViewModels {
         MyPageViewModelFactory(
             provideUserApi(requireContext())
         )
     }
-    private lateinit var destinationUri : Uri
-
-    lateinit var viewModel: MyPageViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,9 +55,6 @@ class MyPageFragment : Fragment() {
         setup()
     }
     private fun setup() {
-        viewModel = ViewModelProviders.of(
-            this, viewModelFactory
-        )[MyPageViewModel::class.java]
         destinationUri = Uri.fromFile(File(requireActivity().cacheDir, "profile.jpeg"))
 
         setRecyclerView(rv_requests)
