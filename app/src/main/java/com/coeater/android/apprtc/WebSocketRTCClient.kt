@@ -14,9 +14,7 @@ import android.os.HandlerThread
 import android.util.Log
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.WebSocketChannelClient.WebSocketChannelEvents
-import com.coeater.android.apprtc.model.AnswerSdp
-import com.coeater.android.apprtc.model.OfferSdp
-import com.coeater.android.apprtc.model.SignalIceCandidate
+import com.coeater.android.apprtc.model.*
 import com.google.gson.Gson
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
@@ -97,11 +95,18 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     }
 
     override fun startGameLikeness() {
-        wsClient?.send("start likeness", "")
+        handler.post(Runnable {
+            wsClient?.send("start likeness", "")
+        })
     }
 
-    override fun sendImageSelectResult(left: Boolean) {
-        TODO("Not yet implemented")
+    override fun sendImageSelectResult(stage: Int, left: Boolean) {
+        handler.post(Runnable {
+            val gameSelect = GameSelect(stage, left)
+            val gson = Gson()
+            val json = gson.toJson(gameSelect)
+            wsClient?.send("likeness result", json)
+        })
     }
 
 
@@ -155,13 +160,15 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     }
 
     override fun onWebSocketPlayLikeness(message: String) {
-//        TODO("Not yet implemented")
-        Log.d("LIKENESS", message)
-//        events.onPlayGameLikeness(message)
+        val gson = Gson()
+        val gameInfo = gson.fromJson(message, GameInfo::class.java)
+        events.onPlayGameLikeness(gameInfo)
     }
 
     override fun onWebSocketMatchLikeness(message: String) {
-        TODO("Not yet implemented")
+        val gson = Gson()
+        val gameMatchResult = gson.fromJson(message, GameMatchResult::class.java)
+        events.onPlayGameMatchResult(gameMatchResult)
     }
 
     override fun onWebSocketEndLikeness(message: String) {

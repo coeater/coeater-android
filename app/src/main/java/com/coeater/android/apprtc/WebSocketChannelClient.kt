@@ -97,10 +97,10 @@ class WebSocketChannelClient(
                     events.onWebSocketPlayLikeness(it[0].toString())
                 })
                 .on("match likeness", Emitter.Listener {
-                    Log.d(TAG, it[0].toString())
                     /**
                      * 사용자에게 선택 결과를 통지한다.
                      */
+                    Log.d(TAG, it[0].toString())
                     events.onWebSocketMatchLikeness(it[0].toString())
                 })
                 .on("end likeness", Emitter.Listener {

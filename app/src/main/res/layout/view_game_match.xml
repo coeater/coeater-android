@@ -38,7 +38,7 @@
         android:layout_width="163dp"
         android:layout_height="163dp"
         android:layout_marginTop="239dp"
-        android:src="@drawable/not_match"
+        android:src="@drawable/not_match_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -7,9 +7,7 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.coeater.android.R
 import com.coeater.android.webrtc.game.model.CallGameMatch
-import com.coeater.android.webrtc.game.model.CallGameResult
 import kotlinx.android.synthetic.main.view_game_match.view.*
-import kotlinx.android.synthetic.main.view_game_result.view.*
 
 class CallGameMatchView : ConstraintLayout {
 

@@ -3,16 +3,12 @@ package com.coeater.android.webrtc.game
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.webrtc.game.model.CallGameChoice
-import com.coeater.android.webrtc.game.model.CallGameMatch
-import kotlinx.android.synthetic.main.view_friend_requests_recycler_item.view.*
 import kotlinx.android.synthetic.main.view_game_choice.view.*
-import kotlinx.android.synthetic.main.view_game_match.view.*
 
 class CallGameChoiceView : ConstraintLayout {
 

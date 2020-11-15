@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         />
     <com.coeater.android.webrtc.game.CallGameMatchView
-        android:id="@+id/view_match"
+        android:id="@+id/call_game_view_match"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

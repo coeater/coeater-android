@@ -1,17 +1,16 @@
 package com.coeater.android.webrtc.game
 
-import com.coeater.android.mypage.MyPageViewModel
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.coeater.android.api.UserApi
+import com.coeater.android.apprtc.WebSocketRTCClient
 
 class CallGameViewModelFactory (
+    private val client: WebSocketRTCClient
 ) :
     ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return CallGameViewModel() as T
+        return CallGameViewModel(client) as T
     }
 }

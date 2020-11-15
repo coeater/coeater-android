@@ -20,8 +20,12 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
+import com.coeater.android.apprtc.model.GameInfo
+import com.coeater.android.apprtc.model.GameMatchResult
 import com.coeater.android.model.RoomResponse
+import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
+import com.coeater.android.webrtc.game.model.CallGameMatch
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -62,6 +66,13 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private var cameraSwitchButton: RelativeLayout? = null
 //    private var toggleMuteButton: ImageButton? = null
     private var gameButton: RelativeLayout? = null
+
+    /**
+     * 소켓 결과를 통지한다.
+     */
+    private var callGameInputFromSocket: CallGameInputFromSocket? = null
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,7 +138,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         val room_code = intent.extras?.getString(ROOM_CODE) ?: ""
         connectVideoCall(room_code)
         setupOtherInfo()
-        setupGame()
     }
 
     /**
@@ -172,12 +182,14 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         // Create connection client. Use the standard WebSocketRTCClient.
         // DirectRTCClient could be used for point-to-point connection
-        signalServerRtcClient = WebSocketRTCClient(this)
+        val client = WebSocketRTCClient(this)
+        signalServerRtcClient = client
         // Create connection parameters.
         peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
         startCall(roomId)
+        setupGame(client)
     }
 
     fun onCallHangUp() {
@@ -430,6 +442,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         }
     }
 
+
     // -----Implementation of PeerConnectionClient.PeerConnectionEvents.---------
     // Send local peer connection SDP and ICE candidates to remote party.
     // All callbacks are invoked from peer connection client looper thread and
@@ -543,13 +556,20 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         signalServerRtcClient?.startGameLikeness()
     }
 
-    override fun onPlayGameLikeness(data: String) {
-        Toast.makeText(this@CallActivity, "이구동성! "+ data, Toast.LENGTH_SHORT).show()
+
+    override fun onPlayGameLikeness(gameInfo: GameInfo) {
+        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.stage)
+        callGameInputFromSocket?.showChoice(gameChoice)
     }
 
+    override fun onPlayGameMatchResult(matchResult: GameMatchResult) {
+        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.stage)
+        val gameMatch = CallGameMatch(matchResult.isMatched, gameChoice)
+        callGameInputFromSocket?.showMatch(gameMatch)
+    }
 
-    private fun setupGame() {
-        val input = call_game_view.configure(this)
-        input.showChoice(CallGameChoice("", "", 10))
+    private fun setupGame(client: WebSocketRTCClient) {
+        val input = call_game_view.configure(this, client)
+        callGameInputFromSocket = input
     }
 }
