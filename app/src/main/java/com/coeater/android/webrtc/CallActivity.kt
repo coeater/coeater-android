@@ -3,9 +3,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuInflater
 import android.view.View
-import android.widget.Button
 import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -23,6 +21,7 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
+import com.coeater.android.webrtc.game.model.CallGameChoice
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -128,6 +127,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         val room_code = intent.extras?.getString(ROOM_CODE) ?: ""
         connectVideoCall(room_code)
         setupOtherInfo()
+        setupGame()
     }
 
     /**
@@ -545,5 +545,11 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
     override fun onPlayGameLikeness(data: String) {
         Toast.makeText(this@CallActivity, "이구동성! "+ data, Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun setupGame() {
+        val input = call_game_view.configure(this)
+        input.showChoice(CallGameChoice("", "", 10))
     }
 }

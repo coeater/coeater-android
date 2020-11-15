@@ -100,6 +100,11 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         wsClient?.send("start likeness", "")
     }
 
+    override fun sendImageSelectResult(left: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+
     // --------------------------------------------------------------------
     // WebSocketChannelEvents interface implementation.
     // All events are called by WebSocketChannelClient on a local looper thread
@@ -153,6 +158,14 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
 //        TODO("Not yet implemented")
         Log.d("LIKENESS", message)
 //        events.onPlayGameLikeness(message)
+    }
+
+    override fun onWebSocketMatchLikeness(message: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onWebSocketEndLikeness(message: String) {
+        TODO("Not yet implemented")
     }
 
     companion object {

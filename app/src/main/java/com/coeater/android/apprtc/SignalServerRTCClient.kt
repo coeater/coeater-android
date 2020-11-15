@@ -41,9 +41,14 @@ interface SignalServerRTCClient {
     fun sendLocalIceCandidate(candidate: IceCandidate)
 
     /**
-     * Send Ice candidate to the other participant.
+     * 이구동성 게임을 시작한다.
      */
     fun startGameLikeness()
+
+    /**
+     * 이구동성 선택을 한다.
+     */
+    fun sendImageSelectResult(left: Boolean)
 
     /**
      * Disconnect from room.
@@ -93,9 +98,11 @@ interface SignalServerRTCClient {
         fun onChannelClose()
 
         /**
-         * Callback fired once channel is closed.
+         * 소켓에서 play
          */
         fun onPlayGameLikeness(gameData: String)
+
+
 
     }
 }
