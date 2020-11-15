@@ -39,7 +39,6 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MatchingViewModel
-    var profile: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +51,7 @@ class MatchingActivity : AppCompatActivity() {
         var roomId: Int = -1
         var nickname: String = ""
         var mode: String = ""
+        var profile: String = ""
         if (b != null) {
             roomId = b?.getInt("roomId") ?: -1
             mode = b?.getString("mode") ?: ""
@@ -158,7 +158,6 @@ class MatchingActivity : AppCompatActivity() {
                 intent.putExtra(CallActivity.ROOM_CODE, roomCode)
                 intent.putExtra(CallActivity.IS_INVITER, false)
                 intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
-                intent.putExtra("profile", profile)
                 startActivity(intent)
             }
 

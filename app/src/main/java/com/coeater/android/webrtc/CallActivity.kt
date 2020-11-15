@@ -69,14 +69,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
 
-        val profile = intent.getStringExtra("profile")
-        Glide.with(this)
-            .load(Profile.getUrl(profile))
-            .error(R.drawable.ic_dummy_circle_crop)
-            .apply(RequestOptions.circleCropTransform())
-            .into(iv_profile)
-            .clearOnDetach()
-
         iceConnected = false
         signalingParameters = null
 
@@ -127,8 +119,20 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         if (is_inviter) {
             tv_name.text = room_response.target?.nickname ?: ""
+            Glide.with(this)
+                .load(Profile.getUrl(room_response.target?.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
         } else {
             tv_name.text = room_response.owner.nickname
+            Glide.with(this)
+                .load(Profile.getUrl(room_response.owner.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
         }
     }
 
