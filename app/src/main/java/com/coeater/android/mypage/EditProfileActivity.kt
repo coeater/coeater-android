@@ -17,6 +17,7 @@ import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_register.*
+import retrofit2.HttpException
 import java.io.File
 import java.util.*
 
@@ -55,7 +56,7 @@ class EditProfileActivity : AppCompatActivity() {
                 finish()
             }
             else {
-                showError()
+                showError(viewModel.err)
             }
         })
 
@@ -111,9 +112,11 @@ class EditProfileActivity : AppCompatActivity() {
             iv_photo.visibility = View.GONE
         }
     }
-    private fun showError() {
+    private fun showError(err: Exception?) {
+        var additionalMessage = ""
+        if(err is HttpException && err.code() == 400) additionalMessage = "\n같은 닉네임이 존재합니다."
         AlertDialog.Builder(this)
-            .setTitle("에러").setMessage("에러가 발생했습니다.")
+            .setTitle("에러").setMessage("에러가 발생했습니다.\n$additionalMessage")
             .create()
             .show()
     }

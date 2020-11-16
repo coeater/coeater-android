@@ -28,6 +28,7 @@ class SplashViewModel(
     val isInitialLogin: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
+    var err: Exception? = null
 
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -42,7 +43,10 @@ class SplashViewModel(
                         is HttpException -> {
                             isInitialLogin.postValue(true)
                         }
-                        is Exception -> { isLoginSuccess.postValue(false) }
+                        is Exception -> {
+                            err = myInfo.exception
+                            isLoginSuccess.postValue(false)
+                        }
                     }
                 }
             }
@@ -57,6 +61,7 @@ class SplashViewModel(
                     isLoginSuccess.postValue(true)
                 }
                 is HTTPResult.Error -> {
+                    err = myInfo.exception
                     isLoginSuccess.postValue(false)
                 }
             }

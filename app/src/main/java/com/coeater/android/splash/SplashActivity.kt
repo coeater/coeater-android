@@ -11,6 +11,7 @@ import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideAuthApi
 import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.MainActivity
+import retrofit2.HttpException
 
 class SplashActivity : AppCompatActivity() {
 
@@ -57,14 +58,14 @@ class SplashActivity : AppCompatActivity() {
             if (isSuccess) {
                 moveToMain()
             } else {
-                showError()
+                showError(viewModel.err)
             }
         })
         viewModel.isInitialLogin.observe(this, Observer { isSuccess ->
             if(isSuccess) {
                 moveToRegister()
             } else {
-                showError()
+                showError(viewModel.err)
             }
         })
     }
@@ -92,9 +93,11 @@ class SplashActivity : AppCompatActivity() {
         this.startActivity(intent)
     }
 
-    private fun showError() {
+    private fun showError(err: Exception?) {
+        var additionalMessage = ""
+        if(err is HttpException && err.code() == 400) additionalMessage = "\n같은 닉네임이 존재합니다."
         AlertDialog.Builder(this)
-            .setTitle("에러").setMessage("에러가 발생했습니다.")
+            .setTitle("에러").setMessage("에러가 발생했습니다.$additionalMessage")
             .create()
             .show()
     }
