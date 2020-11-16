@@ -37,7 +37,16 @@ class CallGameChoiceView : ConstraintLayout {
             .apply(RequestOptions.circleCropTransform())
             .into(button_right_choice)
             .clearOnDetach()
+        tv_stage_game_choice.text = "STAGE ${choice.stage}"
         progressbar_game_choice.setProgress(choice.stage, false)
+        tv_left_game_choice.text = choice.leftText
+        tv_right_game_choice.text = choice.rightText
+        tv_left_game_choice.setOnClickListener {
+            clickChoice(true)
+        }
+        tv_right_game_choice.setOnClickListener {
+            clickChoice(false)
+        }
         button_left_choice.setOnClickListener {
             clickChoice(true)
         }

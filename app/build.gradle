@@ -82,6 +82,9 @@ dependencies {
     // Kakao
     implementation "com.kakao.sdk:v2-link:2.0.5"
 
+    // Animation
+    implementation "com.airbnb.android:lottie:3.5.0"
+
     // Firebase
     implementation 'com.google.firebase:firebase-core:17.5.1'
     implementation 'com.google.firebase:firebase-analytics:17.6.0'

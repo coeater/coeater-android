@@ -3,9 +3,9 @@
         <shape>
             <corners android:radius="5dip" />
             <gradient
-                android:centerColor="@color/white"
-                android:endColor="@color/white"
-                android:startColor="@color/white" />
+                android:centerColor="#e9e3df"
+                android:endColor="#e9e3df"
+                android:startColor="#e9e3df" />
         </shape>
     </item>
     <item android:id="@android:id/progress">

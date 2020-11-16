@@ -558,12 +558,12 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
 
     override fun onPlayGameLikeness(gameInfo: GameInfo) {
-        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.stage)
+        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.itemLeft, gameInfo.itemRight, gameInfo.stage)
         callGameInputFromSocket?.showChoice(gameChoice)
     }
 
     override fun onPlayGameMatchResult(matchResult: GameMatchResult) {
-        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.stage)
+        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.itemLeft, matchResult.nextInfo.itemRight, matchResult.nextInfo.stage)
         val gameMatch = CallGameMatch(matchResult.isMatched, gameChoice)
         callGameInputFromSocket?.showMatch(gameMatch)
     }
