@@ -74,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
             else false
         })
 
-        btn_profile.setOnClickListener { setProfile() }
+        iv_profile.setOnClickListener { setProfile() }
     }
 
     override fun onStart() {
@@ -114,7 +114,6 @@ class RegisterActivity : AppCompatActivity() {
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
-            iv_photo.visibility = View.GONE
         }
     }
 

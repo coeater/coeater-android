@@ -2,6 +2,7 @@ package com.coeater.android.mypage
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
@@ -15,10 +16,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
+import com.coeater.android.model.Profile
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_register.*
 import retrofit2.HttpException
 import java.io.File
+import java.net.URL
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
@@ -49,6 +52,12 @@ class EditProfileActivity : AppCompatActivity() {
 
         viewModel.myInfo.observe(this, Observer { myInfo ->
             et_nickname.setText(myInfo.nickname)
+            Glide.with(this)
+                .load(Profile.getUrl(myInfo.profile))
+                .error(R.drawable.bg_profile)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
         })
 
         viewModel.isEditSuccess.observe(this, Observer { complete ->
@@ -69,7 +78,7 @@ class EditProfileActivity : AppCompatActivity() {
             else false
         })
 
-        btn_profile.setOnClickListener { setProfile() }
+        iv_profile.setOnClickListener { setProfile() }
     }
 
     override fun onStart() {
@@ -109,7 +118,6 @@ class EditProfileActivity : AppCompatActivity() {
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
-            iv_photo.visibility = View.GONE
         }
     }
     private fun showError(err: Exception?) {

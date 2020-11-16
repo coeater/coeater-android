@@ -27,7 +27,7 @@ class HistoryAdapter(private val context: Context, private val historyDataset: L
         val itemLayout = (holder as HistoryViewHolder).ItemLayout
         itemLayout.tv_nickname.text = historyDataset[position].nickname
         itemLayout.tv_history.text = DateTime.getAgo(historyDataset[position].created)
-        if(position == 0) itemLayout.background = null
+        if(position == 0) itemLayout.bg_line.background = null
     }
 
     override fun getItemCount(): Int {
