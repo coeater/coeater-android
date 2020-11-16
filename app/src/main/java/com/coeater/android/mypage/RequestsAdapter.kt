@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
+import com.coeater.android.model.Profile
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friend_requests_recycler_item.view.*
 
@@ -26,7 +27,8 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
         holder.ItemLayout.tv_nickname.text = requestsDataset[position].nickname
         holder.ItemLayout.tv_code.text = "Code : " + requestsDataset[position].code
         Glide.with(context)
-            .load(R.drawable.ic_dummy_profile)
+            .load(Profile.getUrl(requestsDataset[position].profile))
+            .error(R.drawable.ic_dummy_circle_crop)
             .apply(RequestOptions.circleCropTransform())
             .into(holder.ItemLayout.iv_profile)
             .clearOnDetach()

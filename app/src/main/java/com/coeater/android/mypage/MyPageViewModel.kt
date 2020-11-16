@@ -27,6 +27,7 @@ class MyPageViewModel(
     val isEditSuccess: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
+    var err: Exception? = null
 
     fun fetchRequest() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -75,6 +76,7 @@ class MyPageViewModel(
                     isEditSuccess.postValue(true)
                 }
                 is HTTPResult.Error -> {
+                    err = myInfo.exception
                     isEditSuccess.postValue(false)
                 }
             }

@@ -41,9 +41,9 @@ class MainActivity : FragmentActivity() {
         )
     }
 
-    private lateinit var mainViewModel: MainViewModel
-    private lateinit var myPageViewModel: MyPageViewModel
-    private lateinit var historyViewModel: HistoryViewModel
+    lateinit var mainViewModel: MainViewModel
+    lateinit var myPageViewModel: MyPageViewModel
+    lateinit var historyViewModel: HistoryViewModel
 
     private val oneOnOne = OneOnOneFragment()
     private val myPage = MyPageFragment()

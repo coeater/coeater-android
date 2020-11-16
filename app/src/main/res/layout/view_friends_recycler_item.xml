@@ -6,8 +6,8 @@
     
     <ImageView
         android:id="@+id/iv_profile"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:layout_marginTop="6dp"
         android:src="@drawable/ic_dummy_circle_crop"
         app:layout_constraintTop_toTopOf="parent"

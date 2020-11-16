@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
+import com.coeater.android.main.MainActivity
 import com.coeater.android.model.Profile
 import com.coeater.android.mypage.EditProfileActivity
 import com.coeater.android.mypage.MyPageViewModel
@@ -36,11 +37,7 @@ class MyPageFragment : Fragment() {
 
     private lateinit var destinationUri : Uri
 
-    private val viewModel: MyPageViewModel by activityViewModels {
-        MyPageViewModelFactory(
-            provideUserApi(requireContext())
-        )
-    }
+    val viewModel : MyPageViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
