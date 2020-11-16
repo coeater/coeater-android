@@ -31,7 +31,7 @@ class DateTime {
             if(count != 0) return _getAgo(count, "year")
             count = now.month - history.month
             if(count != 0) return _getAgo(count, "month")
-            count = now.day - history.day
+            count = now.date - history.date
             if(count != 0) return _getAgo(count, "day")
             count = now.hours - history.hours
             if(count != 0) return _getAgo(count, "hour")

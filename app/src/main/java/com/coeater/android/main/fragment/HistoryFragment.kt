@@ -52,9 +52,9 @@ class HistoryFragment : Fragment() {
     private fun setPeriod() {
         val to = Date()
         viewModel.toDate = to
-        val from = Date(to.year, to.month-1, to.day)
+        val from = Date(to.year, to.month-1, to.date)
         viewModel.fromDate = from
         val sdf = SimpleDateFormat("yy.MM.dd")
-        tv_period.text = "${sdf.format(from)} ~ ${sdf.format(from)}"
+        tv_period.text = "${sdf.format(from)} ~ ${sdf.format(to)}"
     }
 }
