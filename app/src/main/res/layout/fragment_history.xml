@@ -37,9 +37,10 @@
 <!--        />-->
         <View
             android:id="@+id/view_period"
-            android:layout_width="280dp"
+            android:layout_width="match_parent"
             android:layout_height="77dp"
             android:background="@color/salmon"
+            android:layout_marginEnd="80dp"
             android:layout_marginTop="170dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent "/>
@@ -55,7 +56,7 @@
             app:layout_constraintTop_toTopOf="@id/view_period" />
 
         <TextView
-            android:id="@+id/tv_period"
+            android:id="@+id/tv_period_from"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/regular"
@@ -63,10 +64,40 @@
             android:textSize="24dp"
             android:textColor="@color/white"
             android:lineSpacingExtra="12sp"
-            android:text="20.07.01 ~ 20.10.01"
+            android:text="20.07.01"
             android:layout_marginTop="6dp"
             android:layout_marginStart="17dp"
             app:layout_constraintStart_toEndOf="@id/iv_calendar"
+            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+            />
+
+        <TextView
+            android:id="@+id/tv_period_middle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/regular"
+            android:textStyle="normal"
+            android:textSize="24dp"
+            android:textColor="@color/white"
+            android:lineSpacingExtra="12sp"
+            android:text=" ~ "
+            android:layout_marginTop="6dp"
+            app:layout_constraintStart_toEndOf="@id/tv_period_from"
+            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+            />
+
+        <TextView
+            android:id="@+id/tv_period_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/regular"
+            android:textStyle="normal"
+            android:textSize="24dp"
+            android:textColor="@color/white"
+            android:lineSpacingExtra="12sp"
+            android:text="20.07.01"
+            android:layout_marginTop="6dp"
+            app:layout_constraintStart_toEndOf="@id/tv_period_middle"
             app:layout_constraintTop_toTopOf="@id/iv_calendar"
             />
 
