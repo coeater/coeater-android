@@ -68,10 +68,13 @@ class HistoryFragment : Fragment() {
             }
         }
 
-        val dpd = DatePickerDialog(requireContext(), R.style.MySpinnerDatePickerStyle, datePickerListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+        val dpd = DatePickerDialog(requireContext(), R.style.MySpinnerDatePickerDialogStyle, datePickerListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
         when(type) {
             EditPeriod.FROM -> dpd.datePicker.maxDate = viewModel.toDate.time
-            EditPeriod.TO -> dpd.datePicker.minDate = viewModel.fromDate.time
+            EditPeriod.TO -> {
+                dpd.datePicker.minDate = viewModel.fromDate.time
+                dpd.datePicker.maxDate = Date().time
+            }
         }
         dpd.show()
     }
