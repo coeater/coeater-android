@@ -55,6 +55,18 @@ fun provideHistoryApi(context: Context): HistoryApi = Retrofit.Builder()
     .build()
     .create(HistoryApi::class.java)
 
+fun provideGalleryApi(context: Context): GalleryApi = Retrofit.Builder()
+    .baseUrl(baseUrl)
+    .client(
+        provideOkHttpClient(
+            provideLoggingInterceptor(),
+            provideAuthInterceptor(provideAuthTokenProvider(context))
+        )
+    )
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+    .create(GalleryApi::class.java)
+
 private fun provideOkHttpClient(
     interceptor: HttpLoggingInterceptor,
     authInterceptor: AuthInterceptor?
