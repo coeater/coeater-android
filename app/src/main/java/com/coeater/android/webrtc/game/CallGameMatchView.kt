@@ -27,12 +27,13 @@ class CallGameMatchView : ConstraintLayout {
         LayoutInflater.from(context).inflate(R.layout.view_game_match, this, true)
     }
 
-    fun configure(match: CallGameMatch, clickClose: ()-> Unit) {
-        if (match.isMatched) {
+    fun configure(isMatched: Boolean, clickClose: ()-> Unit) {
+        if (isMatched) {
             view_match.visibility = View.VISIBLE
             view_not_match.visibility = View.GONE
             av_match.visibility = View.VISIBLE
             av_not_match.visibility = View.GONE
+            av_match.removeAllAnimatorListeners()
             av_match.addAnimatorListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator?) {
                 }
@@ -56,6 +57,7 @@ class CallGameMatchView : ConstraintLayout {
             view_not_match.visibility = View.VISIBLE
             av_match.visibility = View.GONE
             av_not_match.visibility = View.VISIBLE
+            av_not_match.removeAllAnimatorListeners()
             av_not_match.addAnimatorListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator?) {
                 }

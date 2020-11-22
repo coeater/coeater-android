@@ -55,10 +55,16 @@
         android:layout_height="130dp"
         android:layout_marginTop="164dp"
         android:layout_marginEnd="9dp"
+        android:indeterminateOnly="false"
+        android:max="100"
+        android:progress="50"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:progressDrawable="@drawable/circular_progress_bar"
+        android:background="@drawable/circle_shape"
+
         app:layout_constraintEnd_toEndOf="@+id/view_game_result_background"
         app:layout_constraintStart_toStartOf="@+id/view_game_result_background"
         app:layout_constraintTop_toTopOf="@+id/view_game_result_background"
-        android:indeterminateTint="@color/white"
         />
 
     <TextView

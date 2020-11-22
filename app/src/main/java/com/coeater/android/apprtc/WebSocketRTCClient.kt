@@ -172,7 +172,9 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
     }
 
     override fun onWebSocketEndLikeness(message: String) {
-        TODO("Not yet implemented")
+        val gson = Gson()
+        val gameFinalResult = gson.fromJson(message, GameFinalResult::class.java)
+        events.onPlayGameMatchEnd(gameFinalResult)
     }
 
     companion object {

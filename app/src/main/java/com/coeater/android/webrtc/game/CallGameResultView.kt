@@ -26,6 +26,8 @@ class CallGameResultView : ConstraintLayout {
 
     fun configure(result: CallGameResult, clickClose: ()-> Unit, clickShare: ()-> Unit) {
         pb_game_result_similarity.text = result.similarity.toString()
+        pb_game_result.max = 100
+        pb_game_result.progress = result.similarity
         ib_game_result_close.setOnClickListener {
             clickClose()
         }

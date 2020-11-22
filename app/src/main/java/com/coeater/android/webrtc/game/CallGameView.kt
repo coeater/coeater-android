@@ -60,20 +60,25 @@ class CallGameView : ConstraintLayout {
             view_choice.visibility = View.GONE
             call_game_view_match.visibility = View.VISIBLE
             view_result.visibility = View.GONE
-            call_game_view_match.configure(match) {
+            call_game_view_match.configure(match.isMatched) {
                 call_game_view_match.visibility = View.GONE
                 viewModel.choiceData.postValue(match.choice)
             }
         })
         viewModel.resultData.observe(activity,  Observer<CallGameResult> {  result ->
-            view_choice.visibility = View.GONE
-            call_game_view_match.visibility = View.GONE
-            view_result.visibility = View.VISIBLE
-            view_result.configure(result, {
-                view_result.visibility = View.GONE
-            }, {
 
-            })
+            view_choice.visibility = View.GONE
+            call_game_view_match.visibility = View.VISIBLE
+            view_result.visibility = View.GONE
+            call_game_view_match.configure(result.isMatched) {
+                call_game_view_match.visibility = View.GONE
+                view_result.visibility = View.VISIBLE
+                view_result.configure(result, {
+                    view_result.visibility = View.GONE
+                }, {
+
+                })
+            }
         })
         return viewModel
     }

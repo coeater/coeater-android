@@ -1,5 +1,6 @@
 package com.coeater.android.apprtc
 
+import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
 import org.webrtc.IceCandidate
@@ -100,5 +101,9 @@ interface SignalServerRTCClient {
          */
         fun onPlayGameMatchResult(matchResult: GameMatchResult)
 
+        /**
+         * 둘이 결과가 나왔을 때, 맨 마지막이면 유사도를 보여 준다.
+         */
+        fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
     }
 }

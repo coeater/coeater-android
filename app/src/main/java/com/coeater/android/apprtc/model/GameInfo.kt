@@ -5,5 +5,6 @@ data class GameInfo(
     val itemLeft: String = "",
     val imageLeft: String = "",
     val itemRight: String = "",
-    val imageRight: String = ""
+    val imageRight: String = "",
+    val totalStage: Int = 0
 )

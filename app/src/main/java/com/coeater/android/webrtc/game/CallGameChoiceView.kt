@@ -38,6 +38,7 @@ class CallGameChoiceView : ConstraintLayout {
             .into(button_right_choice)
             .clearOnDetach()
         tv_stage_game_choice.text = "STAGE ${choice.stage}"
+        progressbar_game_choice.max = choice.totalStage
         progressbar_game_choice.setProgress(choice.stage, false)
         tv_left_game_choice.text = choice.leftText
         tv_right_game_choice.text = choice.rightText

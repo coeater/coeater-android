@@ -20,12 +20,15 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
+import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
 import com.coeater.android.webrtc.game.model.CallGameMatch
+import com.coeater.android.webrtc.game.model.CallGameResult
+import java.util.*
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -558,14 +561,19 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
 
     override fun onPlayGameLikeness(gameInfo: GameInfo) {
-        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.itemLeft, gameInfo.itemRight, gameInfo.stage)
+        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.itemLeft, gameInfo.itemRight, gameInfo.stage, gameInfo.totalStage)
         callGameInputFromSocket?.showChoice(gameChoice)
     }
 
     override fun onPlayGameMatchResult(matchResult: GameMatchResult) {
-        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.itemLeft, matchResult.nextInfo.itemRight, matchResult.nextInfo.stage)
+        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.itemLeft, matchResult.nextInfo.itemRight, matchResult.nextInfo.stage, matchResult.nextInfo.totalStage)
         val gameMatch = CallGameMatch(matchResult.isMatched, gameChoice)
         callGameInputFromSocket?.showMatch(gameMatch)
+    }
+
+    override fun onPlayGameMatchEnd(matchEnd: GameFinalResult) {
+        val gameResult = CallGameResult(matchEnd.isMatched, matchEnd.similarity)
+        callGameInputFromSocket?.showResult(gameResult)
     }
 
     private fun setupGame(client: WebSocketRTCClient) {
