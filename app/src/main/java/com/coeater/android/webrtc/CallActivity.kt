@@ -19,6 +19,8 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
+import com.coeater.android.customCamera.CameraHookCapturer
+import com.coeater.android.customCamera.HookHandler
 import com.coeater.android.model.RoomResponse
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
@@ -58,6 +60,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     // Control buttons for limited UI
     private var disconnectButton: RelativeLayout? = null
     private var cameraSwitchButton: RelativeLayout? = null
+    private lateinit var hookHandler:HookHandler
 //    private var toggleMuteButton: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +77,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         iceConnected = false
         signalingParameters = null
+        hookHandler = HookHandler(this, tv_name)
+        hookHandler.canvas = tv_name
 
         // Create UI controls.
         pipRenderer = findViewById(R.id.pip_video_view)
@@ -302,7 +307,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
                     TAG,
                     "Creating front facing camera capturer."
                 )
-                val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
+                val videoCapturer: VideoCapturer? = CameraHookCapturer(this, deviceName, null, hookHandler)
                 if (videoCapturer != null) {
                     return videoCapturer
                 }
@@ -314,7 +319,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         for (deviceName in deviceNames) {
             if (!enumerator.isFrontFacing(deviceName)) {
                 Logging.d(TAG, "Creating other camera capturer.")
-                val videoCapturer: VideoCapturer? = enumerator.createCapturer(deviceName, null)
+                val videoCapturer: VideoCapturer? = CameraHookCapturer(this, deviceName, null, hookHandler)
                 if (videoCapturer != null) {
                     return videoCapturer
                 }
