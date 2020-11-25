@@ -42,7 +42,10 @@ class CallEmojiSelectAdapter(private val lottieData: List<String>) :
 
     }
 
-    var selectedIndex: Int = 0
+    private var selectedIndex: Int = 0
+
+    var selectedLottieFile: String = ""
+        get() = lottieData[selectedIndex]
 
     private fun itemSelected(position: Int) {
         if (selectedIndex == position) {

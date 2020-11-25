@@ -33,6 +33,24 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline_call_emoji" />
 
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_emoji_touch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        app:layout_constraintBottom_toTopOf="@+id/rv_emoji_select"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/layout_lottie"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_emoji_select"
         android:layout_width="0dp"
