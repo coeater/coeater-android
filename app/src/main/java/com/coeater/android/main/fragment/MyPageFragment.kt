@@ -1,12 +1,15 @@
-package com.coeater.android.mypage
+package com.coeater.android.main.fragment
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +19,12 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
+import com.coeater.android.main.MainActivity
 import com.coeater.android.model.Profile
+import com.coeater.android.mypage.EditProfileActivity
+import com.coeater.android.mypage.MyPageViewModel
+import com.coeater.android.mypage.MyPageViewModelFactory
+import com.coeater.android.mypage.RequestsAdapter
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
@@ -25,38 +33,35 @@ import com.kakao.sdk.template.model.Link
 import kotlinx.android.synthetic.main.activity_my_page.*
 import java.io.File
 
-class MyPageActivity: AppCompatActivity() {
+class MyPageFragment : Fragment() {
 
-    private val viewModelFactory by lazy {
-        MyPageViewModelFactory(
-            provideUserApi(this)
-        )
-    }
     private lateinit var destinationUri : Uri
 
-    private lateinit var viewModel: MyPageViewModel
+    val viewModel : MyPageViewModel by activityViewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_my_page)
-        setup()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_my_page, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setup()
+    }
     private fun setup() {
-        viewModel = ViewModelProviders.of(
-            this, viewModelFactory
-        )[MyPageViewModel::class.java]
-        destinationUri = Uri.fromFile(File(cacheDir, "profile.jpeg"))
+        destinationUri = Uri.fromFile(File(requireActivity().cacheDir, "profile.jpeg"))
 
         setRecyclerView(rv_requests)
         setMyInfo()
-        iv_back.setOnClickListener { finish() }
         ib_share.setOnClickListener { shareToKakao() }
         iv_edit.setOnClickListener { moveToEdit() }
     }
 
     private fun moveToEdit() {
-        val intent = Intent(this, EditProfileActivity::class.java)
+        val intent = Intent(requireContext(), EditProfileActivity::class.java)
         startActivity(intent)
     }
 
@@ -85,7 +90,7 @@ class MyPageActivity: AppCompatActivity() {
         )
 
         // 피드 메시지 보내기
-        LinkClient.instance.defaultTemplate(this, defaultFeed) { linkResult, error ->
+        LinkClient.instance.defaultTemplate(requireContext(), defaultFeed) { linkResult, error ->
             if (error != null) {
                 Log.e(InvitationActivity.TAG, "카카오링크 보내기 실패", error)
             } else if (linkResult != null) {
@@ -105,10 +110,9 @@ class MyPageActivity: AppCompatActivity() {
             .into(iv_profile)
             .clearOnDetach()
 
-        viewModel.myInfo.observe(this, Observer { myInfo ->
+        viewModel.myInfo.observe(requireActivity(), Observer { myInfo ->
             tv_nickname.text = myInfo.nickname
             tv_code.text = "My Code : " + myInfo.code
-            Toast.makeText(this, "profile url: " + Profile.getUrl(myInfo.profile), Toast.LENGTH_SHORT).show()
             Glide.with(this)
                 .load(Profile.getUrl(myInfo.profile))
                 .error(R.drawable.ic_dummy_circle_crop)
@@ -118,13 +122,8 @@ class MyPageActivity: AppCompatActivity() {
         })
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.fetchRequest()
-    }
-
     private fun setRecyclerView(FriendRequestRecyclerView: RecyclerView) {
-        viewModel.requests.observe(this, Observer { friendRequests ->
+        viewModel.requests.observe(requireActivity(), Observer { friendRequests ->
             FriendRequestRecyclerView.apply {
                 adapter = RequestsAdapter(viewModel, context, friendRequests.friends)
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)

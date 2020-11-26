@@ -9,9 +9,11 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
+import com.coeater.android.api.provideHistoryApi
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
@@ -19,6 +21,8 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
+import com.coeater.android.history.HistoryViewModel
+import com.coeater.android.history.HistoryViewModelFactory
 import com.coeater.android.model.Profile
 import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
@@ -77,17 +81,16 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
 
 
+    private val historyViewModelFactory by lazy {
+        HistoryViewModelFactory(
+            provideHistoryApi(this)
+        )
+    }
+    private lateinit var historyViewModel: HistoryViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
-
-        val profile = intent.getStringExtra("profile")
-        Glide.with(this)
-            .load(Profile.getUrl(profile))
-            .error(R.drawable.ic_dummy_circle_crop)
-            .apply(RequestOptions.circleCropTransform())
-            .into(iv_profile)
-            .clearOnDetach()
 
         iceConnected = false
         signalingParameters = null
@@ -149,12 +152,29 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private fun setupOtherInfo() {
         val is_inviter = intent.extras?.getBoolean(IS_INVITER) ?: false
         val room_response = intent.extras?.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
+        historyViewModel = ViewModelProviders.of(
+            this, historyViewModelFactory)[HistoryViewModel::class.java]
 
         if (is_inviter) {
             tv_name.text = room_response.target?.nickname ?: ""
+            Glide.with(this)
+                .load(Profile.getUrl(room_response.target?.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
+            historyViewModel.saveHistory(room_response.target?.id)
         } else {
             tv_name.text = room_response.owner.nickname
+            Glide.with(this)
+                .load(Profile.getUrl(room_response.owner.profile))
+                .error(R.drawable.ic_dummy_circle_crop)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
+            historyViewModel.saveHistory(room_response.owner.id)
         }
+
     }
 
     // Join video call with randomly generated roomId

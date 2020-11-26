@@ -1,6 +1,5 @@
 package com.coeater.android.mypage
 
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +27,7 @@ class MyPageViewModel(
     val isEditSuccess: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
+    var err: Exception? = null
 
     fun fetchRequest() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -76,6 +76,7 @@ class MyPageViewModel(
                     isEditSuccess.postValue(true)
                 }
                 is HTTPResult.Error -> {
+                    err = myInfo.exception
                     isEditSuccess.postValue(false)
                 }
             }

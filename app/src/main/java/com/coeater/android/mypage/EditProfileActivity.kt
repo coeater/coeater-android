@@ -2,29 +2,26 @@ package com.coeater.android.mypage
 
 import android.app.Activity
 import android.content.Intent
-import android.inputmethodservice.InputMethodService
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
-import com.coeater.android.api.UserManageProvider
-import com.coeater.android.api.provideAuthApi
 import com.coeater.android.api.provideUserApi
-import com.coeater.android.main.MainActivity
+import com.coeater.android.model.Profile
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_register.*
+import retrofit2.HttpException
 import java.io.File
+import java.net.URL
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
@@ -55,6 +52,12 @@ class EditProfileActivity : AppCompatActivity() {
 
         viewModel.myInfo.observe(this, Observer { myInfo ->
             et_nickname.setText(myInfo.nickname)
+            Glide.with(this)
+                .load(Profile.getUrl(myInfo.profile))
+                .error(R.drawable.bg_profile)
+                .apply(RequestOptions.circleCropTransform())
+                .into(iv_profile)
+                .clearOnDetach()
         })
 
         viewModel.isEditSuccess.observe(this, Observer { complete ->
@@ -62,7 +65,7 @@ class EditProfileActivity : AppCompatActivity() {
                 finish()
             }
             else {
-                showError()
+                showError(viewModel.err)
             }
         })
 
@@ -75,7 +78,7 @@ class EditProfileActivity : AppCompatActivity() {
             else false
         })
 
-        btn_profile.setOnClickListener { setProfile() }
+        iv_profile.setOnClickListener { setProfile() }
     }
 
     override fun onStart() {
@@ -115,12 +118,13 @@ class EditProfileActivity : AppCompatActivity() {
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
-            iv_photo.visibility = View.GONE
         }
     }
-    private fun showError() {
+    private fun showError(err: Exception?) {
+        var additionalMessage = ""
+        if(err is HttpException && err.code() == 400) additionalMessage = "\n같은 닉네임이 존재합니다."
         AlertDialog.Builder(this)
-            .setTitle("에러").setMessage("에러가 발생했습니다.")
+            .setTitle("에러").setMessage("에러가 발생했습니다.\n$additionalMessage")
             .create()
             .show()
     }

@@ -14,6 +14,7 @@ import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
 import com.coeater.android.join.JoinActivity
+import com.coeater.android.main.MainActivity
 import com.coeater.android.main.MainViewModel
 import com.coeater.android.main.MainViewModelFactory
 import com.coeater.android.main.recyclerview.AddFriendAdapter
@@ -23,15 +24,9 @@ import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.fragment_oneonone.*
 import kotlinx.android.synthetic.main.view_main_friends.view.*
 
-private val TAG = "OneOnOneFragment"
-
 class OneOnOneFragment : Fragment() {
 
-    private val viewModel: MainViewModel by activityViewModels {
-        MainViewModelFactory(
-            provideUserApi(requireContext())
-        )
-    }
+    val viewModel : MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

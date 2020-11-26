@@ -20,7 +20,7 @@ import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
-import kotlinx.android.synthetic.main.fragment_oneonone_code.*
+import kotlinx.android.synthetic.main.activity_join.*
 
 class JoinActivity : AppCompatActivity() {
 

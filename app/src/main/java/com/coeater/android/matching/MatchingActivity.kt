@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.Profile
-import kotlinx.android.synthetic.main.fragment_oneonone_matching.*
+import kotlinx.android.synthetic.main.activity_matching.*
 
 class MatchingActivity : AppCompatActivity() {
     /*
@@ -39,11 +39,10 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MatchingViewModel
-    var profile: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_oneonone_matching)
+        setContentView(R.layout.activity_matching)
         setup()
     }
 
@@ -52,6 +51,7 @@ class MatchingActivity : AppCompatActivity() {
         var roomId: Int = -1
         var nickname: String = ""
         var mode: String = ""
+        var profile: String = ""
         if (b != null) {
             roomId = b?.getInt("roomId") ?: -1
             mode = b?.getString("mode") ?: ""
@@ -158,7 +158,6 @@ class MatchingActivity : AppCompatActivity() {
                 intent.putExtra(CallActivity.ROOM_CODE, roomCode)
                 intent.putExtra(CallActivity.IS_INVITER, false)
                 intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
-                intent.putExtra("profile", profile)
                 startActivity(intent)
             }
 

@@ -24,7 +24,9 @@ import com.coeater.android.api.provideUserApi
 import com.coeater.android.main.MainActivity
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_register.*
+import retrofit2.HttpException
 import java.io.File
+import java.lang.Exception
 import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -59,7 +61,7 @@ class RegisterActivity : AppCompatActivity() {
                 moveToMain()
             }
             else {
-                showError()
+                showError(viewModel.err)
             }
         })
 
@@ -72,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
             else false
         })
 
-        btn_profile.setOnClickListener { setProfile() }
+        iv_profile.setOnClickListener { setProfile() }
     }
 
     override fun onStart() {
@@ -112,7 +114,6 @@ class RegisterActivity : AppCompatActivity() {
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_profile)
                 .clearOnDetach()
-            iv_photo.visibility = View.GONE
         }
     }
 
@@ -124,9 +125,9 @@ class RegisterActivity : AppCompatActivity() {
         this.startActivity(intent)
         finish()
     }
-    private fun showError() {
+    private fun showError(err: Exception?) {
         AlertDialog.Builder(this)
-            .setTitle("에러").setMessage("에러가 발생했습니다.")
+            .setTitle("에러").setMessage("에러가 발생했습니다.\n${err?.message}")
             .create()
             .show()
     }
