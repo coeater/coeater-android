@@ -6,9 +6,10 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="4dp"
+        android:layout_marginHorizontal="40dp"
         android:background="@drawable/bg_friend_requests_line"
-        android:layout_marginHorizontal="40dp"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/iv_profile"
