@@ -7,11 +7,7 @@ import java.util.*
 
 class DateTime {
     companion object {
-        fun periodTO() : String {
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
-            return sdf.format(Date())
-        }
-        fun periodFrom(date: Date) : String {
+        fun periodToAPI(date: Date) : String {
             val sdf = SimpleDateFormat("yyyy-MM-dd")
             return sdf.format(date)
         }
