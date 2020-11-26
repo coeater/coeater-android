@@ -30,9 +30,13 @@ class WebSocketChannelClient(
     private var socket: Socket? = null
 
     companion object {
-        private const val baseURL = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:4000/"
+//        private const val baseURL =
+//            "http://d9969d72e246.ngrok.io/"
+
+                private const val baseURL = "http://6f40849fdd02.ngrok.io"
         private const val TAG = "WSChannelRTCClient"
     }
+
     /**
      * Callback interface for messages delivered on WebSocket.
      * All events are dispatched from a looper executor thread.
@@ -43,6 +47,18 @@ class WebSocketChannelClient(
         fun onWebSocketGetOffer(message: String)
         fun onWebSocketGetAnswer(message: String)
         fun onWebSocketGetIceCandidate(message: String)
+        /**
+         * 사용자에게 선택을 요청한다.
+         */
+        fun onWebSocketPlayLikeness(message: String)
+        /**
+         * 사용자에게 선택 결과를 통지한다.
+         */
+        fun onWebSocketMatchLikeness(message: String)
+        /**
+         * 사용자에게 선택 결과를 통지한다.
+         */
+        fun onWebSocketEndLikeness(message: String)
     }
 
     fun connect(roomID: String) {
@@ -73,12 +89,32 @@ class WebSocketChannelClient(
                     Log.d(TAG, it[0].toString())
                     events.onWebSocketGetIceCandidate(it[0].toString())
                 })
+                .on("play likeness", Emitter.Listener {
+                    /**
+                     * 사용자에게 선택을 요청한다.
+                     */
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketPlayLikeness(it[0].toString())
+                })
+                .on("match likeness", Emitter.Listener {
+                    /**
+                     * 사용자에게 선택 결과를 통지한다.
+                     */
+                    Log.d(TAG, it[0].toString())
+                    events.onWebSocketMatchLikeness(it[0].toString())
+                })
+                .on("end likeness", Emitter.Listener {
+                    /**
+                     * 사용자에게 최 결과를 통지한다.
+                     */
+                    events.onWebSocketEndLikeness(it[0].toString())
+                })
             this.connect()
         }
     }
 
     fun send(event: String, message: String) {
-        checkIfCalledOnValidThread()
+//        checkIfCalledOnValidThread()
 
         socket?.emit(event, message)
     }

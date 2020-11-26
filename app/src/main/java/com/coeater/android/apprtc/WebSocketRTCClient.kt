@@ -14,9 +14,7 @@ import android.os.HandlerThread
 import android.util.Log
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.WebSocketChannelClient.WebSocketChannelEvents
-import com.coeater.android.apprtc.model.AnswerSdp
-import com.coeater.android.apprtc.model.OfferSdp
-import com.coeater.android.apprtc.model.SignalIceCandidate
+import com.coeater.android.apprtc.model.*
 import com.google.gson.Gson
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
@@ -96,6 +94,22 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         })
     }
 
+    override fun startGameLikeness() {
+        handler.post(Runnable {
+            wsClient?.send("start likeness", "")
+        })
+    }
+
+    override fun sendImageSelectResult(stage: Int, left: Boolean) {
+        handler.post(Runnable {
+            val gameSelect = GameSelect(stage, left)
+            val gson = Gson()
+            val json = gson.toJson(gameSelect)
+            wsClient?.send("likeness result", json)
+        })
+    }
+
+
     // --------------------------------------------------------------------
     // WebSocketChannelEvents interface implementation.
     // All events are called by WebSocketChannelClient on a local looper thread
@@ -143,6 +157,24 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
 
     override fun onWebSocketClose() {
         events.onChannelClose()
+    }
+
+    override fun onWebSocketPlayLikeness(message: String) {
+        val gson = Gson()
+        val gameInfo = gson.fromJson(message, GameInfo::class.java)
+        events.onPlayGameLikeness(gameInfo)
+    }
+
+    override fun onWebSocketMatchLikeness(message: String) {
+        val gson = Gson()
+        val gameMatchResult = gson.fromJson(message, GameMatchResult::class.java)
+        events.onPlayGameMatchResult(gameMatchResult)
+    }
+
+    override fun onWebSocketEndLikeness(message: String) {
+        val gson = Gson()
+        val gameFinalResult = gson.fromJson(message, GameFinalResult::class.java)
+        events.onPlayGameMatchEnd(gameFinalResult)
     }
 
     companion object {

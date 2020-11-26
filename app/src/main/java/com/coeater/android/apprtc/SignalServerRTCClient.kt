@@ -1,14 +1,8 @@
-/*
- *  Copyright 2013 The WebRTC Project Authors. All rights reserved.
- *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
 package com.coeater.android.apprtc
 
+import com.coeater.android.apprtc.model.GameFinalResult
+import com.coeater.android.apprtc.model.GameInfo
+import com.coeater.android.apprtc.model.GameMatchResult
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection.IceServer
 import org.webrtc.SessionDescription
@@ -39,6 +33,16 @@ interface SignalServerRTCClient {
      * Send Ice candidate to the other participant.
      */
     fun sendLocalIceCandidate(candidate: IceCandidate)
+
+    /**
+     * 이구동성 게임을 시작한다.
+     */
+    fun startGameLikeness()
+
+    /**
+     * 이구동성 선택을 한다.
+     */
+    fun sendImageSelectResult(stage: Int, left: Boolean)
 
     /**
      * Disconnect from room.
@@ -86,5 +90,20 @@ interface SignalServerRTCClient {
          * Callback fired once channel is closed.
          */
         fun onChannelClose()
+
+        /**
+         * 누군가 게임 시작을 요청할 때, 정보를 전송한다.
+         */
+        fun onPlayGameLikeness(gameInfo: GameInfo)
+
+        /**
+         * 둘이 결과가 나왔을 때, 정보를 전송한다.
+         */
+        fun onPlayGameMatchResult(matchResult: GameMatchResult)
+
+        /**
+         * 둘이 결과가 나왔을 때, 맨 마지막이면 유사도를 보여 준다.
+         */
+        fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
     }
 }

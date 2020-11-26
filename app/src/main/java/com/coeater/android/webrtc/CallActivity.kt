@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.PopupMenu
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.annotation.UiThread
@@ -19,7 +20,15 @@ import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.model.Profile
+import com.coeater.android.apprtc.model.GameFinalResult
+import com.coeater.android.apprtc.model.GameInfo
+import com.coeater.android.apprtc.model.GameMatchResult
 import com.coeater.android.model.RoomResponse
+import com.coeater.android.webrtc.game.CallGameInputFromSocket
+import com.coeater.android.webrtc.game.model.CallGameChoice
+import com.coeater.android.webrtc.game.model.CallGameMatch
+import com.coeater.android.webrtc.game.model.CallGameResult
+import java.util.*
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -59,6 +68,14 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private var disconnectButton: RelativeLayout? = null
     private var cameraSwitchButton: RelativeLayout? = null
 //    private var toggleMuteButton: ImageButton? = null
+    private var gameButton: RelativeLayout? = null
+
+    /**
+     * 소켓 결과를 통지한다.
+     */
+    private var callGameInputFromSocket: CallGameInputFromSocket? = null
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +98,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         disconnectButton = findViewById(R.id.button_exit)
         cameraSwitchButton = findViewById(R.id.button_change)
 //        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
+        gameButton = findViewById(R.id.button_games)
 
         // Add buttons click events.
         disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
@@ -89,6 +107,19 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 //            val enabled = onToggleMic()
 //            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
 //        })
+        gameButton?.setOnClickListener{
+            val popupMenu: PopupMenu = PopupMenu(this, gameButton)
+            popupMenu.menuInflater.inflate(R.menu.menu_call_games,popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+                when(item.itemId) {
+                    R.id.menu_game_likeness -> startGameLikeness()
+                    R.id.menu_game_subtitles ->
+                        Toast.makeText(this@CallActivity, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
+                }
+                true
+            })
+            popupMenu.show()
+        }
 
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
@@ -154,12 +185,14 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         // Create connection client. Use the standard WebSocketRTCClient.
         // DirectRTCClient could be used for point-to-point connection
-        signalServerRtcClient = WebSocketRTCClient(this)
+        val client = WebSocketRTCClient(this)
+        signalServerRtcClient = client
         // Create connection parameters.
         peerConnectionClient?.createPeerConnectionFactory(
             applicationContext, peerConnectionParameters, this@CallActivity
         )
         startCall(roomId)
+        setupGame(client)
     }
 
     fun onCallHangUp() {
@@ -412,6 +445,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         }
     }
 
+
     // -----Implementation of PeerConnectionClient.PeerConnectionEvents.---------
     // Send local peer connection SDP and ICE candidates to remote party.
     // All callbacks are invoked from peer connection client looper thread and
@@ -516,5 +550,34 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         fun setTarget(target: VideoSink?) {
             this.target = target
         }
+    }
+
+    /************* Game Contents *************/
+    private var dataChannel: DataChannel? = null
+
+    private fun startGameLikeness(){
+        signalServerRtcClient?.startGameLikeness()
+    }
+
+
+    override fun onPlayGameLikeness(gameInfo: GameInfo) {
+        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.itemLeft, gameInfo.itemRight, gameInfo.stage, gameInfo.totalStage)
+        callGameInputFromSocket?.showChoice(gameChoice)
+    }
+
+    override fun onPlayGameMatchResult(matchResult: GameMatchResult) {
+        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.itemLeft, matchResult.nextInfo.itemRight, matchResult.nextInfo.stage, matchResult.nextInfo.totalStage)
+        val gameMatch = CallGameMatch(matchResult.isMatched, gameChoice)
+        callGameInputFromSocket?.showMatch(gameMatch)
+    }
+
+    override fun onPlayGameMatchEnd(matchEnd: GameFinalResult) {
+        val gameResult = CallGameResult(matchEnd.isMatched, matchEnd.similarity)
+        callGameInputFromSocket?.showResult(gameResult)
+    }
+
+    private fun setupGame(client: WebSocketRTCClient) {
+        val input = call_game_view.configure(this, client)
+        callGameInputFromSocket = input
     }
 }
