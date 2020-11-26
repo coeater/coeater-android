@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.coeater.android.R
+import com.coeater.android.gallery.GalleryAdapter
 import com.coeater.android.gallery.GalleryViewModel
+import kotlinx.android.synthetic.main.fragment_gallery.*
 
 class GalleryFragment : Fragment() {
 
@@ -27,6 +29,7 @@ class GalleryFragment : Fragment() {
     }
 
     private fun setup() {
-        TODO("Not yet implemented")
+        //TODO
+        gv_gallery.adapter = GalleryAdapter(requireContext(), 20)
     }
 }

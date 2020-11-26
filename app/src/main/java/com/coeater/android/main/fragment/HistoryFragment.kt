@@ -1,4 +1,4 @@
-package com.coeater.android.main.fragment
+ package com.coeater.android.main.fragment
 
 import android.app.DatePickerDialog
 import android.icu.text.SimpleDateFormat

@@ -7,6 +7,6 @@ class GalleryViewModel (
     private val api: GalleryApi
 ) : ViewModel() {
     fun fetchGallery() {
-        TODO("Not yet implemented")
+        //TODO
     }
 }
