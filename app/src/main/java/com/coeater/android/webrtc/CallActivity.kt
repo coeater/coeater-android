@@ -118,6 +118,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
                     R.id.menu_game_likeness -> startGameLikeness()
                     R.id.menu_game_subtitles ->
                         Toast.makeText(this@CallActivity, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
+                    R.id.menu_game_emoji -> showEmoji()
                 }
                 true
             })
@@ -144,6 +145,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         val room_code = intent.extras?.getString(ROOM_CODE) ?: ""
         connectVideoCall(room_code)
         setupOtherInfo()
+    }
+
+    private fun showEmoji() {
+        call_emoji_game_view.visibility = View.VISIBLE
     }
 
     /**
