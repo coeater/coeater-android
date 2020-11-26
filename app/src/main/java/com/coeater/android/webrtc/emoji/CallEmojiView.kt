@@ -33,7 +33,9 @@ class CallEmojiView : ConstraintLayout {
 
         viewManager = GridLayoutManager(this.context, 5)
         viewAdapter = CallEmojiSelectAdapter(provideEmojiData())
-
+        ib_emoji_close.setOnClickListener {
+            this.visibility = View.GONE
+        }
         rv_emoji_select.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
