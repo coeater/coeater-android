@@ -3,25 +3,23 @@ package com.coeater.android.matching
 import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
-import android.view.KeyEvent
+import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideMatchApi
+import com.coeater.android.model.AcceptedState
+import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
-import android.os.Bundle
-import androidx.lifecycle.observe
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.coeater.android.model.AcceptedState
-import com.coeater.android.model.Profile
 import kotlinx.android.synthetic.main.activity_matching.*
 
 class MatchingActivity : AppCompatActivity() {
@@ -112,7 +110,7 @@ class MatchingActivity : AppCompatActivity() {
 
         viewModel.matched.observe(this, Observer<RoomResponse> {
             if (it.accepted == AcceptedState.ACCEPTED && it.checked) {
-                checkPermission(it.room_code, it)
+                checkPermission(it.room_code, it, mode=="INVITER")
                 finish()
             }
         })
@@ -151,12 +149,12 @@ class MatchingActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
-    private fun checkPermission(roomCode: String, roomResponse: RoomResponse) {
+    private fun checkPermission(roomCode: String, roomResponse: RoomResponse, isInviter: Boolean) {
         val permissionListener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
                 val intent = Intent(this@MatchingActivity, CallActivity::class.java)
                 intent.putExtra(CallActivity.ROOM_CODE, roomCode)
-                intent.putExtra(CallActivity.IS_INVITER, false)
+                intent.putExtra(CallActivity.IS_INVITER, isInviter)
                 intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
                 startActivity(intent)
             }
