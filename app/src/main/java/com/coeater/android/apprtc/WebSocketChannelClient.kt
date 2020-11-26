@@ -30,10 +30,7 @@ class WebSocketChannelClient(
     private var socket: Socket? = null
 
     companion object {
-//        private const val baseURL =
-//            "http://d9969d72e246.ngrok.io/"
-
-                private const val baseURL = "http://6f40849fdd02.ngrok.io"
+        private const val baseURL = "http://ec2-52-78-98-130.ap-northeast-2.compute.amazonaws.com:4000"
         private const val TAG = "WSChannelRTCClient"
     }
 
