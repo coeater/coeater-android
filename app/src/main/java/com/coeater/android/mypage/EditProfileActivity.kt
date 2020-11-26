@@ -77,13 +77,8 @@ class EditProfileActivity : AppCompatActivity() {
             }
             else false
         })
-
-        iv_profile.setOnClickListener { setProfile() }
-    }
-
-    override fun onStart() {
-        super.onStart()
         viewModel.fetchRequest()
+        iv_profile.setOnClickListener { setProfile() }
     }
 
     private fun setProfile() {
