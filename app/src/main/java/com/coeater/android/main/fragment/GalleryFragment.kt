@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.observe
 import com.coeater.android.R
 import com.coeater.android.gallery.GalleryAdapter
 import com.coeater.android.gallery.GalleryViewModel
@@ -30,6 +32,8 @@ class GalleryFragment : Fragment() {
 
     private fun setup() {
         //TODO
-        gv_gallery.adapter = GalleryAdapter(requireContext(), 20)
+        viewModel.gallery.observe(requireActivity(), Observer {gallery ->
+            gv_gallery.adapter = GalleryAdapter(requireContext(), gallery)
+        })
     }
 }
