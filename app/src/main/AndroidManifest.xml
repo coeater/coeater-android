@@ -79,6 +79,9 @@
             android:name=".mypage.EditProfileActivity"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".gallery.GalleryActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".webrtc.CallActivity"
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="true"

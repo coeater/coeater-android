@@ -1,6 +1,7 @@
 package com.coeater.android.gallery
 
 import android.content.Context
+import android.content.Intent
 import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
@@ -64,8 +65,16 @@ class GalleryAdapter(private val context: Context, private val item: List<User>)
                     .load(Profile.getUrl(item[position].profile))
                     .into(row.iv_gallery)
                     .clearOnDetach()
+                row.setOnClickListener { openGallery(position) }
                 row
             }
         }
+    }
+
+    private fun openGallery(position : Int) {
+        val intent = Intent(context, GalleryActivity::class.java)
+        intent.putExtra("user", item[position])
+        intent.putExtra("gallery", item[position])
+        context.startActivity(intent)
     }
 }
