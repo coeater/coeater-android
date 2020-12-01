@@ -44,6 +44,17 @@ interface SignalServerRTCClient {
      */
     fun sendImageSelectResult(stage: Int, left: Boolean)
 
+
+    /**
+     * 이모지를 상대방에게 전송한다.
+     */
+    fun showEmoji(xPercentage: Double, yPercentage: Double, file: String)
+
+    /**
+     * 창의 이모지를 모두 지운다.
+     */
+    fun deleteAllEmoji()
+
     /**
      * Disconnect from room.
      */
@@ -105,5 +116,15 @@ interface SignalServerRTCClient {
          * 둘이 결과가 나왔을 때, 맨 마지막이면 유사도를 보여 준다.
          */
         fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
+
+        /**
+         * 상대방의 요청에 의해 이모지를 지운다.
+         */
+        fun onEmojiDeleteRequestReceive()
+
+        /**
+         * 상대방의 요청에 의해 이모지를 그린다.
+         */
+        fun onEmojiDrawRequestReceive(xPercentage: Double, yPercentage: Double, file: String)
     }
 }

@@ -19,8 +19,8 @@
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/layout_lottie"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

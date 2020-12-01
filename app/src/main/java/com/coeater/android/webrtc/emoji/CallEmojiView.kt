@@ -1,7 +1,6 @@
 package com.coeater.android.webrtc.emoji
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -9,9 +8,15 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.coeater.android.R
 import kotlinx.android.synthetic.main.view_call_emoji.view.*
 
+
+interface CallEmojiOutput {
+    fun sendEmoji(xPercentage: Double, yPercentage: Double, file: String)
+    fun deleteAllEmoji()
+}
 
 class CallEmojiView : ConstraintLayout {
 
@@ -27,6 +32,9 @@ class CallEmojiView : ConstraintLayout {
 
     private var viewAdapter: CallEmojiSelectAdapter
     private var viewManager: RecyclerView.LayoutManager
+
+    var output: CallEmojiOutput? = null
+    private val lottieSize = pxFromDp(this.context, 300.toFloat())
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_call_emoji, this, true)
@@ -49,7 +57,8 @@ class CallEmojiView : ConstraintLayout {
             val x = motionEvent.x.toInt()
             val y = motionEvent.y.toInt()
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                showEmoji(x, y)
+                showEmoji(x, y, viewAdapter.selectedLottieFile)
+                sendEmojiByClient(x, y, viewAdapter.selectedLottieFile)
             }
 
             return@setOnTouchListener true
@@ -57,6 +66,9 @@ class CallEmojiView : ConstraintLayout {
         }
     }
 
+    fun pxFromDp(context: Context, dp: Float): Int {
+        return (dp * context.resources.displayMetrics.density).toInt()
+    }
 
     private fun setMargins(
         view: View,
@@ -72,14 +84,29 @@ class CallEmojiView : ConstraintLayout {
         }
     }
 
-    private fun showEmoji(x: Int, y: Int) {
 
-        val lottieFile = viewAdapter.selectedLottieFile
-        val paddingX = -layout_lottie.width / 2 + x
-        val paddingY = -layout_lottie.height / 2 + y
+    /**
+     * 서버에서 가져온 이모지 명령을 전송한다.
+     */
+    public fun showEmojiByOpponent(xPercentage: Double, yPercentage: Double, file: String) {
+        val x = (xPercentage * layout_emoji_touch.width).toInt()
+        val y = (yPercentage * layout_emoji_touch.height).toInt()
+        showEmoji(x, y, file)
+    }
+
+    private fun sendEmojiByClient(x: Int, y: Int, lottieFile: String) {
+        val xPercentage = x.toDouble() / layout_emoji_touch.width.toDouble()
+        val yPercentage = y.toDouble() / layout_emoji_touch.height.toDouble()
+        output?.sendEmoji(xPercentage, yPercentage, lottieFile)
+    }
+    
+
+    private fun showEmoji(x: Int, y: Int, lottieFile: String) {
+        val paddingX = -lottieSize / 2 + x
+        val paddingY = -lottieSize / 2 + y
         setMargins(layout_lottie, paddingX, paddingY, 0, 0)
-
         layout_lottie.setAnimation(lottieFile)
+        layout_lottie.loop(true);
         layout_lottie.playAnimation()
     }
 
