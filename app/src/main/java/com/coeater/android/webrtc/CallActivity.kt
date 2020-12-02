@@ -323,7 +323,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     }
 
     private fun showEmoji() {
-        call_emoji_game_view.visibility = View.VISIBLE
+        call_emoji_game_view.setActivity(true)
     }
 
     /**
@@ -797,7 +797,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
 
 
     override fun onEmojiDeleteRequestReceive() {
-
+        call_emoji_game_view.deleteEmoji()
     }
 
 }

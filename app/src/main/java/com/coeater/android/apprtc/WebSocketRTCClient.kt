@@ -120,7 +120,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
             val emojiInfo = EmojiInfo(xPercentage, yPercentage, file)
             val gson = Gson()
             val json = gson.toJson(emojiInfo)
-        wsClient?.send("emoji", json)
+            wsClient?.send("emoji", json)
         }
     }
 
