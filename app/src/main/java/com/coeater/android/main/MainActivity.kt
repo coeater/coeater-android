@@ -9,11 +9,15 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.coeater.android.R
+import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideHistoryApi
+import com.coeater.android.api.provideMatchApi
 import com.coeater.android.api.provideUserApi
+import com.coeater.android.code.InvitationViewModelFactory
 import com.coeater.android.friends.AddFriendActivity
 import com.coeater.android.history.HistoryViewModel
 import com.coeater.android.history.HistoryViewModelFactory
+import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.fragment.HistoryFragment
@@ -41,9 +45,18 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    private val invitationViewModelFactory by lazy {
+        InvitationViewModelFactory(
+            provideMatchApi(this),
+            UserManageProvider(this)
+        )
+    }
+
+
     lateinit var mainViewModel: MainViewModel
     lateinit var myPageViewModel: MyPageViewModel
     lateinit var historyViewModel: HistoryViewModel
+    lateinit var invitationVewModel: InvitationViewModel
 
     private val oneOnOne = OneOnOneFragment()
     private val myPage = MyPageFragment()
@@ -62,6 +75,8 @@ class MainActivity : FragmentActivity() {
             this, myPageViewModelFactory)[MyPageViewModel::class.java]
         historyViewModel = ViewModelProviders.of(
             this, historyViewModelFactory)[HistoryViewModel::class.java]
+        invitationVewModel = ViewModelProviders.of(
+            this, invitationViewModelFactory)[InvitationViewModel::class.java]
 
         vp_main.adapter = MainPagerAdapter(supportFragmentManager)
 

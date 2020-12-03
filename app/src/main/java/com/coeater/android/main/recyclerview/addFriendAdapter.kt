@@ -8,10 +8,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
 import com.coeater.android.friends.AddFriendActivity
+import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.model.User
 import kotlinx.android.synthetic.main.view_friends_add_recycler_item.view.*
 
-class AddFriendAdapter(private val context : Context, private val friendsDataset : List<User>) : FriendsAdapter(context, friendsDataset) {
+class AddFriendAdapter(private val viewModel : InvitationViewModel, private val context : Context, private val friendsDataset : List<User>) : FriendsAdapter(viewModel, context, friendsDataset) {
 
     companion object ViewType {
         const val DEFAULT = 0;
