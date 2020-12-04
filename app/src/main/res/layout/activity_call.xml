@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_salmon"
-    >
+    android:background="@color/light_salmon">
 
 
     <View
@@ -17,33 +16,39 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Connecting"
         android:fontFamily="@font/regular"
-        android:textSize="48sp"
+        android:text="Connecting"
         android:textColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/youtube_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:visibility="gone"/>
 
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/fullscreen_video_view"
-        android:visibility="gone"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        />
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/pip_video_view"
         android:layout_width="72dp"
         android:layout_height="128dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <com.coeater.android.webrtc.game.CallGameView
@@ -52,48 +57,54 @@
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintVertical_bias="1.0" />
+
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="80dp"
-        android:text="Mr.Gourmet"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/regular"
-        android:textSize="24sp"
+        android:text="Mr.Gourmet"
         android:textColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/iv_profile"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:src="@drawable/unnamed"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <RelativeLayout
         android:id="@+id/button_change"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginBottom="85dp"
         android:layout_marginStart="80dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_marginBottom="85dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/circle_white"/>
+            android:src="@drawable/circle_white" />
+
         <ImageView
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_flip_camera_android_24px"/>
+            android:src="@drawable/ic_flip_camera_android_24px" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -105,16 +116,18 @@
         android:layout_marginEnd="19dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/circle_white"/>
+            android:src="@drawable/circle_white" />
+
         <ImageView
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_exit_to_app_24px"/>
+            android:src="@drawable/ic_exit_to_app_24px" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -126,24 +139,186 @@
         android:layout_marginEnd="65dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/circle_white"/>
+            android:src="@drawable/circle_white" />
+
         <ImageView
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_games_24"/>
+            android:src="@drawable/ic_games_24" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/button_youtube"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="111dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white" />
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:tint="#FDBA90"
+            android:src="@drawable/ic_youtube_dark" />
     </RelativeLayout>
 
     <com.coeater.android.webrtc.emoji.CallEmojiView
         android:id="@+id/call_emoji_game_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_search"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"
+        android:textColor="@color/white"
+        android:lineSpacingExtra="24dp"
+        android:gravity="left"
+        tools:text="_______________________"
+        android:fontFamily="@font/regular"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toTopOf="@+id/et_search"
+        app:layout_constraintStart_toStartOf="parent"
         android:visibility="gone"
         />
 
+    <EditText
+        android:id="@+id/et_search"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"
+        android:textColor="@color/white"
+        android:lineSpacingExtra="24dp"
+        android:gravity="left"
+        tools:text="search what you want"
+        android:maxLength="20"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:fontFamily="@font/regular"
+        android:cursorVisible="false"
+        android:background="@null"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/youtube_fragment_wrapper"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        />
+
+
+    <RelativeLayout
+        android:id="@+id/button_youtube_search"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toEndOf="@+id/tv_search"
+        app:layout_constraintBottom_toTopOf="@+id/youtube_fragment_wrapper"
+        android:visibility="gone" >
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white" />
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_search_24px"
+            android:tint="#FDBA90" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/button_youtube_sync"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="65dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/youtube_fragment_wrapper"
+        android:visibility="gone" >
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white" />
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:tint="#FDBA90"
+            android:src="@drawable/ic_sync_24px" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/button_youtube_exit"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="19dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/youtube_fragment_wrapper"
+        android:visibility="gone" >
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/circle_white" />
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:tint="#FDBA90"
+            android:src="@drawable/exit_24px" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/youtube_fragment_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:layout_constraintTop_toBottomOf="@+id/view3"
+        app:layout_constraintBottom_toTopOf="@+id/view3"
+        android:visibility="gone" >
+        <fragment
+            class="com.coeater.android.webrtc.youtube.CallYoutubePlayerFragment"
+            android:id="@+id/youtube_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            />
+    </RelativeLayout>
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/youtube_search_result"
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:layout_constraintTop_toBottomOf="@+id/view3"
+        app:layout_constraintBottom_toTopOf="@+id/view3"
+        android:visibility="gone"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
