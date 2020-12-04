@@ -58,7 +58,7 @@ import org.webrtc.RendererCommon.ScalingType
  */
 
 enum class YoutubeHandlerEvent(val value: Int) {
-    SET_VIDEO_ID(0);
+    SET_VIDEO_ID(0), OPEN_PLAYER(1);
 }
 
 class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
@@ -106,6 +106,25 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private var isYoutubeActivate: Boolean = false
 
     private var callYoutubeSyncer: CallYoutubeSyncer? = null
+    private val youtubeHandler: Handler = Handler() {
+        when (it.what) {
+            YoutubeHandlerEvent.SET_VIDEO_ID.value -> {
+                val videoId = it.obj as String
+                Logging.e("Youtube Handler", videoId)
+                showYoutubePlayer()
+                youtubePlayer?.loadVideo(videoId, 0f)
+                callYoutubeSyncer?.pushInfo(videoId, 0f)
+                true
+            }
+            YoutubeHandlerEvent.OPEN_PLAYER.value -> {
+                showYoutubePlayer()
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
 
     // Control buttons for limited UI
     private var disconnectButton: RelativeLayout? = null
@@ -205,12 +224,12 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         class ycallback : YouTubePlayerCallback {
             override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
                 youtubePlayer = youTubePlayer
+                youtubeTracker = YouTubePlayerTracker()
+                if (youtubeTracker != null)
+                    youtubePlayer?.addListener(youtubeTracker!!)
             }
         }
         youtubePlayerView?.getYouTubePlayerWhenReady(ycallback())
-        youtubeTracker = YouTubePlayerTracker()
-        if (youtubeTracker != null)
-            youtubePlayer?.addListener(youtubeTracker!!)
 
         youtubePlayerFragmentWrapper = findViewById(R.id.youtube_fragment_wrapper)
         youtubeSearchResultView = findViewById(R.id.youtube_search_result)
@@ -229,21 +248,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchLine?.text = "_______________________"
         this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        val youtubeHandler: Handler = Handler() {
-            when (it.what) {
-                YoutubeHandlerEvent.SET_VIDEO_ID.value -> {
-                    val videoId = it.obj as String
-                    Logging.e("Youtube Handler", videoId)
-                    showYoutubePlayer()
-                    youtubePlayer?.loadVideo(videoId, 0f)
-                    callYoutubeSyncer?.pushInfo(videoId, 0f)
-                    true
-                }
-                else -> {
-                    false
-                }
-            }
-        }
+
 
 
         // Add observer
@@ -288,7 +293,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchButton?.setOnClickListener {
             val searchQuery = youtubeSearchInput?.text.toString() ?: "No Input"
             val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(currentFocus!!.getWindowToken(), 0)
+            imm.hideSoftInputFromWindow(currentFocus?.getWindowToken(), 0)
             if (isYoutubePlayerMode) {
                 showYoutubeSearch()
             }
@@ -323,7 +328,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchInput?.visibility = View.VISIBLE
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
-        
+
         fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(intToDp(72), intToDp(128))
     }
 
@@ -856,10 +861,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         if (youtubePlayer != null && youtubeTracker != null) {
             if (youtubeTracker!!.videoId == videoId) {
-                //showYoutubePlayer()
+                youtubeHandler.obtainMessage(YoutubeHandlerEvent.OPEN_PLAYER.value).sendToTarget()
                 youtubePlayer!!.seekTo(current!!)
             } else {
-                //showYoutubePlayer()
+                youtubeHandler.obtainMessage(YoutubeHandlerEvent.OPEN_PLAYER.value).sendToTarget()
                 youtubePlayer!!.loadVideo(videoId!!, current!!)
             }
         }
