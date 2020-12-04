@@ -1,6 +1,8 @@
 package com.coeater.android.webrtc
+
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.res.Resources
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -11,6 +13,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +34,7 @@ import com.coeater.android.apprtc.WebSocketRTCClient
 import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
+import com.coeater.android.apprtc.model.YoutubeSyncData
 import com.coeater.android.history.HistoryViewModel
 import com.coeater.android.history.HistoryViewModelFactory
 import com.coeater.android.model.Profile
@@ -40,10 +45,11 @@ import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
 import com.coeater.android.webrtc.game.model.CallGameMatch
 import com.coeater.android.webrtc.game.model.CallGameResult
-import com.coeater.android.webrtc.youtube.CallYoutubePlayerFragment
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchAdapter
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModel
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModelFactory
+import com.coeater.android.webrtc.youtube.*
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -54,7 +60,7 @@ import org.webrtc.RendererCommon.ScalingType
  */
 
 enum class YoutubeHandlerEvent(val value: Int) {
-    SET_VIDEO_ID(0);
+    SET_VIDEO_ID(0), OPEN_PLAYER(1);
 }
 
 class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents, CallEmojiOutput {
@@ -85,13 +91,15 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
 
 
     // YouTube Implement
-    private var youtubePlayerFragment: CallYoutubePlayerFragment? = null
+    private var youtubePlayerView: YouTubePlayerView? = null
+    private var youtubePlayer: YouTubePlayer? = null
     private var youtubePlayerFragmentWrapper: RelativeLayout? = null
     private var youtubeSearchResultView: RecyclerView? = null
     private var youtubeExitButton: RelativeLayout? = null
     private var youtubeSyncButton: RelativeLayout? = null
     private var youtubeSearchButton: RelativeLayout? = null
     private var youtubeButton: RelativeLayout? = null
+    private var youtubeTracker: YouTubePlayerTracker? = null
 
     private var youtubeSearchInput: EditText? = null
     private var youtubeSearchLine: TextView? = null
@@ -99,9 +107,31 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     private var isYoutubePlayerMode: Boolean = false
     private var isYoutubeActivate: Boolean = false
 
+    private var callYoutubeSyncer: CallYoutubeSyncer? = null
+    private val youtubeHandler: Handler = Handler() {
+        when (it.what) {
+            YoutubeHandlerEvent.SET_VIDEO_ID.value -> {
+                val videoId = it.obj as String
+                Logging.e("Youtube Handler", videoId)
+                showYoutubePlayer()
+                youtubePlayer?.loadVideo(videoId, 0f)
+                callYoutubeSyncer?.pushInfo(videoId, 0f)
+                true
+            }
+            YoutubeHandlerEvent.OPEN_PLAYER.value -> {
+                showYoutubePlayer()
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
     // Control buttons for limited UI
     private var disconnectButton: RelativeLayout? = null
     private var cameraSwitchButton: RelativeLayout? = null
+
     //private var toggleMuteButton: ImageButton? = null
     private var gameButton: RelativeLayout? = null
 
@@ -128,7 +158,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
 
-
         iceConnected = false
         signalingParameters = null
 
@@ -142,17 +171,17 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
 
 
         // Add buttons click events.
-        disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
+        disconnectButton?.setOnClickListener({ onCallHangUp() })
         cameraSwitchButton?.setOnClickListener(View.OnClickListener { onCameraSwitch() })
 //        toggleMuteButton?.setOnClickListener(View.OnClickListener {
 //            val enabled = onToggleMic()
 //            toggleMuteButton?.setAlpha(if (enabled) 1.0f else 0.3f)
 //        })
-        gameButton?.setOnClickListener{
+        gameButton?.setOnClickListener {
             val popupMenu: PopupMenu = PopupMenu(this, gameButton)
-            popupMenu.menuInflater.inflate(R.menu.menu_call_games,popupMenu.menu)
+            popupMenu.menuInflater.inflate(R.menu.menu_call_games, popupMenu.menu)
             popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
-                when(item.itemId) {
+                when (item.itemId) {
                     R.id.menu_game_likeness -> startGameLikeness()
                     R.id.menu_game_emoji -> showEmoji()
                 }
@@ -160,7 +189,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
             })
             popupMenu.show()
         }
-
         // Swap feeds on pip view click.
         pipRenderer?.setOnClickListener(View.OnClickListener { setSwappedFeeds(!isSwappedFeeds) })
 
@@ -185,7 +213,20 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     }
 
     private fun setupYoutubeInfo() {
-        youtubePlayerFragment = supportFragmentManager.findFragmentById(R.id.youtube_fragment) as CallYoutubePlayerFragment?
+        youtubePlayerView = findViewById(R.id.youtube_player_view)
+        if (youtubePlayerView != null)
+            lifecycle.addObserver(youtubePlayerView!!)
+
+        class ycallback : YouTubePlayerCallback {
+            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                youtubePlayer = youTubePlayer
+                youtubeTracker = YouTubePlayerTracker()
+                if (youtubeTracker != null)
+                    youtubePlayer?.addListener(youtubeTracker!!)
+            }
+        }
+        youtubePlayerView?.getYouTubePlayerWhenReady(ycallback())
+
         youtubePlayerFragmentWrapper = findViewById(R.id.youtube_fragment_wrapper)
         youtubeSearchResultView = findViewById(R.id.youtube_search_result)
         youtubeExitButton = findViewById(R.id.button_youtube_exit)
@@ -197,25 +238,15 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         youtubeSearchLine = findViewById(R.id.tv_search)
         youtubeBackground = findViewById(R.id.youtube_background)
 
-        val youtubeHandler: Handler = Handler() {
-            when(it.what) {
-                YoutubeHandlerEvent.SET_VIDEO_ID.value-> {
-                    val videoId = it.obj as String
-                    Logging.e("Youtube Handler", videoId)
-                    Logging.e("Youtube Handler", youtube_fragment.toString())
-                    showYoutubePlayer()
-                    youtubePlayerFragment = supportFragmentManager.findFragmentById(R.id.youtube_fragment) as CallYoutubePlayerFragment?
-                    true
-                }
-                else -> {false}
-            }
-        }
-
-
         youtubeSearchViewModel = ViewModelProviders.of(
-            this, youtubeSearchViewModelFactory)[CallYoutubeSearchViewModel::class.java]
+            this, youtubeSearchViewModelFactory
+        )[CallYoutubeSearchViewModel::class.java]
         youtubeSearchLine?.text = "_______________________"
         this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
+
+
+
         // Add observer
         youtubeSearchViewModel.result.observe(this, Observer<YoutubeResult> { result ->
             youtubeSearchViewModel.setToken(result.prevPageToken, result.nextPageToken)
@@ -230,8 +261,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(currentFocus!!.getWindowToken(), 0)
-                val searchQuery = youtubeSearchInput?.text.toString()?:"No Input"
-                if(isYoutubePlayerMode) {
+                val searchQuery = youtubeSearchInput?.text.toString() ?: "No Input"
+                if (isYoutubePlayerMode) {
                     showYoutubeSearch()
                 }
 
@@ -244,39 +275,41 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
 
         // Add OnClickListeners
         youtubeExitButton?.setOnClickListener {
-            if(isYoutubePlayerMode) {
+            if (isYoutubePlayerMode) {
                 showYoutubeSearch()
-            }
-            else {
+                youtubePlayer?.pause()
+            } else {
                 hideYoutube()
             }
 
         }
         youtubeSyncButton?.setOnClickListener {
-            //TODO
+            callYoutubeSyncer?.requestInfo()
         }
         youtubeSearchButton?.setOnClickListener {
-            val searchQuery = youtubeSearchInput?.text.toString()?:"No Input"
+            val searchQuery = youtubeSearchInput?.text.toString() ?: "No Input"
             val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(currentFocus!!.getWindowToken(), 0)
-            if(isYoutubePlayerMode) {
+            imm.hideSoftInputFromWindow(currentFocus?.getWindowToken(), 0)
+            if (isYoutubePlayerMode) {
                 showYoutubeSearch()
             }
             youtubeSearchViewModel.fetchNewResult(searchQuery)
         }
 
         youtubeButton?.setOnClickListener {
-            if(isYoutubeActivate) {
+            if (isYoutubeActivate) {
                 hideYoutube()
-            }
-
-            else {
+            } else {
                 if (isYoutubePlayerMode)
                     showYoutubePlayer()
                 else
                     showYoutubeSearch()
             }
         }
+    }
+
+    private fun intToDp(n: Int): Int {
+        return (n * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
     }
 
     private fun showYoutubePlayer() {
@@ -291,6 +324,13 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         youtubeSearchInput?.visibility = View.VISIBLE
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
+
+
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = intToDp(128)
+        layoutParams.width = intToDp(72)
+
+        fullscreenRenderer?.layoutParams = layoutParams
     }
 
     private fun showYoutubeSearch() {
@@ -305,6 +345,12 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         youtubeSearchInput?.visibility = View.VISIBLE
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
+
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = intToDp(128)
+        layoutParams.width = intToDp(72)
+
+        fullscreenRenderer?.layoutParams = layoutParams
     }
 
     private fun hideYoutube() {
@@ -318,6 +364,13 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         youtubeSearchInput?.visibility = View.GONE
         youtubeSearchLine?.visibility = View.GONE
         youtubeBackground?.visibility = View.GONE
+
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = ConstraintLayout.LayoutParams.MATCH_PARENT
+        layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+        fullscreenRenderer?.layoutParams = layoutParams
+
+        youtubePlayer?.pause()
     }
 
     private fun showEmoji() {
@@ -331,7 +384,8 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         val is_inviter = intent.extras?.getBoolean(IS_INVITER) ?: false
         val room_response = intent.extras?.getParcelable<RoomResponse>(ROOM_RESPONSE) ?: return
         historyViewModel = ViewModelProviders.of(
-            this, historyViewModelFactory)[HistoryViewModel::class.java]
+            this, historyViewModelFactory
+        )[HistoryViewModel::class.java]
 
         if (is_inviter) {
             tv_name.text = room_response.target?.nickname ?: ""
@@ -391,6 +445,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         )
         startCall(roomId)
         setupGame(client)
+        setupSyncer(client)
         call_emoji_game_view.output = this
     }
 
@@ -649,7 +704,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     // Send local peer connection SDP and ICE candidates to remote party.
     // All callbacks are invoked from peer connection client looper thread and
     // are routed to UI thread.
-   override fun onLocalDescription(sdp: SessionDescription) {
+    override fun onLocalDescription(sdp: SessionDescription) {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread {
             if (signalServerRtcClient != null) {
@@ -670,7 +725,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         }
     }
 
-   override fun onIceCandidate(candidate: IceCandidate) {
+    override fun onIceCandidate(candidate: IceCandidate) {
         runOnUiThread {
             if (signalServerRtcClient != null) {
                 signalServerRtcClient?.sendLocalIceCandidate(candidate)
@@ -678,7 +733,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         }
     }
 
-   override fun onIceConnected() {
+    override fun onIceConnected() {
         val delta = System.currentTimeMillis() - callStartedTimeMs
         runOnUiThread {
             logAndToast("ICE connected, delay=" + delta + "ms")
@@ -687,7 +742,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         }
     }
 
-   override fun onIceDisconnected() {
+    override fun onIceDisconnected() {
         runOnUiThread {
             logAndToast("ICE disconnected")
             iceConnected = false
@@ -695,9 +750,9 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         }
     }
 
-   override fun onPeerConnectionClosed() {}
-   override fun onPeerConnectionStatsReady(reports: Array<StatsReport?>?) {}
-   override fun onPeerConnectionError(description: String) {
+    override fun onPeerConnectionClosed() {}
+    override fun onPeerConnectionStatsReady(reports: Array<StatsReport?>?) {}
+    override fun onPeerConnectionError(description: String) {
         reportError(description)
     }
 
@@ -754,18 +809,32 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     /************* Game Contents *************/
     private var dataChannel: DataChannel? = null
 
-    private fun startGameLikeness(){
+    private fun startGameLikeness() {
         signalServerRtcClient?.startGameLikeness()
     }
 
 
     override fun onPlayGameLikeness(gameInfo: GameInfo) {
-        val gameChoice = CallGameChoice(gameInfo.imageLeft, gameInfo.imageRight, gameInfo.itemLeft, gameInfo.itemRight, gameInfo.stage, gameInfo.totalStage)
+        val gameChoice = CallGameChoice(
+            gameInfo.imageLeft,
+            gameInfo.imageRight,
+            gameInfo.itemLeft,
+            gameInfo.itemRight,
+            gameInfo.stage,
+            gameInfo.totalStage
+        )
         callGameInputFromSocket?.showChoice(gameChoice)
     }
 
     override fun onPlayGameMatchResult(matchResult: GameMatchResult) {
-        val gameChoice = CallGameChoice(matchResult.nextInfo.imageLeft, matchResult.nextInfo.imageRight, matchResult.nextInfo.itemLeft, matchResult.nextInfo.itemRight, matchResult.nextInfo.stage, matchResult.nextInfo.totalStage)
+        val gameChoice = CallGameChoice(
+            matchResult.nextInfo.imageLeft,
+            matchResult.nextInfo.imageRight,
+            matchResult.nextInfo.itemLeft,
+            matchResult.nextInfo.itemRight,
+            matchResult.nextInfo.stage,
+            matchResult.nextInfo.totalStage
+        )
         val gameMatch = CallGameMatch(matchResult.isMatched, gameChoice)
         callGameInputFromSocket?.showMatch(gameMatch)
     }
@@ -779,6 +848,39 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     private fun setupGame(client: WebSocketRTCClient) {
         val input = call_game_view.configure(this, client)
         callGameInputFromSocket = input
+    }
+
+    private fun setupSyncer(client: WebSocketRTCClient) {
+        val viewModelFactory = CallYoutubePlayerViewModelFactory(client)
+        val viewModel = ViewModelProviders.of(
+            this, viewModelFactory
+        )[CallYoutubePlayerViewModel::class.java]
+        callYoutubeSyncer = viewModel
+    }
+
+    override fun onYoutubeSyncUpdateHandle(youtubeSync: YoutubeSyncData) {
+        val videoId = youtubeSync.videoId
+        var current = youtubeSync.current
+        if (videoId == null)
+            return
+        if (current == null)
+            current = 0f
+
+        if (youtubePlayer != null && youtubeTracker != null) {
+            if (youtubeTracker!!.videoId == videoId) {
+                youtubeHandler.obtainMessage(YoutubeHandlerEvent.OPEN_PLAYER.value).sendToTarget()
+                youtubePlayer!!.seekTo(current!!)
+            } else {
+                youtubeHandler.obtainMessage(YoutubeHandlerEvent.OPEN_PLAYER.value).sendToTarget()
+                youtubePlayer!!.loadVideo(videoId!!, current!!)
+            }
+        }
+    }
+
+    override fun onYoutubeSyncPullHandle() {
+        val videoId = youtubeTracker?.videoId
+        val current = youtubeTracker?.currentSecond
+        callYoutubeSyncer?.responseInfo(videoId, current)
     }
 
     override fun deleteAllEmoji() {
@@ -797,5 +899,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     override fun onEmojiDeleteRequestReceive() {
         call_emoji_game_view.deleteEmoji()
     }
+
 
 }

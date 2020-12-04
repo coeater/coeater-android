@@ -109,6 +109,36 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         })
     }
 
+
+    override fun pushVideoTime(videoId: String, current: Float)  {
+        handler.post(Runnable {
+            val youtubeSyncData = YoutubeSyncData(videoId, current)
+            val gson = Gson()
+            val json = gson.toJson(youtubeSyncData)
+            Log.e("YOUTUBE SYNC", "push")
+            wsClient?.send("youtube sync push", json)
+        })
+    }
+
+    override fun responseVideoTime(videoId: String?, current: Float?)  {
+        handler.post(Runnable {
+            val youtubeSyncData = YoutubeSyncData(videoId, current)
+            val gson = Gson()
+            val json = gson.toJson(youtubeSyncData)
+            Log.e("YOUTUBE SYNC", "response")
+            wsClient?.send("youtube sync response", json)
+        })
+    }
+
+    override fun requestVideoTime()  {
+        handler.post(Runnable {
+            Log.e("YOUTUBE SYNC", "request")
+            wsClient?.send("youtube sync request", "")
+        })
+    }
+
+
+
     override fun deleteAllEmoji() {
         handler.post {
             wsClient?.send("delete emoji", "")
@@ -191,6 +221,18 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         val gameFinalResult = gson.fromJson(message, GameFinalResult::class.java)
         events.onPlayGameMatchEnd(gameFinalResult)
     }
+
+
+    override fun onYoutubeSyncUpdate(message: String) {
+        val gson = Gson()
+        val youtubeSyncData = gson.fromJson(message, YoutubeSyncData::class.java)
+        events.onYoutubeSyncUpdateHandle(youtubeSyncData)
+    }
+
+    override fun onYoutubeSyncPull(message: String) {
+        events.onYoutubeSyncPullHandle()
+    }
+
 
     override fun onWebSocketDeleteEmoji() {
         events.onEmojiDeleteRequestReceive()

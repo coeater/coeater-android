@@ -3,6 +3,7 @@ package com.coeater.android.apprtc
 import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
+import com.coeater.android.apprtc.model.YoutubeSyncData
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection.IceServer
 import org.webrtc.SessionDescription
@@ -54,6 +55,21 @@ interface SignalServerRTCClient {
      * 창의 이모지를 모두 지운다.
      */
     fun deleteAllEmoji()
+
+    /**
+     * 상대에게 영상을 재생시킨다.
+     */
+    fun pushVideoTime(videoId: String, current: Float)
+
+    /**
+     * 상대의 sync데이터 요청에 응답한다
+     */
+    fun responseVideoTime(videoId: String?, current: Float?)
+
+    /**
+     * 상대의 sync데이터 요청을 한다
+     */
+    fun requestVideoTime()
 
     /**
      * Disconnect from room.
@@ -118,6 +134,16 @@ interface SignalServerRTCClient {
         fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
 
         /**
+
+         * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
+         */
+        fun onYoutubeSyncUpdateHandle(youtubeSync: YoutubeSyncData)
+
+        /**
+         * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
+         */
+        fun onYoutubeSyncPullHandle()
+
          * 상대방의 요청에 의해 이모지를 지운다.
          */
         fun onEmojiDeleteRequestReceive()

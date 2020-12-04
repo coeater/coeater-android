@@ -84,7 +84,7 @@ dependencies {
     implementation "com.kakao.sdk:v2-link:2.0.5"
 
     // Youtube
-    implementation files('libs/YouTubeAndroidPlayerApi.jar')
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:10.0.5'
 
     // Animation
     implementation "com.airbnb.android:lottie:3.5.0"
