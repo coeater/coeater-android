@@ -1,15 +1,18 @@
 package com.coeater.android.mypage
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.invitation.InvitationViewModel
+import com.coeater.android.matching.MatchingActivity
 import com.coeater.android.matching.MatchingViewModel
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
@@ -41,7 +44,14 @@ class InvitationsAdapter(private val viewModel : MatchingViewModel, private val 
     }
 
     private fun acceptRequest(position: Int) {
-        viewModel.onClickAccept(requestsDataset[position].id)
+        val invitation = requestsDataset[position]
+        viewModel.onClickAccept(invitation.id)
+        val intent = Intent(context, MatchingActivity::class.java)
+        intent.putExtra("mode", "INVITEE")
+        intent.putExtra("roomId", invitation.id)
+        intent.putExtra("nickname", invitation.owner?.nickname)
+        intent.putExtra("profile", invitation.owner?.profile)
+        context.startActivity(intent)
     }
 
     private fun rejectRequest(position: Int) {
