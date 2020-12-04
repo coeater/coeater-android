@@ -56,6 +56,14 @@ class WebSocketChannelClient(
          * 사용자에게 선택 결과를 통지한다.
          */
         fun onWebSocketEndLikeness(message: String)
+        /**
+         * 이모지를 전송한다.
+         */
+        fun onWebSocketSendEmoji(message: String)
+        /**
+         * 이모지를 지운다.
+         */
+        fun onWebSocketDeleteEmoji()
     }
 
     fun connect(roomID: String) {
@@ -105,6 +113,18 @@ class WebSocketChannelClient(
                      * 사용자에게 최 결과를 통지한다.
                      */
                     events.onWebSocketEndLikeness(it[0].toString())
+                })
+                .on("emoji", Emitter.Listener {
+                    /**
+                     * 사용자에게 상대방이 보낸 이모지를 출력하게 한다.
+                     */
+                    events.onWebSocketSendEmoji(it[0].toString())
+                })
+                .on("delete emoji", Emitter.Listener {
+                    /**
+                     * 모든 이모지를 지우게 한다.
+                     */
+                    events.onWebSocketDeleteEmoji()
                 })
             this.connect()
         }

@@ -109,6 +109,21 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         })
     }
 
+    override fun deleteAllEmoji() {
+        handler.post {
+            wsClient?.send("delete emoji", "")
+        }
+    }
+
+    override fun showEmoji(xPercentage: Double, yPercentage: Double, file: String) {
+        handler.post {
+            val emojiInfo = EmojiInfo(xPercentage, yPercentage, file)
+            val gson = Gson()
+            val json = gson.toJson(emojiInfo)
+            wsClient?.send("emoji", json)
+        }
+    }
+
 
     // --------------------------------------------------------------------
     // WebSocketChannelEvents interface implementation.
@@ -176,6 +191,17 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
         val gameFinalResult = gson.fromJson(message, GameFinalResult::class.java)
         events.onPlayGameMatchEnd(gameFinalResult)
     }
+
+    override fun onWebSocketDeleteEmoji() {
+        events.onEmojiDeleteRequestReceive()
+    }
+
+    override fun onWebSocketSendEmoji(message: String) {
+        val gson = Gson()
+        val emojiInfo = gson.fromJson(message, EmojiInfo::class.java)
+        events.onEmojiDrawRequestReceive(emojiInfo.xPercentage, emojiInfo.yPercentage, emojiInfo.fileName)
+    }
+
 
     companion object {
         private const val TAG = "WSRTCClient"

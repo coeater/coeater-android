@@ -35,6 +35,7 @@ import com.coeater.android.history.HistoryViewModelFactory
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.model.YoutubeResult
+import com.coeater.android.webrtc.emoji.CallEmojiOutput
 import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
 import com.coeater.android.webrtc.game.model.CallGameMatch
@@ -56,7 +57,7 @@ enum class YoutubeHandlerEvent(val value: Int) {
     SET_VIDEO_ID(0);
 }
 
-class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
+class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents, CallEmojiOutput {
     companion object {
         const val ROOM_CODE = "ROOM_CODE"
         const val IS_INVITER = "IS_INVITER"
@@ -153,8 +154,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
             popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
                 when(item.itemId) {
                     R.id.menu_game_likeness -> startGameLikeness()
-                    R.id.menu_game_subtitles ->
-                        Toast.makeText(this@CallActivity, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
                     R.id.menu_game_emoji -> showEmoji()
                 }
                 true
@@ -322,7 +321,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     }
 
     private fun showEmoji() {
-        call_emoji_game_view.visibility = View.VISIBLE
+        call_emoji_game_view.setActivity(true)
     }
 
     /**
@@ -392,6 +391,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         )
         startCall(roomId)
         setupGame(client)
+        call_emoji_game_view.output = this
     }
 
     fun onCallHangUp() {
@@ -775,8 +775,27 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         callGameInputFromSocket?.showResult(gameResult)
     }
 
+
     private fun setupGame(client: WebSocketRTCClient) {
         val input = call_game_view.configure(this, client)
         callGameInputFromSocket = input
     }
+
+    override fun deleteAllEmoji() {
+        signalServerRtcClient?.deleteAllEmoji()
+    }
+
+    override fun sendEmoji(xPercentage: Double, yPercentage: Double, file: String) {
+        signalServerRtcClient?.showEmoji(xPercentage, yPercentage, file)
+    }
+
+    override fun onEmojiDrawRequestReceive(xPercentage: Double, yPercentage: Double, file: String) {
+        call_emoji_game_view.showEmojiByOpponent(xPercentage, yPercentage, file)
+    }
+
+
+    override fun onEmojiDeleteRequestReceive() {
+        call_emoji_game_view.deleteEmoji()
+    }
+
 }
