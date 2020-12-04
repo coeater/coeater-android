@@ -323,8 +323,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchInput?.visibility = View.VISIBLE
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
-
-        fullscreenRenderer?.Layout
+        
         fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(intToDp(72), intToDp(128))
     }
 
