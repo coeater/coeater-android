@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coeater.android.api.HistoryApi
+import com.coeater.android.model.DateTime
 import com.coeater.android.model.FriendsInfo
 import com.coeater.android.model.HTTPResult
 import com.coeater.android.model.User
@@ -19,12 +20,12 @@ class HistoryViewModel (
     val history: MutableLiveData<FriendsInfo> by lazy {
         MutableLiveData<FriendsInfo>()
     }
-    lateinit var fromDate : Date
-    lateinit var toDate : Date
+    var fromDate : Date = Date(Date().year, Date().month-1, Date().date)
+    var toDate : Date = Date()
 
     fun fetchHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            when(val response = getHistory()) {
+            when(val response = getHistory(DateTime.periodToAPI(fromDate), DateTime.periodToAPI(toDate))) {
                 is HTTPResult.Success<FriendsInfo> -> {
                     history.postValue(response.data)
                 }
@@ -43,9 +44,9 @@ class HistoryViewModel (
         }
     }
 
-    private suspend fun getHistory(): HTTPResult<FriendsInfo> {
+    private suspend fun getHistory(from : String, to : String): HTTPResult<FriendsInfo> {
         return try {
-            val response = api.getHistory()
+            val response = api.getHistory(from, to)
             HTTPResult.Success(response)
         } catch (e: HttpException) {
             HTTPResult.Error(e)
