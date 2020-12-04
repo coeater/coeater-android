@@ -113,12 +113,15 @@ class WebSocketChannelClient(
                      * 사용자에게 최 결과를 통지한다.
                      */
                     events.onWebSocketEndLikeness(it[0].toString())
+                    Log.d(TAG, it[0].toString())
                 })
                 .on("youtube sync update", Emitter.Listener {
                     events.onYoutubeSyncUpdate(it[0].toString())
+                    Log.d(TAG, it[0].toString())
                 })
                 .on("youtube sync pull", Emitter.Listener {
                     events.onYoutubeSyncPull(it[0].toString())
+                    Log.d(TAG, it[0].toString())
                 })
             this.connect()
         }

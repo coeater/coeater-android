@@ -11,7 +11,7 @@ interface CallYoutubeSyncer {
     fun responseInfo(videoId: String?, current: Float?)
 }
 
-class CallYoutubePlayerModel(private val client: WebSocketRTCClient) : ViewModel(),CallYoutubeSyncer {
+class CallYoutubePlayerViewModel(private val client: WebSocketRTCClient) : ViewModel(),CallYoutubeSyncer {
     val resultData: MutableLiveData<YoutubeSync> by lazy {
         MutableLiveData<YoutubeSync>()
     }

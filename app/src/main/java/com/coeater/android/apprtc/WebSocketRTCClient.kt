@@ -114,6 +114,7 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
             val youtubeSyncData = YoutubeSyncData(videoId, current)
             val gson = Gson()
             val json = gson.toJson(youtubeSyncData)
+            Log.e("YOUTUBE SYNC", "push")
             wsClient?.send("youtube sync push", json)
         })
     }
@@ -123,12 +124,14 @@ class WebSocketRTCClient(private val events: SignalingEvents) : SignalServerRTCC
             val youtubeSyncData = YoutubeSyncData(videoId, current)
             val gson = Gson()
             val json = gson.toJson(youtubeSyncData)
+            Log.e("YOUTUBE SYNC", "response")
             wsClient?.send("youtube sync response", json)
         })
     }
 
     override fun requestVideoTime()  {
         handler.post(Runnable {
+            Log.e("YOUTUBE SYNC", "request")
             wsClient?.send("youtube sync request", "")
         })
     }

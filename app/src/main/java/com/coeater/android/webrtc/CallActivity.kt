@@ -43,10 +43,7 @@ import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
 import com.coeater.android.webrtc.game.model.CallGameMatch
 import com.coeater.android.webrtc.game.model.CallGameResult
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchAdapter
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModel
-import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModelFactory
-import com.coeater.android.webrtc.youtube.CallYoutubeSyncer
+import com.coeater.android.webrtc.youtube.*
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTubePlayerTracker
@@ -327,6 +324,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
 
+        fullscreenRenderer?.Layout
         fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(intToDp(72), intToDp(128))
     }
 
@@ -438,6 +436,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         )
         startCall(roomId)
         setupGame(client)
+        setupSyncer(client)
     }
 
     fun onCallHangUp() {
@@ -840,6 +839,14 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         callGameInputFromSocket = input
     }
 
+    private fun setupSyncer(client: WebSocketRTCClient) {
+        val viewModelFactory = CallYoutubePlayerViewModelFactory(client)
+        val viewModel = ViewModelProviders.of(
+            this, viewModelFactory
+        )[CallYoutubePlayerViewModel::class.java]
+        callYoutubeSyncer = viewModel
+    }
+
     override fun onYoutubeSyncUpdateHandle(youtubeSync: YoutubeSyncData) {
         val videoId = youtubeSync.videoId
         var current = youtubeSync.current
@@ -850,10 +857,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
 
         if (youtubePlayer != null && youtubeTracker != null) {
             if (youtubeTracker!!.videoId == videoId) {
-                showYoutubePlayer()
+                //showYoutubePlayer()
                 youtubePlayer!!.seekTo(current!!)
             } else {
-                showYoutubePlayer()
+                //showYoutubePlayer()
                 youtubePlayer!!.loadVideo(videoId!!, current!!)
             }
         }
