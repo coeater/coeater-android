@@ -37,6 +37,7 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MatchingViewModel
+    private lateinit var mode: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,7 @@ class MatchingActivity : AppCompatActivity() {
             mode = b?.getString("mode") ?: ""
             nickname = b?.getString("nickname") ?: ""
             profile = b?.getString("profile") ?: ""
+            this.mode = mode
         }
 
         viewModel = ViewModelProviders.of(
@@ -110,7 +112,7 @@ class MatchingActivity : AppCompatActivity() {
 
         viewModel.matched.observe(this, Observer<RoomResponse> {
             if (it.accepted == AcceptedState.ACCEPTED && it.checked) {
-                checkPermission(it.room_code, it, mode=="INVITER")
+                checkPermission(it.room_code, it, this.mode=="INVITER")
                 finish()
             }
         })

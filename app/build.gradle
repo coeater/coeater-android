@@ -40,6 +40,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.0.2'
 
     // View
+    //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
@@ -81,6 +82,9 @@ dependencies {
 
     // Kakao
     implementation "com.kakao.sdk:v2-link:2.0.5"
+
+    // Youtube
+    implementation files('libs/YouTubeAndroidPlayerApi.jar')
 
     // Animation
     implementation "com.airbnb.android:lottie:3.5.0"

@@ -2,18 +2,24 @@ package com.coeater.android.webrtc
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
-import android.widget.PopupMenu
-import android.widget.RelativeLayout
-import android.widget.Toast
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.api.provideHistoryApi
+import com.coeater.android.api.provideYoutubeSearchApi
 import com.coeater.android.apprtc.PeerConnectionClient
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionEvents
 import com.coeater.android.apprtc.PeerConnectionClient.PeerConnectionParameters
@@ -21,18 +27,22 @@ import com.coeater.android.apprtc.SignalServerRTCClient
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingEvents
 import com.coeater.android.apprtc.SignalServerRTCClient.SignalingParameters
 import com.coeater.android.apprtc.WebSocketRTCClient
-import com.coeater.android.history.HistoryViewModel
-import com.coeater.android.history.HistoryViewModelFactory
-import com.coeater.android.model.Profile
 import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
+import com.coeater.android.history.HistoryViewModel
+import com.coeater.android.history.HistoryViewModelFactory
+import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
+import com.coeater.android.model.YoutubeResult
 import com.coeater.android.webrtc.game.CallGameInputFromSocket
 import com.coeater.android.webrtc.game.model.CallGameChoice
 import com.coeater.android.webrtc.game.model.CallGameMatch
 import com.coeater.android.webrtc.game.model.CallGameResult
-import java.util.*
+import com.coeater.android.webrtc.youtube.CallYoutubePlayerFragment
+import com.coeater.android.webrtc.youtube.CallYoutubeSearchAdapter
+import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModel
+import com.coeater.android.webrtc.youtube.CallYoutubeSearchViewModelFactory
 import kotlinx.android.synthetic.main.activity_call.*
 import org.webrtc.*
 import org.webrtc.RendererCommon.ScalingType
@@ -41,8 +51,12 @@ import org.webrtc.RendererCommon.ScalingType
  * Activity for peer connection call setup, call waiting
  * and call view.
  */
-class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
 
+enum class YoutubeHandlerEvent(val value: Int) {
+    SET_VIDEO_ID(0);
+}
+
+class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents {
     companion object {
         const val ROOM_CODE = "ROOM_CODE"
         const val IS_INVITER = "IS_INVITER"
@@ -68,10 +82,26 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
     private var micEnabled = true
     private var isSwappedFeeds = false
 
+
+    // YouTube Implement
+    private var youtubePlayerFragment: CallYoutubePlayerFragment? = null
+    private var youtubePlayerFragmentWrapper: RelativeLayout? = null
+    private var youtubeSearchResultView: RecyclerView? = null
+    private var youtubeExitButton: RelativeLayout? = null
+    private var youtubeSyncButton: RelativeLayout? = null
+    private var youtubeSearchButton: RelativeLayout? = null
+    private var youtubeButton: RelativeLayout? = null
+
+    private var youtubeSearchInput: EditText? = null
+    private var youtubeSearchLine: TextView? = null
+    private var youtubeBackground: View? = null
+    private var isYoutubePlayerMode: Boolean = false
+    private var isYoutubeActivate: Boolean = false
+
     // Control buttons for limited UI
     private var disconnectButton: RelativeLayout? = null
     private var cameraSwitchButton: RelativeLayout? = null
-//    private var toggleMuteButton: ImageButton? = null
+    //private var toggleMuteButton: ImageButton? = null
     private var gameButton: RelativeLayout? = null
 
     /**
@@ -79,18 +109,24 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
      */
     private var callGameInputFromSocket: CallGameInputFromSocket? = null
 
-
-
     private val historyViewModelFactory by lazy {
         HistoryViewModelFactory(
             provideHistoryApi(this)
         )
     }
+
+    private val youtubeSearchViewModelFactory by lazy {
+        CallYoutubeSearchViewModelFactory(
+            provideYoutubeSearchApi(this)
+        )
+    }
     private lateinit var historyViewModel: HistoryViewModel
+    private lateinit var youtubeSearchViewModel: CallYoutubeSearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_call)
+
 
         iceConnected = false
         signalingParameters = null
@@ -102,6 +138,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         cameraSwitchButton = findViewById(R.id.button_change)
 //        toggleMuteButton = findViewById(R.id.button_call_toggle_mic)
         gameButton = findViewById(R.id.button_games)
+
 
         // Add buttons click events.
         disconnectButton?.setOnClickListener(View.OnClickListener { onCallHangUp() })
@@ -145,6 +182,143 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         val room_code = intent.extras?.getString(ROOM_CODE) ?: ""
         connectVideoCall(room_code)
         setupOtherInfo()
+        setupYoutubeInfo()
+    }
+
+    private fun setupYoutubeInfo() {
+        youtubePlayerFragment = supportFragmentManager.findFragmentById(R.id.youtube_fragment) as CallYoutubePlayerFragment?
+        youtubePlayerFragmentWrapper = findViewById(R.id.youtube_fragment_wrapper)
+        youtubeSearchResultView = findViewById(R.id.youtube_search_result)
+        youtubeExitButton = findViewById(R.id.button_youtube_exit)
+        youtubeSyncButton = findViewById(R.id.button_youtube_sync)
+        youtubeSearchButton = findViewById(R.id.button_youtube_search)
+        youtubeButton = findViewById(R.id.button_youtube)
+
+        youtubeSearchInput = findViewById(R.id.et_search)
+        youtubeSearchLine = findViewById(R.id.tv_search)
+        youtubeBackground = findViewById(R.id.youtube_background)
+
+        val youtubeHandler: Handler = Handler() {
+            when(it.what) {
+                YoutubeHandlerEvent.SET_VIDEO_ID.value-> {
+                    val videoId = it.obj as String
+                    Logging.e("Youtube Handler", videoId)
+                    Logging.e("Youtube Handler", youtube_fragment.toString())
+                    showYoutubePlayer()
+                    youtubePlayerFragment = supportFragmentManager.findFragmentById(R.id.youtube_fragment) as CallYoutubePlayerFragment?
+                    true
+                }
+                else -> {false}
+            }
+        }
+
+
+        youtubeSearchViewModel = ViewModelProviders.of(
+            this, youtubeSearchViewModelFactory)[CallYoutubeSearchViewModel::class.java]
+        youtubeSearchLine?.text = "_______________________"
+        this?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        // Add observer
+        youtubeSearchViewModel.result.observe(this, Observer<YoutubeResult> { result ->
+            youtubeSearchViewModel.setToken(result.prevPageToken, result.nextPageToken)
+            youtubeSearchResultView?.apply {
+                adapter = CallYoutubeSearchAdapter(context, result.items, youtubeHandler)
+                layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+            }
+        })
+
+
+        youtubeSearchInput?.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(currentFocus!!.getWindowToken(), 0)
+                val searchQuery = youtubeSearchInput?.text.toString()?:"No Input"
+                if(isYoutubePlayerMode) {
+                    showYoutubeSearch()
+                }
+
+                youtubeSearchViewModel.fetchNewResult(searchQuery)
+                return@OnKeyListener true
+            }
+            false
+        })
+
+
+        // Add OnClickListeners
+        youtubeExitButton?.setOnClickListener {
+            if(isYoutubePlayerMode) {
+                showYoutubeSearch()
+            }
+            else {
+                hideYoutube()
+            }
+
+        }
+        youtubeSyncButton?.setOnClickListener {
+            //TODO
+        }
+        youtubeSearchButton?.setOnClickListener {
+            val searchQuery = youtubeSearchInput?.text.toString()?:"No Input"
+            val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.getWindowToken(), 0)
+            if(isYoutubePlayerMode) {
+                showYoutubeSearch()
+            }
+            youtubeSearchViewModel.fetchNewResult(searchQuery)
+        }
+
+        youtubeButton?.setOnClickListener {
+            if(isYoutubeActivate) {
+                hideYoutube()
+            }
+
+            else {
+                if (isYoutubePlayerMode)
+                    showYoutubePlayer()
+                else
+                    showYoutubeSearch()
+            }
+        }
+    }
+
+    private fun showYoutubePlayer() {
+        isYoutubeActivate = true
+        isYoutubePlayerMode = true
+        youtubePlayerFragmentWrapper?.visibility = View.VISIBLE
+        youtubeSearchResultView?.visibility = View.GONE
+        youtubeExitButton?.visibility = View.VISIBLE
+        youtubeSyncButton?.visibility = View.VISIBLE
+        youtubeSearchButton?.visibility = View.VISIBLE
+
+        youtubeSearchInput?.visibility = View.VISIBLE
+        youtubeSearchLine?.visibility = View.VISIBLE
+        youtubeBackground?.visibility = View.VISIBLE
+    }
+
+    private fun showYoutubeSearch() {
+        isYoutubeActivate = true
+        isYoutubePlayerMode = false
+        youtubePlayerFragmentWrapper?.visibility = View.VISIBLE
+        youtubeSearchResultView?.visibility = View.VISIBLE
+        youtubeExitButton?.visibility = View.VISIBLE
+        youtubeSyncButton?.visibility = View.VISIBLE
+        youtubeSearchButton?.visibility = View.VISIBLE
+
+        youtubeSearchInput?.visibility = View.VISIBLE
+        youtubeSearchLine?.visibility = View.VISIBLE
+        youtubeBackground?.visibility = View.VISIBLE
+    }
+
+    private fun hideYoutube() {
+        isYoutubeActivate = false
+        youtubePlayerFragmentWrapper?.visibility = View.GONE
+        youtubeSearchResultView?.visibility = View.GONE
+        youtubeExitButton?.visibility = View.GONE
+        youtubeSyncButton?.visibility = View.GONE
+        youtubeSearchButton?.visibility = View.GONE
+
+        youtubeSearchInput?.visibility = View.GONE
+        youtubeSearchLine?.visibility = View.GONE
+        youtubeBackground?.visibility = View.GONE
     }
 
     private fun showEmoji() {
