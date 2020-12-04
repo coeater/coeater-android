@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/light_salmon">
 
-
     <View
         android:id="@+id/view3"
         android:layout_width="match_parent"
@@ -32,7 +31,7 @@
         android:id="@+id/youtube_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black"
+        android:background="#202020"
         android:visibility="gone"/>
 
     <org.webrtc.SurfaceViewRenderer
@@ -40,8 +39,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/view3"
+        app:layout_constraintEnd_toEndOf="@+id/view3" />
 
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/pip_video_view"
@@ -53,8 +52,8 @@
 
     <com.coeater.android.webrtc.game.CallGameView
         android:id="@+id/call_game_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="396dp"
+        android:layout_height="731dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -301,11 +300,11 @@
         app:layout_constraintTop_toBottomOf="@+id/view3"
         app:layout_constraintBottom_toTopOf="@+id/view3"
         android:visibility="gone" >
-        <fragment
-            class="com.coeater.android.webrtc.youtube.CallYoutubePlayerFragment"
-            android:id="@+id/youtube_fragment"
+        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+            android:id="@+id/youtube_player_view"
             android:layout_width="match_parent"
             android:layout_height="300dp"
+            app:showFullScreenButton="false"
             />
     </RelativeLayout>
 

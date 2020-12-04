@@ -3,6 +3,7 @@ package com.coeater.android.apprtc
 import com.coeater.android.apprtc.model.GameFinalResult
 import com.coeater.android.apprtc.model.GameInfo
 import com.coeater.android.apprtc.model.GameMatchResult
+import com.coeater.android.apprtc.model.YoutubeSyncData
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection.IceServer
 import org.webrtc.SessionDescription
@@ -43,6 +44,21 @@ interface SignalServerRTCClient {
      * 이구동성 선택을 한다.
      */
     fun sendImageSelectResult(stage: Int, left: Boolean)
+
+    /**
+     * 상대에게 영상을 재생시킨다.
+     */
+    fun pushVideoTime(videoId: String, current: Float)
+
+    /**
+     * 상대의 sync데이터 요청에 응답한다
+     */
+    fun responseVideoTime(videoId: String?, current: Float?)
+
+    /**
+     * 상대의 sync데이터 요청을 한다
+     */
+    fun requestVideoTime()
 
     /**
      * Disconnect from room.
@@ -105,5 +121,15 @@ interface SignalServerRTCClient {
          * 둘이 결과가 나왔을 때, 맨 마지막이면 유사도를 보여 준다.
          */
         fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
+
+        /**
+         * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
+         */
+        fun onYoutubeSyncUpdateHandle(youtubeSync: YoutubeSyncData)
+
+        /**
+         * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
+         */
+        fun onYoutubeSyncPullHandle()
     }
 }
