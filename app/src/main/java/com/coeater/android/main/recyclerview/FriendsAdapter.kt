@@ -66,14 +66,14 @@ open class FriendsAdapter(private val viewModel : InvitationViewModel, private v
 
     private var roomId: Int? = null
     private fun sendInvitation(dialog: DialogInterface, friend: User) {
-        viewModel.onCreate(roomId)
+        viewModel.onCreate(friend.id)
         viewModel.roomCreateSuccess.observe(context as FragmentActivity, Observer<RoomResponse> {
             roomId = it.id
 //            Log.i("어댑터", roomId.toString())
 //            dialog.dismiss()
             if (it.accepted == AcceptedState.NOTCHECK) {
                 val intent = Intent(context, MatchingActivity::class.java)
-                intent.putExtra("mode", "INVITEE")
+                intent.putExtra("mode", "INVITER")
                 intent.putExtra("roomId", it.id)
                 intent.putExtra("nickname", friend?.nickname)
                 intent.putExtra("profile", friend?.profile)
