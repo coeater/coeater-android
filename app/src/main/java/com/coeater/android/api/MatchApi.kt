@@ -26,4 +26,7 @@ interface MatchApi {
     suspend fun rejectInvitation(
         @Path("id") id: Int
     ): RoomResponse
+
+    @GET("match/invited/")
+    suspend fun getInvitations(): List<RoomResponse>
 }

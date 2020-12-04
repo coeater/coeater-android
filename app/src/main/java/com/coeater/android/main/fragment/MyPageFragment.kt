@@ -11,26 +11,31 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
-import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
-import com.coeater.android.main.MainActivity
+import com.coeater.android.invitation.InvitationViewModel
+import com.coeater.android.matching.MatchingViewModel
+import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.Profile
-import com.coeater.android.mypage.EditProfileActivity
-import com.coeater.android.mypage.MyPageViewModel
-import com.coeater.android.mypage.MyPageViewModelFactory
-import com.coeater.android.mypage.RequestsAdapter
+import com.coeater.android.mypage.*
 import com.kakao.sdk.link.LinkClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
-import kotlinx.android.synthetic.main.activity_my_page.*
+import kotlinx.android.synthetic.main.activity_my_page.ib_share
+import kotlinx.android.synthetic.main.activity_my_page.iv_edit
+import kotlinx.android.synthetic.main.activity_my_page.iv_profile
+import kotlinx.android.synthetic.main.activity_my_page.rv_requests
+import kotlinx.android.synthetic.main.activity_my_page.rv_invitations
+import kotlinx.android.synthetic.main.activity_my_page.tv_code
+import kotlinx.android.synthetic.main.activity_my_page.tv_empty
+import kotlinx.android.synthetic.main.activity_my_page.tv_empty2
+import kotlinx.android.synthetic.main.activity_my_page.tv_nickname
 import java.io.File
 
 class MyPageFragment : Fragment() {
@@ -38,6 +43,7 @@ class MyPageFragment : Fragment() {
     private lateinit var destinationUri : Uri
 
     val viewModel : MyPageViewModel by activityViewModels()
+    val matchingViewModel : MatchingViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +61,7 @@ class MyPageFragment : Fragment() {
         destinationUri = Uri.fromFile(File(requireActivity().cacheDir, "profile.jpeg"))
 
         setRecyclerView(rv_requests)
+        setInvitationRecyclerView(rv_invitations)
         setMyInfo()
         ib_share.setOnClickListener { shareToKakao() }
         iv_edit.setOnClickListener { moveToEdit() }
@@ -130,6 +137,18 @@ class MyPageFragment : Fragment() {
             }
             if(friendRequests.friends.isEmpty()) tv_empty.visibility = View.VISIBLE
             else tv_empty.visibility = View.GONE
+        })
+    }
+
+    private fun setInvitationRecyclerView(rvInvitations: RecyclerView) {
+        matchingViewModel.invitations.observe(requireActivity(), Observer { invitations  ->
+            val liveInvitation = invitations.filter { it.accepted == AcceptedState.NOTCHECK }
+            rvInvitations.apply {
+                adapter = InvitationsAdapter(matchingViewModel, context, liveInvitation)
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            }
+            if(liveInvitation.isEmpty()) tv_empty2.visibility = View.VISIBLE
+            else tv_empty2.visibility = View.GONE
         })
     }
 }

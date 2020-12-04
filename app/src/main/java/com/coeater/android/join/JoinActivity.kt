@@ -16,6 +16,8 @@ import com.coeater.android.R
 import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideMatchApi
 import com.coeater.android.matching.MatchingActivity
+import com.coeater.android.matching.MatchingInput
+import com.coeater.android.matching.MatchingMode
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
 import com.gun0912.tedpermission.PermissionListener
@@ -58,11 +60,15 @@ class JoinActivity : AppCompatActivity() {
             join()
         }
         viewModel.roomCreateSuccess.observe(this, Observer<RoomResponse> {
-            val intent = Intent(this@JoinActivity, MatchingActivity::class.java)
-            intent.putExtra("mode", "INVITEE")
-            intent.putExtra("roomId", it.id)
-            intent.putExtra("nickname", it.owner?.nickname)
-            intent.putExtra("profile", it.owner?.profile)
+            val intent = Intent(this@JoinActivity, MatchingActivity::class.java).apply {
+                val output = MatchingInput(
+                    MatchingMode.INVITEE,
+                    it.id ?: 0,
+                    it.owner.nickname,
+                    it.owner.profile ?: ""
+                )
+                this.putExtra(MatchingActivity.MATCH_INPUT, output)
+            }
             startActivity(intent)
             finish()
         })

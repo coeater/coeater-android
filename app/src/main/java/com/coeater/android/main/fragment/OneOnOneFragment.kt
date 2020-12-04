@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.coeater.android.R
 import com.coeater.android.api.provideUserApi
 import com.coeater.android.invitation.InvitationActivity
+import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.join.JoinActivity
 import com.coeater.android.main.MainActivity
 import com.coeater.android.main.MainViewModel
@@ -27,6 +28,8 @@ import kotlinx.android.synthetic.main.view_main_friends.view.*
 class OneOnOneFragment : Fragment() {
 
     val viewModel : MainViewModel by activityViewModels()
+    val invitationViewModel : InvitationViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,7 +69,7 @@ class OneOnOneFragment : Fragment() {
     private fun setRecyclerView(FriendsRecyclerView: RecyclerView) {
         viewModel.friendsInfo.observe(viewLifecycleOwner, Observer { friendsInfo ->
             FriendsRecyclerView.apply {
-                adapter = AddFriendAdapter(requireContext(), friendsInfo.friends)
+                adapter = AddFriendAdapter(invitationViewModel, requireContext(), friendsInfo.friends)
                 layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         })

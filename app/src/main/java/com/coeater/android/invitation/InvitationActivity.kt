@@ -15,6 +15,8 @@ import com.coeater.android.api.UserManageProvider
 import com.coeater.android.api.provideMatchApi
 import com.coeater.android.code.InvitationViewModelFactory
 import com.coeater.android.matching.MatchingActivity
+import com.coeater.android.matching.MatchingInput
+import com.coeater.android.matching.MatchingMode
 import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.RoomResponse
 import com.coeater.android.webrtc.CallActivity
@@ -76,11 +78,15 @@ class InvitationActivity : AppCompatActivity() {
 
         viewModel.inviteeAccepted.observe(this, Observer<RoomResponse> {
             if(it.accepted == AcceptedState.ACCEPTED) {
-                val intent = Intent(this@InvitationActivity, MatchingActivity::class.java)
-                intent.putExtra("mode", "INVITER")
-                intent.putExtra("roomId", roomId ?:0)
-                intent.putExtra("nickname", it.target?.nickname)
-                intent.putExtra("profile", it.target?.profile)
+                val intent = Intent(this@InvitationActivity, MatchingActivity::class.java).apply {
+                    val output = MatchingInput(
+                        MatchingMode.INVITER,
+                        roomId ?: 0,
+                        it.target?.nickname ?: "",
+                        it.target?.profile ?: ""
+                    )
+                    this.putExtra(MatchingActivity.MATCH_INPUT, output)
+                }
                 startActivity(intent)
                 finish()
             }

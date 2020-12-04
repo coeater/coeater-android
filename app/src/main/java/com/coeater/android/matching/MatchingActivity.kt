@@ -29,6 +29,11 @@ class MatchingActivity : AppCompatActivity() {
      2. "mode"는 Invitation에서는 "INVITER", Join에서는 "INVITEE"
      3. Invitee는 PUT을 해줄 것.
      */
+    companion object {
+        const val MATCH_INPUT = "MATCH_INPUT"
+    }
+
+
     private val viewModelFactory by lazy {
         MatchingViewModelFactory(
             provideMatchApi(this),
@@ -37,7 +42,7 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MatchingViewModel
-    private lateinit var mode: String
+    private lateinit var mode: MatchingMode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,73 +51,76 @@ class MatchingActivity : AppCompatActivity() {
     }
 
     private fun setup() {
-        val b: Bundle? = intent.extras;
-        var roomId: Int = -1
-        var nickname: String = ""
-        var mode: String = ""
-        var profile: String = ""
-        if (b != null) {
-            roomId = b?.getInt("roomId") ?: -1
-            mode = b?.getString("mode") ?: ""
-            nickname = b?.getString("nickname") ?: ""
-            profile = b?.getString("profile") ?: ""
-            this.mode = mode
-        }
+        val input: MatchingInput = intent.extras?.getParcelable<MatchingInput>(MATCH_INPUT) ?: return
+
 
         viewModel = ViewModelProviders.of(
             this, viewModelFactory
         )[MatchingViewModel::class.java]
         Glide.with(this)
-            .load(Profile.getUrl(profile))
+            .load(Profile.getUrl(input.profile))
             .error(R.drawable.ic_dummy_circle_crop)
             .apply(RequestOptions.circleCropTransform())
             .into(iv_profile)
             .clearOnDetach()
+        this.mode = input.mode
         when (mode) {
-            "INVITER" -> {
-                tv_text1.text = nickname
+            MatchingMode.INVITER -> {
+                tv_text1.text = input.nickname
                 tv_text2.text = "accepted"
                 tv_text3.text = "your invitation"
                 layout_accept.visibility = View.VISIBLE
                 linearLayout.visibility = View.VISIBLE
 
-                viewModel.waitToBeMatched(roomId)
+                viewModel.waitToBeMatched(input.roomId)
 
                 button_accept.setOnClickListener {
-                    viewModel.onClickAccept(roomId)
+                    viewModel.onClickAccept(input.roomId)
                     tv_text1.text = "Waiting for"
-                    tv_text2.text = nickname
+                    tv_text2.text = input.nickname
                     tv_text3.visibility = View.GONE
                     layout_accept.visibility = View.GONE
                     linearLayout.visibility = View.GONE
-                    viewModel.waitToBeMatched(roomId)
+                    viewModel.waitToBeMatched(input.roomId)
                 }
             }
-            "INVITEE" -> {
+            MatchingMode.INVITEE -> {
                 tv_text1.text = "Waiting for"
-                tv_text2.text = nickname
+                tv_text2.text = input.nickname
                 tv_text3.visibility = View.GONE
                 layout_accept.visibility = View.GONE
                 linearLayout.visibility = View.GONE
 
-                viewModel.waitToBeMatched(roomId)
+                viewModel.waitToBeMatched(input.roomId)
             }
-            else -> {
-                tv_text1.text = "Wrong request"
-                tv_text2.text = nickname
+            MatchingMode.FRIEND_INVITER -> {
+                tv_text1.text = "Waiting for"
+                tv_text2.text = input.nickname
                 tv_text3.visibility = View.GONE
                 layout_accept.visibility = View.GONE
                 linearLayout.visibility = View.GONE
+
+                viewModel.waitToBeGetAccept(input.roomId)
+            }
+            MatchingMode.FRIEND_INVITEE -> {
+                tv_text1.text = "Waiting for"
+                tv_text2.text = input.nickname
+                tv_text3.visibility = View.GONE
+                layout_accept.visibility = View.GONE
+                linearLayout.visibility = View.GONE
+                viewModel.onClickAccept(input.roomId)
+
+                viewModel.waitToBeMatched(input.roomId)
             }
         }
 
         button_close.setOnClickListener {
-            viewModel.onClickReject(roomId)
+            viewModel.onClickReject(input.roomId)
         }
 
         viewModel.matched.observe(this, Observer<RoomResponse> {
             if (it.accepted == AcceptedState.ACCEPTED && it.checked) {
-                checkPermission(it.room_code, it, this.mode=="INVITER")
+                checkPermission(it.room_code, it, this.mode==MatchingMode.INVITER || this.mode==MatchingMode.FRIEND_INVITER)
                 finish()
             }
         })

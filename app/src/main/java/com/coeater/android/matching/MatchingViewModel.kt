@@ -35,6 +35,10 @@ class MatchingViewModel(
         MutableLiveData<Unit>()
     }
 
+    val invitations: MutableLiveData<List<RoomResponse>> by lazy {
+        MutableLiveData<List<RoomResponse>>()
+    }
+
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
         }
@@ -68,6 +72,35 @@ class MatchingViewModel(
         }
     }
 
+    fun waitToBeGetAccept(id: Int) {
+        var trigger: Boolean = true
+        viewModelScope.launch(Dispatchers.IO) {
+            while (trigger) {
+                delay(1000)
+                val response = getRoom(id)
+                when (response) {
+                    is HTTPResult.Success<RoomResponse> -> {
+                        val accepted: AcceptedState = response.data.accepted
+                        val checked: Boolean = response.data.checked
+                        if (accepted == AcceptedState.ACCEPTED) {
+                            trigger = false
+                            acceptInvitation(id)
+                            waitToBeMatched(id)
+                        }
+                        else if (accepted == AcceptedState.DECLINE) {
+                            trigger = false
+                            notMatched.postValue(response.data)
+                        }
+                    }
+                    is HTTPResult.Error -> {
+                        trigger = false
+                        matchRejected.postValue(Unit)
+                    }
+                }
+            }
+        }
+    }
+
     fun waitToBeMatched(id: Int) {
         var trigger: Boolean = true
         viewModelScope.launch(Dispatchers.IO) {
@@ -93,6 +126,31 @@ class MatchingViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun fetchInvitations(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getInvitations()
+            when (response) {
+                is HTTPResult.Success<List<RoomResponse>> -> {
+                    invitations.postValue(response.data)
+                }
+                is Error -> {
+                    // TODO
+                }
+            }
+        }
+    }
+
+    private suspend fun getInvitations(): HTTPResult<List<RoomResponse>> {
+        return try {
+            val response = api.getInvitations()
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+        } catch (e: Exception) {
+            HTTPResult.Error(e)
         }
     }
 
