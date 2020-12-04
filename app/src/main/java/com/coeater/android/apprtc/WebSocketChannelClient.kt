@@ -57,6 +57,7 @@ class WebSocketChannelClient(
          */
         fun onWebSocketEndLikeness(message: String)
         /**
+
          * 사용자에게 youtube sync data를 통지한다
          */
         fun onYoutubeSyncUpdate(message: String)
@@ -64,6 +65,15 @@ class WebSocketChannelClient(
          * 사용자에게 youtube sync 데이터 요청이 왔을 때.
          */
         fun onYoutubeSyncPull(message: String)
+
+         * 이모지를 전송한다.
+         */
+        fun onWebSocketSendEmoji(message: String)
+        /**
+         * 이모지를 지운다.
+         */
+        fun onWebSocketDeleteEmoji()
+
     }
 
     fun connect(roomID: String) {
@@ -122,6 +132,18 @@ class WebSocketChannelClient(
                 .on("youtube sync pull", Emitter.Listener {
                     events.onYoutubeSyncPull(it[0].toString())
                     Log.d(TAG, it[0].toString())
+                })
+                .on("emoji", Emitter.Listener {
+                    /**
+                     * 사용자에게 상대방이 보낸 이모지를 출력하게 한다.
+                     */
+                    events.onWebSocketSendEmoji(it[0].toString())
+                })
+                .on("delete emoji", Emitter.Listener {
+                    /**
+                     * 모든 이모지를 지우게 한다.
+                     */
+                    events.onWebSocketDeleteEmoji()
                 })
             this.connect()
         }

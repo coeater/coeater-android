@@ -37,7 +37,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setup() {
-        setPeriod()
+        setPeriod(viewModel.fromDate, viewModel.toDate)
         viewModel.history.observe(requireActivity(), Observer { history ->
             rv_history.apply {
                 adapter = HistoryAdapter(context, history.histories)
@@ -68,16 +68,20 @@ class HistoryFragment : Fragment() {
         val dpd = DatePickerDialog(requireContext(), R.style.MySpinnerDatePickerStyle, datePickerListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
         when(type) {
             EditPeriod.FROM -> dpd.datePicker.maxDate = viewModel.toDate.time
-            EditPeriod.TO -> dpd.datePicker.minDate = viewModel.fromDate.time
+            EditPeriod.TO -> {
+                dpd.datePicker.minDate = viewModel.fromDate.time
+                dpd.datePicker.maxDate = viewModel.toDate.time
+            }
         }
         dpd.show()
     }
 
-    private fun setPeriod(from: Date = Date(Date().year, Date().month-1, Date().date), to: Date = Date()) {
+    private fun setPeriod(from: Date, to: Date) {
         viewModel.toDate = to
         viewModel.fromDate = from
         val sdf = SimpleDateFormat("yy.MM.dd")
         tv_period_from.text = sdf.format(from)
         tv_period_to.text = sdf.format(to)
+        viewModel.fetchHistory()
     }
 }

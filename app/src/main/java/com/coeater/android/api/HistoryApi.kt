@@ -7,7 +7,10 @@ import retrofit2.http.*
 interface HistoryApi {
 
     @GET("users/history/")
-    suspend fun getHistory(): FriendsInfo
+    suspend fun getHistory(
+        @Query("from") from : String,
+        @Query("to") to : String
+    ): FriendsInfo
 
     @FormUrlEncoded
     @POST("users/history/")

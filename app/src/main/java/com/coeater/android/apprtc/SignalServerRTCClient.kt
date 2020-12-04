@@ -45,6 +45,17 @@ interface SignalServerRTCClient {
      */
     fun sendImageSelectResult(stage: Int, left: Boolean)
 
+
+    /**
+     * 이모지를 상대방에게 전송한다.
+     */
+    fun showEmoji(xPercentage: Double, yPercentage: Double, file: String)
+
+    /**
+     * 창의 이모지를 모두 지운다.
+     */
+    fun deleteAllEmoji()
+
     /**
      * 상대에게 영상을 재생시킨다.
      */
@@ -123,6 +134,7 @@ interface SignalServerRTCClient {
         fun onPlayGameMatchEnd(matchEnd: GameFinalResult)
 
         /**
+
          * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
          */
         fun onYoutubeSyncUpdateHandle(youtubeSync: YoutubeSyncData)
@@ -131,5 +143,14 @@ interface SignalServerRTCClient {
          * 상대로부터 youtube sync 데이터를 받으면, 동기화한다.
          */
         fun onYoutubeSyncPullHandle()
+
+         * 상대방의 요청에 의해 이모지를 지운다.
+         */
+        fun onEmojiDeleteRequestReceive()
+
+        /**
+         * 상대방의 요청에 의해 이모지를 그린다.
+         */
+        fun onEmojiDrawRequestReceive(xPercentage: Double, yPercentage: Double, file: String)
     }
 }
