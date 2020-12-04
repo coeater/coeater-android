@@ -66,6 +66,7 @@ class WebSocketChannelClient(
          */
         fun onYoutubeSyncPull(message: String)
 
+        /**
          * 이모지를 전송한다.
          */
         fun onWebSocketSendEmoji(message: String)

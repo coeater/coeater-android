@@ -144,6 +144,7 @@ interface SignalServerRTCClient {
          */
         fun onYoutubeSyncPullHandle()
 
+        /**
          * 상대방의 요청에 의해 이모지를 지운다.
          */
         fun onEmojiDeleteRequestReceive()
