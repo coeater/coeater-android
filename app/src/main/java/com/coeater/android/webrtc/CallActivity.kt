@@ -183,14 +183,6 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
             popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.menu_game_likeness -> startGameLikeness()
-
-                    R.id.menu_game_subtitles ->
-                        Toast.makeText(
-                            this@CallActivity,
-                            "You Clicked : " + item.title,
-                            Toast.LENGTH_SHORT
-                        ).show()
-
                     R.id.menu_game_emoji -> showEmoji()
                 }
                 true
