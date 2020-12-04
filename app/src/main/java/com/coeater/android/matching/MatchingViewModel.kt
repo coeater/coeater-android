@@ -35,6 +35,10 @@ class MatchingViewModel(
         MutableLiveData<Unit>()
     }
 
+    val invitations: MutableLiveData<List<RoomResponse>> by lazy {
+        MutableLiveData<List<RoomResponse>>()
+    }
+
     fun onCreate() {
         viewModelScope.launch(Dispatchers.IO) {
         }
@@ -93,6 +97,31 @@ class MatchingViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun fetchInvitations(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = getInvitations()
+            when (response) {
+                is HTTPResult.Success<List<RoomResponse>> -> {
+                    invitations.postValue(response.data)
+                }
+                is Error -> {
+                    // TODO
+                }
+            }
+        }
+    }
+
+    private suspend fun getInvitations(): HTTPResult<List<RoomResponse>> {
+        return try {
+            val response = api.getInvitations()
+            HTTPResult.Success(response)
+        } catch (e: HttpException) {
+            HTTPResult.Error(e)
+        } catch (e: Exception) {
+            HTTPResult.Error(e)
         }
     }
 

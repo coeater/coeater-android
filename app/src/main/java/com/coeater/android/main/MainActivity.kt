@@ -23,6 +23,8 @@ import com.coeater.android.kakaolink.KakaoLinkExecuter
 import com.coeater.android.main.fragment.HistoryFragment
 import com.coeater.android.main.fragment.MyPageFragment
 import com.coeater.android.main.fragment.OneOnOneFragment
+import com.coeater.android.matching.MatchingViewModel
+import com.coeater.android.matching.MatchingViewModelFactory
 import com.coeater.android.mypage.MyPageViewModel
 import com.coeater.android.mypage.MyPageViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
@@ -44,19 +46,24 @@ class MainActivity : FragmentActivity() {
             provideHistoryApi(this)
         )
     }
-
     private val invitationViewModelFactory by lazy {
         InvitationViewModelFactory(
             provideMatchApi(this),
             UserManageProvider(this)
         )
     }
-
+    private val matchingViewModelFactory by lazy {
+        MatchingViewModelFactory(
+            provideMatchApi(this),
+            UserManageProvider(this)
+        )
+    }
 
     lateinit var mainViewModel: MainViewModel
     lateinit var myPageViewModel: MyPageViewModel
     lateinit var historyViewModel: HistoryViewModel
-    lateinit var invitationVewModel: InvitationViewModel
+    lateinit var invitationViewModel: InvitationViewModel
+    lateinit var matchViewModel: MatchingViewModel
 
     private val oneOnOne = OneOnOneFragment()
     private val myPage = MyPageFragment()
@@ -75,8 +82,11 @@ class MainActivity : FragmentActivity() {
             this, myPageViewModelFactory)[MyPageViewModel::class.java]
         historyViewModel = ViewModelProviders.of(
             this, historyViewModelFactory)[HistoryViewModel::class.java]
-        invitationVewModel = ViewModelProviders.of(
+        invitationViewModel = ViewModelProviders.of(
             this, invitationViewModelFactory)[InvitationViewModel::class.java]
+        matchViewModel = ViewModelProviders.of(
+            this, matchingViewModelFactory)[MatchingViewModel::class.java]
+
 
         vp_main.adapter = MainPagerAdapter(supportFragmentManager)
 
@@ -104,6 +114,7 @@ class MainActivity : FragmentActivity() {
                         iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
                         myPageViewModel.fetchRequest()
+                        matchViewModel.fetchInvitations()
                     }
                     2 -> {
                         title.text = "History"
@@ -123,6 +134,7 @@ class MainActivity : FragmentActivity() {
         mainViewModel.fetchFriends()
         myPageViewModel.fetchRequest()
         historyViewModel.fetchHistory()
+        matchViewModel.fetchInvitations()
         openJoinIfNeeded()
     }
 
