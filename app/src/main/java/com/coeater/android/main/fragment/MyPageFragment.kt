@@ -19,6 +19,7 @@ import com.coeater.android.R
 import com.coeater.android.invitation.InvitationActivity
 import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.matching.MatchingViewModel
+import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.Profile
 import com.coeater.android.mypage.*
 import com.kakao.sdk.link.LinkClient
@@ -141,11 +142,12 @@ class MyPageFragment : Fragment() {
 
     private fun setInvitationRecyclerView(rvInvitations: RecyclerView) {
         matchingViewModel.invitations.observe(requireActivity(), Observer { invitations  ->
+            val liveInvitation = invitations.filter { it.accepted == AcceptedState.NOTCHECK }
             rvInvitations.apply {
-                adapter = InvitationsAdapter(matchingViewModel, context, invitations)
+                adapter = InvitationsAdapter(matchingViewModel, context, liveInvitation)
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             }
-            if(invitations.isEmpty()) tv_empty2.visibility = View.VISIBLE
+            if(liveInvitation.isEmpty()) tv_empty2.visibility = View.VISIBLE
             else tv_empty2.visibility = View.GONE
         })
     }

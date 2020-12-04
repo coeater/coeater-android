@@ -16,6 +16,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.matching.MatchingActivity
+import com.coeater.android.matching.MatchingInput
+import com.coeater.android.matching.MatchingMode
 import com.coeater.android.model.AcceptedState
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
@@ -69,14 +71,16 @@ open class FriendsAdapter(private val viewModel : InvitationViewModel, private v
         viewModel.onCreate(friend.id)
         viewModel.roomCreateSuccess.observe(context as FragmentActivity, Observer<RoomResponse> {
             roomId = it.id
-//            Log.i("어댑터", roomId.toString())
-//            dialog.dismiss()
             if (it.accepted == AcceptedState.NOTCHECK) {
-                val intent = Intent(context, MatchingActivity::class.java)
-                intent.putExtra("mode", "INVITER")
-                intent.putExtra("roomId", it.id)
-                intent.putExtra("nickname", friend?.nickname)
-                intent.putExtra("profile", friend?.profile)
+                val intent = Intent(context, MatchingActivity::class.java).apply {
+                    val output = MatchingInput(
+                        MatchingMode.FRIEND_INVITER,
+                        it.id ?: 0,
+                        friend.nickname,
+                        friend.profile ?: ""
+                    )
+                    this.putExtra(MatchingActivity.MATCH_INPUT, output)
+                }
                 context.startActivity(intent)
             }
         })

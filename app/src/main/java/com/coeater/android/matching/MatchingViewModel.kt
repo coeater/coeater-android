@@ -72,6 +72,35 @@ class MatchingViewModel(
         }
     }
 
+    fun waitToBeGetAccept(id: Int) {
+        var trigger: Boolean = true
+        viewModelScope.launch(Dispatchers.IO) {
+            while (trigger) {
+                delay(1000)
+                val response = getRoom(id)
+                when (response) {
+                    is HTTPResult.Success<RoomResponse> -> {
+                        val accepted: AcceptedState = response.data.accepted
+                        val checked: Boolean = response.data.checked
+                        if (accepted == AcceptedState.ACCEPTED) {
+                            trigger = false
+                            acceptInvitation(id)
+                            waitToBeMatched(id)
+                        }
+                        else if (accepted == AcceptedState.DECLINE) {
+                            trigger = false
+                            notMatched.postValue(response.data)
+                        }
+                    }
+                    is HTTPResult.Error -> {
+                        trigger = false
+                        matchRejected.postValue(Unit)
+                    }
+                }
+            }
+        }
+    }
+
     fun waitToBeMatched(id: Int) {
         var trigger: Boolean = true
         viewModelScope.launch(Dispatchers.IO) {

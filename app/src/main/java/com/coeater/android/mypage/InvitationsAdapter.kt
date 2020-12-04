@@ -13,6 +13,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.coeater.android.R
 import com.coeater.android.invitation.InvitationViewModel
 import com.coeater.android.matching.MatchingActivity
+import com.coeater.android.matching.MatchingInput
+import com.coeater.android.matching.MatchingMode
 import com.coeater.android.matching.MatchingViewModel
 import com.coeater.android.model.Profile
 import com.coeater.android.model.RoomResponse
@@ -45,12 +47,15 @@ class InvitationsAdapter(private val viewModel : MatchingViewModel, private val 
 
     private fun acceptRequest(position: Int) {
         val invitation = requestsDataset[position]
-        viewModel.onClickAccept(invitation.id)
-        val intent = Intent(context, MatchingActivity::class.java)
-        intent.putExtra("mode", "INVITEE")
-        intent.putExtra("roomId", invitation.id)
-        intent.putExtra("nickname", invitation.owner?.nickname)
-        intent.putExtra("profile", invitation.owner?.profile)
+        val intent = Intent(context, MatchingActivity::class.java).apply {
+            val output = MatchingInput(
+                MatchingMode.FRIEND_INVITEE,
+                invitation.id,
+                invitation.owner.nickname,
+                invitation.owner.profile ?: ""
+            )
+            this.putExtra(MatchingActivity.MATCH_INPUT, output)
+        }
         context.startActivity(intent)
     }
 
