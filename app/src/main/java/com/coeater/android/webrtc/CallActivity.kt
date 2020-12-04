@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -323,8 +324,13 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchInput?.visibility = View.VISIBLE
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
-        
-        fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(intToDp(72), intToDp(128))
+
+
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = intToDp(128)
+        layoutParams.width = intToDp(72)
+
+        fullscreenRenderer?.layoutParams = layoutParams
     }
 
     private fun showYoutubeSearch() {
@@ -340,7 +346,11 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchLine?.visibility = View.VISIBLE
         youtubeBackground?.visibility = View.VISIBLE
 
-        fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(intToDp(72), intToDp(128))
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = intToDp(128)
+        layoutParams.width = intToDp(72)
+
+        fullscreenRenderer?.layoutParams = layoutParams
     }
 
     private fun hideYoutube() {
@@ -355,10 +365,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents 
         youtubeSearchLine?.visibility = View.GONE
         youtubeBackground?.visibility = View.GONE
 
-        fullscreenRenderer?.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.MATCH_PARENT,
-            ConstraintLayout.LayoutParams.MATCH_PARENT
-        )
+        val layoutParams = fullscreenRenderer?.layoutParams ?: return
+        layoutParams.height = ConstraintLayout.LayoutParams.MATCH_PARENT
+        layoutParams.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+        fullscreenRenderer?.layoutParams = layoutParams
 
         youtubePlayer?.pause()
     }
