@@ -54,8 +54,8 @@
 
     <com.coeater.android.webrtc.game.CallGameView
         android:id="@+id/call_game_view"
-        android:layout_width="396dp"
-        android:layout_height="731dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -307,6 +307,7 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             app:showFullScreenButton="false"
+            app:showYouTubeButton="false"
             />
     </RelativeLayout>
 

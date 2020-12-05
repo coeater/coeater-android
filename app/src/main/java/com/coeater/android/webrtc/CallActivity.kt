@@ -14,7 +14,6 @@ import android.widget.*
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,7 +59,7 @@ import org.webrtc.RendererCommon.ScalingType
  */
 
 enum class YoutubeHandlerEvent(val value: Int) {
-    SET_VIDEO_ID(0), OPEN_PLAYER(1);
+    SET_VIDEO_ID(0), OPEN_PLAYER(1), CLOSE_PLAYER(2);
 }
 
 class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents, CallEmojiOutput {
@@ -120,6 +119,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
             }
             YoutubeHandlerEvent.OPEN_PLAYER.value -> {
                 showYoutubePlayer()
+                true
+            }
+            YoutubeHandlerEvent.CLOSE_PLAYER.value -> {
+                hideYoutube()
                 true
             }
             else -> {
@@ -810,6 +813,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     private var dataChannel: DataChannel? = null
 
     private fun startGameLikeness() {
+        hideYoutube()
         signalServerRtcClient?.startGameLikeness()
     }
 
