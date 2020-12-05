@@ -1,8 +1,10 @@
 package com.coeater.android.webrtc
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
+import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -14,7 +16,6 @@ import android.widget.*
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,7 +61,7 @@ import org.webrtc.RendererCommon.ScalingType
  */
 
 enum class YoutubeHandlerEvent(val value: Int) {
-    SET_VIDEO_ID(0), OPEN_PLAYER(1);
+    SET_VIDEO_ID(0), OPEN_PLAYER(1), CLOSE_PLAYER(2);
 }
 
 class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents, CallEmojiOutput {
@@ -120,6 +121,10 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
             }
             YoutubeHandlerEvent.OPEN_PLAYER.value -> {
                 showYoutubePlayer()
+                true
+            }
+            YoutubeHandlerEvent.CLOSE_PLAYER.value -> {
+                hideYoutube()
                 true
             }
             else -> {
@@ -496,6 +501,9 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
         fullscreenRenderer?.visibility = View.VISIBLE
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager;
+        audioManager.setMode(AudioManager.MODE_NORMAL)
+        audioManager.setSpeakerphoneOn(true)
     }
 
     // Disconnect from remote resources, dispose of local resources, and exit.
@@ -810,6 +818,7 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
     private var dataChannel: DataChannel? = null
 
     private fun startGameLikeness() {
+        hideYoutube()
         signalServerRtcClient?.startGameLikeness()
     }
 

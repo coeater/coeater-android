@@ -85,7 +85,7 @@ class JoinActivity : AppCompatActivity() {
     }
 
     private fun join() {
-        val codeNumber = et_code_number.text.toString()
+        val codeNumber = et_code_number.text.toString().toUpperCase()
         if (codeNumber.length != 5) {
             val builder: AlertDialog.Builder = AlertDialog.Builder(this@JoinActivity)
             builder.setTitle("Room Code Error").setMessage("Room Code has 5 length.")
