@@ -151,4 +151,10 @@ class MyPageFragment : Fragment() {
             else tv_empty2.visibility = View.GONE
         })
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.fetchRequest()
+        matchingViewModel.fetchInvitations()
+    }
 }

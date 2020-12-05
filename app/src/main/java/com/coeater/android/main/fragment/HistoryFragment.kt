@@ -40,8 +40,10 @@ class HistoryFragment : Fragment() {
         setPeriod(viewModel.fromDate, viewModel.toDate)
         viewModel.history.observe(requireActivity(), Observer { history ->
             rv_history.apply {
-                adapter = HistoryAdapter(context, history.histories)
-                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                if(context != null) {
+                    adapter = HistoryAdapter(context, history.histories.reversed())
+                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                }
             }
         })
         tv_period_from.setOnClickListener {
@@ -82,6 +84,11 @@ class HistoryFragment : Fragment() {
         val sdf = SimpleDateFormat("yy.MM.dd")
         tv_period_from.text = sdf.format(from)
         tv_period_to.text = sdf.format(to)
+        viewModel.fetchHistory()
+    }
+
+    override fun onStart() {
+        super.onStart()
         viewModel.fetchHistory()
     }
 }
