@@ -31,9 +31,6 @@ class CallGameResultView : ConstraintLayout {
         ib_game_result_close.setOnClickListener {
             clickClose()
         }
-        ib_game_result_share.setOnClickListener {
-            clickShare()
-        }
     }
 
 }
