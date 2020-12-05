@@ -51,18 +51,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 
-
-    <com.coeater.android.webrtc.game.CallGameView
-        android:id="@+id/call_game_view"
-        android:layout_width="396dp"
-        android:layout_height="731dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
@@ -79,6 +67,17 @@
         android:id="@+id/call_emoji_game_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <com.coeater.android.webrtc.game.CallGameView
+        android:id="@+id/call_game_view"
+        android:layout_width="396dp"
+        android:layout_height="731dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
     <ImageView
         android:id="@+id/iv_profile"
         android:layout_width="60dp"
