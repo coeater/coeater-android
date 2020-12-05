@@ -106,18 +106,22 @@ class MainActivity : FragmentActivity() {
                         iv_one_on_one.setImageResource(R.drawable.ic_group_24px_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                        mainViewModel.fetchFriends()
                     }
                     1 -> {
                         title.text = "My page"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_light_salmon)
+                        myPageViewModel.fetchRequest()
+                        matchViewModel.fetchInvitations()
                     }
                     2 -> {
                         title.text = "History"
                         iv_one_on_one.setImageResource(R.drawable.ic_group_light_salmon)
                         iv_my_page.setImageResource(R.drawable.ic_my_page_light_salmon)
                         iv_history.setImageResource(R.drawable.ic_history_24px_salmon)
+                        historyViewModel.fetchHistory()
                     }
                 }
             }

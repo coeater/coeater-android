@@ -47,7 +47,7 @@ class MyPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             when(val response = acceptFriend(id)) {
                 is HTTPResult.Success<User> -> {
-
+                    fetchRequest()
                 }
                 is Error -> {
                     //TODO error message
@@ -60,7 +60,7 @@ class MyPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             when(val response = rejectFriend(id)) {
                 is HTTPResult.Success<Unit> -> {
-
+                    fetchRequest()
                 }
                 is Error -> {
                     //TODO error message
