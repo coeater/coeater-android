@@ -1,8 +1,10 @@
 package com.coeater.android.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.GestureDetector
+import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.*
 import androidx.lifecycle.ViewModelProviders
@@ -27,6 +29,8 @@ import com.coeater.android.matching.MatchingViewModel
 import com.coeater.android.matching.MatchingViewModelFactory
 import com.coeater.android.mypage.MyPageViewModel
 import com.coeater.android.mypage.MyPageViewModelFactory
+import com.coeater.android.tutorial.TutorialCacher
+import com.coeater.android.tutorial.TutorialPageAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : FragmentActivity() {
@@ -128,6 +132,22 @@ class MainActivity : FragmentActivity() {
             override fun onPageScrollStateChanged(state: Int) {}
         })
         vp_main.offscreenPageLimit = 5
+        setupTutorial()
+    }
+
+    private fun setupTutorial() {
+        val cacher = TutorialCacher(this)
+
+        vp_tutorial.adapter = TutorialPageAdapter( {
+            cacher.updateOpen()
+            vp_tutorial?.visibility = View.GONE
+
+        },this)
+       if (cacher.shouldOpenTutorial) {
+            vp_tutorial?.visibility = View.VISIBLE
+        } else {
+            vp_tutorial?.visibility = View.GONE
+        }
     }
 
     override fun onStart() {
