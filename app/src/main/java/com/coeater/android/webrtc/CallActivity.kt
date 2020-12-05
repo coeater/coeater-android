@@ -1,8 +1,10 @@
 package com.coeater.android.webrtc
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
+import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -499,6 +501,9 @@ class CallActivity : AppCompatActivity(), SignalingEvents, PeerConnectionEvents,
         peerConnectionClient?.enableStatsEvents(true, STAT_CALLBACK_PERIOD)
         setSwappedFeeds(false /* isSwappedFeeds */)
         fullscreenRenderer?.visibility = View.VISIBLE
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager;
+        audioManager.setMode(AudioManager.MODE_NORMAL)
+        audioManager.setSpeakerphoneOn(true)
     }
 
     // Disconnect from remote resources, dispose of local resources, and exit.
