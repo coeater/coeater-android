@@ -70,7 +70,7 @@
         android:id="@+id/tv_code_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="40dp"
+        android:textSize="35dp"
         android:textColor="@color/white"
         android:lineSpacingExtra="20dp"
         android:gravity="center_horizontal"
