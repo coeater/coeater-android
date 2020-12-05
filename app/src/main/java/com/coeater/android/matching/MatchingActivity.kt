@@ -121,7 +121,6 @@ class MatchingActivity : AppCompatActivity() {
         viewModel.matched.observe(this, Observer<RoomResponse> {
             if (it.accepted == AcceptedState.ACCEPTED && it.checked) {
                 checkPermission(it.room_code, it, this.mode==MatchingMode.INVITER || this.mode==MatchingMode.FRIEND_INVITER)
-                finish()
             }
         })
 
@@ -167,6 +166,7 @@ class MatchingActivity : AppCompatActivity() {
                 intent.putExtra(CallActivity.IS_INVITER, isInviter)
                 intent.putExtra(CallActivity.ROOM_RESPONSE, roomResponse)
                 startActivity(intent)
+                finish()
             }
 
             override fun onPermissionDenied(deniedPermissions: List<String>) {
