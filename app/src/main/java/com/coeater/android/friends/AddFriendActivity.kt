@@ -54,7 +54,7 @@ class AddFriendActivity : AppCompatActivity() {
     private fun setAddListener() {
         et_code_number.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                addFriend(et_code_number.text.toString().toUpperCase())
+                addFriend(et_code_number.text.toString())
                 return@OnKeyListener true
             }
             false
@@ -99,6 +99,6 @@ class AddFriendActivity : AppCompatActivity() {
             return
         }
 
-        viewModel.invite(code)
+        viewModel.invite(code.toUpperCase())
     }
 }
