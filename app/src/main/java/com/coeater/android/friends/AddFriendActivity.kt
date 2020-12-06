@@ -99,6 +99,6 @@ class AddFriendActivity : AppCompatActivity() {
             return
         }
 
-        viewModel.invite(code)
+        viewModel.invite(code.toUpperCase())
     }
 }

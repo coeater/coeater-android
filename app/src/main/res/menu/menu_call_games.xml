@@ -4,8 +4,8 @@
 
     <item
         android:id="@+id/menu_game_likeness"
-        android:title="이구동성" />
+        android:title="Similarities Game" />
     <item
         android:id="@+id/menu_game_emoji"
-        android:title="이모지 표시" />
+        android:title="Send Emoji" />
 </menu>

@@ -159,7 +159,7 @@
         android:lineSpacingExtra="12sp"
         android:text="Coeat with me!"
         android:layout_marginStart="38dp"
-        android:layout_marginTop="228dp"
+        android:layout_marginTop="180dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_profile"
         />

@@ -116,12 +116,18 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
     private fun showError(err: Exception?) {
-        var additionalMessage = ""
-        if(err is HttpException && err.code() == 400) additionalMessage = "\n같은 닉네임이 존재합니다."
-        AlertDialog.Builder(this)
-            .setTitle("에러").setMessage("에러가 발생했습니다.\n$additionalMessage")
-            .create()
-            .show()
+        if(err is HttpException && err.code() == 400) {
+            AlertDialog.Builder(this)
+                .setTitle("Error").setMessage("The same nickname exists.")
+                .create()
+                .show()
+        }
+        else {
+            AlertDialog.Builder(this)
+                .setTitle("Error").setMessage("An error has occurred.")
+                .create()
+                .show()
+        }
     }
 }
 

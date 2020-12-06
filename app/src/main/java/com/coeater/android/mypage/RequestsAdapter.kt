@@ -39,12 +39,10 @@ class RequestsAdapter(private val viewModel : MyPageViewModel, private val conte
 
     private fun acceptRequest(position: Int) {
         viewModel.accept(requestsDataset[position].id)
-        viewModel.fetchRequest()
     }
 
     private fun rejectRequest(position: Int) {
         viewModel.reject(requestsDataset[position].id)
-        viewModel.fetchRequest()
     }
 
     override fun getItemCount(): Int {
